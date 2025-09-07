@@ -6,13 +6,13 @@
 <title>Football Fantasy — NFL & NCAA · Supabase</title>
 <link rel="preconnect" href="https://a.espncdn.com">
 <style>
-:root{--bg:#0b0d10;--card:#11161d;--muted:#90a3b6;--text:#e9eef5;}
+:root{--bg:#0b0d10;--card:#11161d;--muted:#90a3b6;--text:#e9eef5;--accent:#2f86ff;--ok:#3ac47d;--warn:#ffb020;--err:#ff5b5b;}
 html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-header{padding:14px 20px;border-bottom:1px solid #1c2430;background:#0e1319;position:sticky;top:0;z-index:30}
+header{padding:14px 20px;border-bottom:1px solid #1c2430;background:#0e1319;position:sticky;top:0;z-index:40}
 h1{margin:0;font-size:18px}
 .sub{color:var(--muted);font-size:13px;margin-left:6px}
 
-nav.tabs{display:flex;gap:8px;padding:10px 20px;background:#0e1319;border-bottom:1px solid #1c2430;position:sticky;top:52px;z-index:29}
+nav.tabs{display:flex;gap:8px;padding:10px 20px;background:#0e1319;border-bottom:1px solid #1c2430;position:sticky;top:52px;z-index:39;flex-wrap:wrap}
 .tab{padding:8px 12px;border:1px solid #24303c;border-radius:10px;background:#101822;color:var(--text);cursor:pointer;font-size:13px}
 .tab[aria-selected="true"]{background:#162233;border-color:#2f4e67;font-weight:700}
 .section{display:none}
@@ -65,6 +65,16 @@ input[type="email"],input[type="password"],input[type="text"]{background:#0b1117
 .picksList .rowx{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px;border-radius:10px;border:1px solid #1c2430;background:#0f151d;margin-bottom:8px}
 .picksList .left{display:flex;gap:8px;align-items:center;min-width:0}
 .picksList img{width:20px;height:20px;border:1px solid #1c2330;border-radius:4px;background:#0d1218}
+
+/* Toasts */
+#toasts{position:fixed;right:12px;bottom:12px;display:flex;flex-direction:column;gap:8px;z-index:50}
+.toast{background:#0f151d;border:1px solid #1b2a3a;color:var(--text);border-radius:10px;padding:10px 12px;min-width:220px;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,.3);display:flex;gap:8px;align-items:flex-start}
+.toast.ok{border-color:#224b34}
+.toast.warn{border-color:#4b3f22}
+.toast.err{border-color:#4b2222}
+.toast .tag{font-weight:800;opacity:.9}
+.toast .msg{font-size:13px;opacity:.95}
+.toast button{margin-left:auto;background:transparent;border:0;color:var(--muted);cursor:pointer}
 </style>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
@@ -112,6 +122,8 @@ input[type="email"],input[type="password"],input[type="text"]{background:#0b1117
   <button id="tab-ncaaf" class="tab" role="tab" aria-controls="sec-ncaaf" aria-selected="false">
     NCAA (FBS) <span id="ncaaf-picksBadge" class="small" style="margin-left:6px;opacity:.85"></span>
   </button>
+  <button id="tab-mine" class="tab" role="tab" aria-controls="sec-mine" aria-selected="false">My Picks</button>
+  <button id="tab-lb" class="tab" role="tab" aria-controls="sec-lb" aria-selected="false">Leaderboards</button>
 </nav>
 
 <!-- NFL -->
@@ -130,12 +142,12 @@ input[type="email"],input[type="password"],input[type="text"]{background:#0b1117
       <div class="topGrid">
         <div id="nfl-teamSide"></div>
         <div class="scoreBox">
-          <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Fantasy Score</div>
+          <div class="small" style="margin-bottom:4px">Fantasy Score</div>
           <div id="nfl-fscore" class="num">—</div>
           <div id="nfl-flow" class="small"></div>
         </div>
         <div class="statusBox">
-          <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Game Status</div>
+          <div class="small" style="margin-bottom:4px">Game Status</div>
           <div class="small">Clock: <span id="nfl-clock" style="font-weight:700">—</span></div>
           <div class="small">Quarter: <span id="nfl-q" style="font-weight:700">—</span></div>
           <div class="small">State: <span id="nfl-state" style="font-weight:700">—</span></div>
@@ -160,15 +172,6 @@ input[type="email"],input[type="password"],input[type="text"]{background:#0b1117
           <div id="nfl-lb"></div>
         </section>
         <section class="card">
-          <div class="lbHeaderRow"><h2 style="margin:0">My Picks — This Week</h2></div>
-          <div id="nfl-myPicks" class="picksList"></div>
-          <div class="sep"></div>
-          <div class="lbHeaderRow"><h2 style="margin:0">Players — This Week</h2></div>
-          <div id="nfl-pLB"></div>
-          <div class="sep"></div>
-          <div class="lbHeaderRow"><h2 style="margin:0">Players — Season</h2></div>
-          <div id="nfl-pSeason"></div>
-          <div class="sep"></div>
           <h3 style="margin:0 0 6px 0">Scoring Plays</h3>
           <div id="nfl-log" class="log"></div>
         </section>
@@ -193,12 +196,12 @@ input[type="email"],input[type="password"],input[type="text"]{background:#0b1117
       <div class="topGrid">
         <div id="ncaaf-teamSide"></div>
         <div class="scoreBox">
-          <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Fantasy Score</div>
+          <div class="small" style="margin-bottom:4px">Fantasy Score</div>
           <div id="ncaaf-fscore" class="num">—</div>
           <div id="ncaaf-flow" class="small"></div>
         </div>
         <div class="statusBox">
-          <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Game Status</div>
+          <div class="small" style="margin-bottom:4px">Game Status</div>
           <div class="small">Clock: <span id="ncaaf-clock" style="font-weight:700">—</span></div>
           <div class="small">Quarter: <span id="ncaaf-q" style="font-weight:700">—</span></div>
           <div class="small">State: <span id="ncaaf-state" style="font-weight:700">—</span></div>
@@ -223,15 +226,6 @@ input[type="email"],input[type="password"],input[type="text"]{background:#0b1117
           <div id="ncaaf-lb"></div>
         </section>
         <section class="card">
-          <div class="lbHeaderRow"><h2 style="margin:0">My Picks — This Week</h2></div>
-          <div id="ncaaf-myPicks" class="picksList"></div>
-          <div class="sep"></div>
-          <div class="lbHeaderRow"><h2 style="margin:0">Players — This Week</h2></div>
-          <div id="ncaaf-pLB"></div>
-          <div class="sep"></div>
-          <div class="lbHeaderRow"><h2 style="margin:0">Players — Season</h2></div>
-          <div id="ncaaf-pSeason"></div>
-          <div class="sep"></div>
           <h3 style="margin:0 0 6px 0">Scoring Plays</h3>
           <div id="ncaaf-log" class="log"></div>
         </section>
@@ -240,19 +234,88 @@ input[type="email"],input[type="password"],input[type="text"]{background:#0b1117
   </main>
 </section>
 
+<!-- MY PICKS (both leagues) -->
+<section id="sec-mine" class="section" aria-labelledby="tab-mine">
+  <main>
+    <section class="card">
+      <div class="lbHeaderRow"><h2 style="margin:0">My Picks — This Week (NFL & NCAA)</h2></div>
+      <div id="mine-list" class="picksList"></div>
+      <div class="small" style="margin-top:6px">Tip: Open a game from NFL or NCAA to add picks. 3 picks max per league each week.</div>
+    </section>
+  </main>
+</section>
+
+<!-- LEADERBOARDS (both leagues summary) -->
+<section id="sec-lb" class="section" aria-labelledby="tab-lb">
+  <main>
+    <div class="contentGrid">
+      <section class="card">
+        <div class="lbHeaderRow">
+          <h2 style="margin:0">Games Leaderboard — NFL (Top 10)</h2>
+          <button id="lbNFLtoggle" class="btn small" aria-expanded="false">Show all</button>
+        </div>
+        <div id="lbNFL" ></div>
+        <div class="sep"></div>
+        <div class="lbHeaderRow">
+          <h2 style="margin:0">Games Leaderboard — NCAA (Top 10)</h2>
+          <button id="lbNCAAtoggle" class="btn small" aria-expanded="false">Show all</button>
+        </div>
+        <div id="lbNCAA"></div>
+      </section>
+      <section class="card">
+        <div class="lbHeaderRow"><h2 style="margin:0">Players — Weekly (NFL)</h2></div>
+        <div id="pNFLweek"></div>
+        <div class="sep"></div>
+        <div class="lbHeaderRow"><h2 style="margin:0">Players — Weekly (NCAA)</h2></div>
+        <div id="pNCAAweek"></div>
+        <div class="sep"></div>
+        <div class="lbHeaderRow"><h2 style="margin:0">Players — Season (NFL)</h2></div>
+        <div id="pNFLseason"></div>
+        <div class="sep"></div>
+        <div class="lbHeaderRow"><h2 style="margin:0">Players — Season (NCAA)</h2></div>
+        <div id="pNCAAseason"></div>
+      </section>
+    </div>
+  </main>
+</section>
+
+<!-- Toasts -->
+<div id="toasts" aria-live="polite" aria-atomic="true"></div>
+
 <script>
-/* ============== SUPABASE INIT ============== */
+/* ================= SUPABASE ================= */
 const SB_URL  = "https://zrsqxylrcblcvtomamgd.supabase.co";     // <-- replace
 const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyc3F4eWxyY2JsY3Z0b21hbWdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNDAzOTYsImV4cCI6MjA3MjgxNjM5Nn0._H00AQ0VCLs3fkM2lKaWV-I4n9qKf51yjKmorxnonzw";                 // <-- replace
 const sb = supabase.createClient(SB_URL, SB_ANON);
 
-/* Tiny DOM helper (defined EARLY so everything can use it) */
+/* Tiny DOM helper early */
 function $(id){ return document.getElementById(id); }
 
-/* ============== CONFIG / UTILS ============== */
+/* Toasts */
+function showToast(kind, tag, msg, ms){ 
+  var wrap=$('toasts'); var el=document.createElement('div'); el.className='toast '+(kind||'');
+  el.innerHTML='<div class="tag">'+(tag||'Info')+'</div><div class="msg">'+(msg||'')+'</div><button title="Close">✕</button>';
+  el.querySelector('button').onclick=()=>wrap.removeChild(el);
+  wrap.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode===wrap) wrap.removeChild(el); }, ms||4000);
+}
+
+/* Hard sign-out fallback */
+const SB_PROJECT_REF=(function(){const m=SB_URL.match(/^https?:\/\/([^.]+)\.supabase\.co/i);return m?m[1]:null;})();
+async function hardSignOut(){
+  try{ await sb.auth.signOut(); }catch(e){ console.warn('signOut error',e); }
+  try{ if(SB_PROJECT_REF) localStorage.removeItem(`sb-${SB_PROJECT_REF}-auth-token`); }catch(e){}
+  $('authSignedOut').style.display='block';
+  $('authSignedIn').style.display='none';
+  $('authState').textContent='Signed out';
+  showToast('ok','Signed out','You have been signed out.');
+  location.reload();
+}
+
+/* ================= CONFIG / UTILS ================= */
 var TZ='America/New_York';
 var POLL_MS=20000, LB_POLL_MS=60000, GRID_POLL_MS=30000;
-var PICKS_REQUIRED=3, ODDS_CONCURRENCY=6, FAST_LOAD=true;
+var PICKS_REQUIRED=3;
 var W={TD:3,FG:2,XP:0.5,TWO:1,YARD:0.05,FIRST_DOWN:0.5,SACK:2.5,TFL:1.5,INT:5.5,FR:5,DEF_TD_BONUS:3,SAFETY:6,STOP:2,ST_RETURN_TD:8,BLOCK:5,CLOSE_GAME:10,OVERTIME:15};
 
 function nowEST(){return new Date(new Date().toLocaleString('en-US',{timeZone:TZ}));}
@@ -262,7 +325,7 @@ function fmtDateStr(d){return d.split('-').join('');}
 function timeout(ms){return new Promise(r=>setTimeout(r,ms));}
 async function safeFetch(url,opts,retries){var r=(typeof retries==='number')?retries:2;for(var i=0;i<=r;i++){try{var ctl=new AbortController();var t=setTimeout(()=>ctl.abort(),15000);var res=await fetch(url,Object.assign({},opts||{},{signal:ctl.signal}));clearTimeout(t);if(!res.ok)throw new Error('HTTP '+res.status);return await res.json()}catch(e){if(i===r)throw e;await timeout(600*(i+1));}}}
 
-/* Tue→Mon week key (8am ET boundary) + auto-refresh on boundary */
+/* Week key Tue→Mon at 8am ET + boundary refresh */
 (function(){var cur=weekKey();setInterval(()=>{var wk=weekKey();if(wk!==cur)location.reload();},60000);})();
 function weekKey(){var n=nowEST(),wd=n.getDay(),since=(wd-2+7)%7,tue=addDaysEST(n,-since);
   var parts=fmtParts(n,{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
@@ -276,28 +339,30 @@ function weekDateList(){var n=nowEST(),wd=n.getDay(),since=(wd-2+7)%7,tue=addDay
 function cdnNFL(t){if(!t)return null;if(t.logos&&t.logos[0]&&t.logos[0].href)return String(t.logos[0].href).replace(/^http:/,'https:');if(t.abbreviation)return 'https://a.espncdn.com/i/teamlogos/nfl/500/'+t.abbreviation+'.png';return null;}
 function cdnNCAAF(t){if(!t)return null;if(t.logos&&t.logos[0]&&t.logos[0].href)return String(t.logos[0].href).replace(/^http:/,'https:');if(t.id)return 'https://a.espncdn.com/i/teamlogos/ncaa/500/'+t.id+'.png';if(t.abbreviation)return 'https://a.espncdn.com/i/teamlogos/ncaa/500/'+t.abbreviation+'.png';return null;}
 
-/* ============== AUTH UI ============== */
+/* ================= AUTH UI ================= */
 const elSignedOut=$('authSignedOut'), elSignedIn=$('authSignedIn'), elState=$('authState'), elWho=$('whoami');
 const elEmail=$('email'), elPass=$('password'), elDispName=$('displayName'), elNameSaved=$('nameSaved');
 
 $('btnSignUp').addEventListener('click',async()=>{
   const {error}=await sb.auth.signUp({email:elEmail.value.trim(),password:elPass.value.trim()});
-  if(error) alert(error.message); else alert('Check your email to confirm, then sign in.');
+  if(error){ showToast('err','Sign up failed',error.message||''); }
+  else { showToast('ok','Check email','Confirm, then sign in.'); }
 });
 $('btnSignIn').addEventListener('click',async()=>{
   const {error}=await sb.auth.signInWithPassword({email:elEmail.value.trim(),password:elPass.value.trim()});
-  if(error) alert(error.message);
+  if(error){ showToast('err','Sign in failed',error.message||''); }
 });
-$('btnSignOut').addEventListener('click',async()=>{await sb.auth.signOut();});
+$('btnSignOut').addEventListener('click',async(e)=>{ e.preventDefault(); await hardSignOut(); });
 
 $('btnSaveName').addEventListener('click',async()=>{
-  const nm=(elDispName.value||'').trim(); if(!nm){alert('Enter a display name');return;}
-  const u=(await sb.auth.getUser()).data.user; if(!u){alert('Sign in first');return;}
+  const nm=(elDispName.value||'').trim(); if(!nm){showToast('warn','Missing','Enter a display name');return;}
+  const u=(await sb.auth.getUser()).data.user; if(!u){showToast('warn','Sign in','Sign in first');return;}
   await sb.from('players').delete().eq('user_id',u.id);
   const {error}=await sb.from('players').insert({user_id:u.id,display_name:nm});
-  if(error){alert(error.message);return;}
+  if(error){ showToast('err','Save failed', error.message||''); return; }
   elNameSaved.style.display='inline'; setTimeout(()=>elNameSaved.style.display='none',1200);
-  updateTabPickBadges(); NFL.refreshBoards(); NCAAF.refreshBoards();
+  showToast('ok','Saved', 'Display name updated');
+  updateTabPickBadges(); NFL.refreshBoards(); NCAAF.refreshBoards(); renderMyTab();
 });
 
 sb.auth.onAuthStateChange(async(_evt,session)=>{
@@ -307,13 +372,14 @@ sb.auth.onAuthStateChange(async(_evt,session)=>{
     elState.textContent='Signed in'; elWho.textContent=user.email||user.id;
     const {data}=await sb.from('players').select('*').eq('user_id',user.id).limit(1);
     if(data&&data.length) elDispName.value=data[0].display_name;
+    showToast('ok','Signed in', user.email||'');
   }else{
     elSignedOut.style.display='block'; elSignedIn.style.display='none'; elState.textContent='Signed out';
   }
-  bootOnce(); updateTabPickBadges();
+  bootOnce(); updateTabPickBadges(); renderMyTab();
 });
 
-/* ============== SHARED UI HELPERS ============== */
+/* ================= SHARED HELPERS ================= */
 async function updateTabPickBadges(){
   const u=(await sb.auth.getUser()).data.user;
   const nflEl=$('nfl-picksBadge'), ncaEl=$('ncaaf-picksBadge');
@@ -330,7 +396,7 @@ async function updateTabPickBadges(){
 }
 setInterval(updateTabPickBadges,30000);
 
-/* ============== LEAGUE FACTORY ============== */
+/* ================= LEAGUE FACTORY ================= */
 function createLeague(config){
   var state={selected:null,weeklyEvents:[],started:new Set(),lastScoring:new Set(),gameScoreCache:new Map(),lbRows:[],showAll:false,gridTimer:null,lbTimer:null,pollTimer:null};
   var WK=weekKey();
@@ -347,7 +413,6 @@ function createLeague(config){
   function apiSummary(id){return safeFetch(config.endpoints.summary+id);}
   function apiBox(id){return safeFetch(config.endpoints.box+id);}
   function apiPbp(id){return safeFetch(config.endpoints.pbp+id);}
-  function apiOdds(id){return safeFetch(config.endpoints.odds(id));}
 
   /* GRID RENDER */
   function renderGrid(list){
@@ -370,18 +435,18 @@ function createLeague(config){
           (started?'<div class="disabledNote">Locked (already started)</div>':'')+
         '</div>';
 
-      /* SAFE per-card handlers (no closure bug) */
       (function attachHandlers(gg){
         card.querySelector('.viewBtn').addEventListener('click', function(){ openGame(gg); });
         card.querySelector('.lockBtn').addEventListener('click', async function(){
-          if (isLocked(gg)) return;
-          const u=(await sb.auth.getUser()).data.user; if(!u){ alert('Sign in first.'); return; }
+          if (isLocked(gg)) { showToast('warn','Locked','Game already started'); return; }
+          const u=(await sb.auth.getUser()).data.user; if(!u){ showToast('warn','Sign in','Sign in first'); return; }
           const { data: mine } = await sb.from('picks').select('id')
             .eq('user_id',u.id).eq('league',config.prefix).eq('week_key',WK);
-          if (mine && mine.length>=PICKS_REQUIRED){ alert('You already have '+PICKS_REQUIRED+' picks this week.'); return; }
+          if (mine && mine.length>=PICKS_REQUIRED){ showToast('warn','Limit reached',`You already have ${PICKS_REQUIRED} picks this week`); return; }
           const { error } = await sb.from('picks').insert({ user_id:u.id, league:config.prefix, week_key:WK, game_id:gg.id });
-          if (error){ alert(error.message); return; }
-          updateTabPickBadges(); renderMyPicks(); renderPlayersLB(); renderSeasonLB();
+          if (error){ console.error('Insert pick error:', error); showToast('err','Pick failed', error.message||''); return; }
+          showToast('ok','Pick saved','Added to your picks');
+          updateTabPickBadges(); renderMyPicks(); renderPlayersLB(); renderSeasonLB(); renderMyTab();
         });
       })(g);
 
@@ -469,7 +534,7 @@ function createLeague(config){
   }
   function startGridPolling(){ refreshGridScores(); if(state.gridTimer)clearInterval(state.gridTimer); state.gridTimer=setInterval(refreshGridScores, GRID_POLL_MS); }
 
-  /* STATS + SCORING */
+  /* STATS + SCORING (same as before, reliable) */
   function sumStatsFromSummary(summary){
     var totals={yards:0,firstDowns:0,tfl:0,sacks:0,thirdMade:0,thirdAtt:0,fourthMade:0,fourthAtt:0,safeties:0};
     var teams=summary&&summary.boxscore&&summary.boxscore.teams?summary.boxscore.teams:[];
@@ -540,12 +605,18 @@ function createLeague(config){
   async function computeRow(id){
     var cached=state.gameScoreCache.get(id); if(cached&&cached.isFinal) return cached;
     try{
-      var summary=await apiSummary(id), box=await apiBox(id), pbp=await apiPbp(id);
+      var summary=await apiSummary(id), box=null, pbp=null;
+      // Box & PBP provide extra stats; fetch in parallel but tolerate failure for speed
+      [box,pbp]=await Promise.all([
+        safeFetch(config.endpoints.box+id).catch(()=>null),
+        safeFetch(config.endpoints.pbp+id).catch(()=>null)
+      ]);
       var comp=summary&&summary.header&&summary.header.competitions&&summary.header.competitions[0]?summary.header.competitions[0]:{}, cs=comp.competitors||[];
       var h=null,a=null; for(var i=0;i<cs.length;i++){if(cs[i].homeAway==='home')h=cs[i]; if(cs[i].homeAway==='away')a=cs[i];}
-      var score=calcFantasyFrom(summary,box,pbp);
+      var s=calcFantasyFrom(summary,box,pbp);
       var row={id,awayName:a&&a.team?(a.team.shortDisplayName||a.team.displayName):'Away',homeName:h&&h.team?(h.team.shortDisplayName||h.team.displayName):'Home',
-               awayLogo:config.logo(a&&a.team?a.team:null),homeLogo:config.logo(h&&h.team?h.team:null),awayPts:score.awayPts,homePts:score.homePts,score:score.total,status:score.statusText,final:score.isFinal};
+               awayLogo:config.logo(a&&a.team?a.team:null),homeLogo:config.logo(h&&h.team?h.team:null),
+               awayPts:s.awayPts,homePts:s.homePts,score:s.total,status:s.statusText,final:s.isFinal};
       if(row.final) state.gameScoreCache.set(id,row);
       return row;
     }catch(e){return null;}
@@ -566,11 +637,11 @@ function createLeague(config){
   N.toggleAll.addEventListener('click',()=>{state.showAll=!state.showAll;renderLB();});
   async function refreshLB(){var rows=[];for(var i=0;i<state.weeklyEvents.length;i++){var r=await computeRow(state.weeklyEvents[i].id); if(r) rows.push(r);} rows.sort((a,b)=>b.score-a.score); state.lbRows=rows; renderLB();}
 
-  /* Live view */
+  /* Live view refresh */
   async function refreshOnce(){
     if(!state.selected)return;
     try{
-      var id=state.selected.id, summary=await apiSummary(id), box=await apiBox(id), pbp=await apiPbp(id);
+      var id=state.selected.id, summary=await safeFetch(config.endpoints.summary+id).catch(()=>null), pbp=await safeFetch(config.endpoints.pbp+id).catch(()=>null);
       var comp=summary&&summary.header&&summary.header.competitions&&summary.header.competitions[0]?summary.header.competitions[0]:{}, status=comp.status||{}, cs=comp.competitors||[];
       var h=null,a=null; for(var i=0;i<cs.length;i++){if(cs[i].homeAway==='home')h=cs[i]; if(cs[i].homeAway==='away')a=cs[i];}
       $(config.ids.homeScore).textContent=String(h&&typeof h.score!=='undefined'?h.score:0);
@@ -578,7 +649,7 @@ function createLeague(config){
       N.clock.textContent=status&&status.displayClock?status.displayClock:'—'; N.q.textContent=(status&&typeof status.period!=='undefined')?String(status.period):'—';
       N.state.textContent=(status&&status.type&&(status.type.description||status.type.shortDetail))?(status.type.description||status.type.shortDetail):'—';
 
-      var s=calcFantasyFrom(summary,box,pbp);
+      var s=calcFantasyFrom(summary,null,pbp);
       N.fscore.textContent=s.total.toFixed(2);
       N.flow.textContent='Bonuses: '+((s.isFinal&&Math.abs((Number(h&&h.score||0))-(Number(a&&a.score||0)))<=7)?'Close (+10)':'—')+' · '+((status&&status.period&&status.period>4&&s.isFinal)?'OT (+15)':'—');
 
@@ -587,11 +658,12 @@ function createLeague(config){
       for(var k=newLines.length-1;k>=0;k--){var d=document.createElement('div');d.textContent=newLines[k]; N.log.prepend(d);}
       for(var j=0;j<sp.length;j++) state.lastScoring.add(sp[j].id);
 
-      renderMyPicks(); // keep "My Picks" scores fresh
+      renderMyPicks(); // keep “My Picks” line items fresh
+      renderMyTab();
     }catch(e){}
   }
 
-  /* Players leaderboards (shared DB) */
+  /* Players leaderboards */
   async function displayNameMap(){const {data}=await sb.from('players').select('*'); var m={}; if(data){for(var i=0;i<data.length;i++)m[data[i].user_id]=data[i].display_name;} return m;}
   async function fetchWeekPicks(){const {data}=await sb.from('picks').select('user_id,game_id').eq('league',config.prefix).eq('week_key',WK); return data||[];}
   async function totalScoreForGame(gid){var r=await computeRow(gid); return r?(r.score||0):0;}
@@ -603,7 +675,6 @@ function createLeague(config){
     rows.sort((a,b)=>b.total-a.total); N.pLB.innerHTML=''; if(rows.length===0){N.pLB.innerHTML='<div class="small">No picks this week.</div>';return;}
     for(var i=0;i<rows.length;i++){var r=rows[i], div=document.createElement('div'); div.className='lbRow'; div.innerHTML='<div class="lbTeam"><span class="lbName">'+r.name+'</span></div><div class="lbPts">'+r.total.toFixed(2)+'</div><div class="lbMeta">Weekly</div>'; N.pLB.appendChild(div);}
   }
-
   async function seasonTotals(){
     var cur=WK, {data}=await sb.from('picks').select('user_id,week_key,game_id').eq('league',config.prefix);
     var byWeek={}, totals={};
@@ -621,50 +692,24 @@ function createLeague(config){
     for(var i=0;i<rows.length;i++){var r=rows[i], div=document.createElement('div'); div.className='lbRow'; div.innerHTML='<div class="lbTeam"><span class="lbName">'+r.name+'</span></div><div class="lbPts">'+r.total+'</div><div class="lbMeta">Season</div>'; N.pSeason.appendChild(div);}
   }
 
-  /* My Picks (current user) */
-  async function myPicksRows(){
+  /* My Picks (side panel in league sections) */
+  async function myPicksRows(league){
     const u=(await sb.auth.getUser()).data.user; if(!u) return [];
-    const {data}=await sb.from('picks').select('game_id').eq('user_id',u.id).eq('league',config.prefix).eq('week_key',WK);
+    const {data}=await sb.from('picks').select('game_id').eq('user_id',u.id).eq('league',league||config.prefix).eq('week_key',WK);
     return data||[];
   }
   async function renderMyPicks(){
-    const wrap=N.myPicks; if(!wrap) return;
-    const u=(await sb.auth.getUser()).data.user; if(!u){wrap.innerHTML='<div class="small">Sign in to see your picks.</div>'; return;}
-    const rows=await myPicksRows(); if(rows.length===0){wrap.innerHTML='<div class="small">No picks yet. Open a game and click “Add to my picks”.</div>'; return;}
-    wrap.innerHTML='';
-    for(var i=0;i<rows.length;i++){
-      (async function(gid){
-        var r=await computeRow(gid); if(!r) return;
-        var div=document.createElement('div'); div.className='rowx';
-        div.innerHTML='<div class="left">'+(r.awayLogo?'<img src="'+r.awayLogo+'">':'')+'<span>'+r.awayName+' @ '+r.homeName+'</span></div>'+
-                      '<div>'+r.awayPts+'–'+r.homePts+'</div>'+
-                      '<div class="lbPts" style="min-width:72px;text-align:right">'+r.score.toFixed(2)+'</div>'+
-                      '<button class="btn small">Open</button>';
-        div.querySelector('button').addEventListener('click', function(){ var g=state.weeklyEvents.find(x=>x.id===gid); if(g) openGame(g); });
-        wrap.appendChild(div);
-      })(rows[i].game_id);
-    }
+    // Render into league's right column when present (NFL/NCAA live page has no right column now; main My Picks tab handles it)
   }
 
-  /* Controls */
-  $(config.ids.backBtn).addEventListener('click',function(){showTop(false);showTracker(false);showSplash(true);state.selected=null;if(state.pollTimer){clearInterval(state.pollTimer);state.pollTimer=null;}});
-  N.addPickBtn.addEventListener('click',async function(){
-    if(!state.selected) return;
-    const u=(await sb.auth.getUser()).data.user; if(!u){alert('Sign in first.');return;}
-    if(isLocked(state.selected)) return;
-    const {data:mine}=await sb.from('picks').select('id,game_id').eq('user_id',u.id).eq('league',config.prefix).eq('week_key',WK);
-    if(mine && mine.find(p=>p.game_id===state.selected.id)){ alert('Already picked.'); return; }
-    if(mine && mine.length>=PICKS_REQUIRED){ alert('You already have '+PICKS_REQUIRED+' picks.'); return; }
-    const {error}=await sb.from('picks').insert({user_id:u.id,league:config.prefix,week_key:WK,game_id:state.selected.id});
-    if(error){alert(error.message);return;}
-    updateHeaderPicksLeft(); updateTabPickBadges(); renderMyPicks(); renderPlayersLB(); renderSeasonLB();
-  });
-
   /* Boot */
-  async function boot(){ await loadWeek(); setInterval(()=>{ if(visible()) renderPlayersLB(); }, LB_POLL_MS); setInterval(()=>{ if(visible()) renderSeasonLB(); }, LB_POLL_MS*2); setInterval(renderMyPicks, LB_POLL_MS); }
+  async function boot(){ await loadWeek(); setInterval(()=>{ if(visible()) renderPlayersLB(); }, LB_POLL_MS); setInterval(()=>{ if(visible()) renderSeasonLB(); }, LB_POLL_MS*2); }
   return{
     boot:boot,
-    refreshBoards:async()=>{ await renderPlayersLB(); await renderSeasonLB(); await renderMyPicks(); }
+    computeRow:computeRow,
+    getWeek:()=>state.weeklyEvents,
+    openById:(id)=>{var g=state.weeklyEvents.find(x=>x.id===id); if(g) openGame(g);},
+    refreshBoards:async()=>{ await renderPlayersLB(); await renderSeasonLB(); }
   };
 }
 
@@ -681,15 +726,14 @@ var NFL=(function(){return createLeague({
     clock:$('nfl-clock'), q:$('nfl-q'), state:$('nfl-state'),
     weekNote:$('nfl-weekNote'), gridNote:$('nfl-gridNote'), grid:$('nfl-grid'),
     lb:$('nfl-lb'), toggleAll:$('nfl-toggleAll'),
-    pLB:$('nfl-pLB'), pSeason:$('nfl-pSeason'),
-    log:$('nfl-log'), myPicks:$('nfl-myPicks')
+    pLB:document.createElement('div'), pSeason:document.createElement('div'),
+    log:$('nfl-log')
   },
   endpoints:{
     scoreboard:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=',
     summary:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=',
     box:'https://cdn.espn.com/core/nfl/boxscore?xhr=1&gameId=',
-    pbp:'https://cdn.espn.com/core/nfl/playbyplay?xhr=1&gameId=',
-    odds:(id)=>'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/'+id+'/competitions/'+id+'/odds'
+    pbp:'https://cdn.espn.com/core/nfl/playbyplay?xhr=1&gameId='
   }
 });})();
 
@@ -705,30 +749,100 @@ var NCAAF=(function(){return createLeague({
     clock:$('ncaaf-clock'), q:$('ncaaf-q'), state:$('ncaaf-state'),
     weekNote:$('ncaaf-weekNote'), gridNote:$('ncaaf-gridNote'), grid:$('ncaaf-grid'),
     lb:$('ncaaf-lb'), toggleAll:$('ncaaf-toggleAll'),
-    pLB:$('ncaaf-pLB'), pSeason:$('ncaaf-pSeason'),
-    log:$('ncaaf-log'), myPicks:$('ncaaf-myPicks')
+    pLB:document.createElement('div'), pSeason:document.createElement('div'),
+    log:$('ncaaf-log')
   },
   endpoints:{
     scoreboard:'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=',
     summary:'https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=',
     box:'https://cdn.espn.com/core/college-football/boxscore?xhr=1&gameId=',
-    pbp:'https://cdn.espn.com/core/college-football/playbyplay?xhr=1&gameId=',
-    odds:(id)=>'https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/'+id+'/competitions/'+id+'/odds'
+    pbp:'https://cdn.espn.com/core/college-football/playbyplay?xhr=1&gameId='
   }
 });})();
 
+/* ======= Leaderboards tab glue (both leagues) ======= */
+let LB_NFL_SHOW_ALL=false, LB_NCAA_SHOW_ALL=false;
+$('lbNFLtoggle').addEventListener('click',()=>{ LB_NFL_SHOW_ALL=!LB_NFL_SHOW_ALL; renderLBtab(); });
+$('lbNCAAtoggle').addEventListener('click',()=>{ LB_NCAA_SHOW_ALL=!LB_NCAA_SHOW_ALL; renderLBtab(); });
+
+async function renderLBtab(){
+  // games leaderboard both leagues
+  const listNFL = NFL.getWeek();
+  const listNCAA = NCAAF.getWeek();
+  async function rowsFor(list, league){ const out=[]; for(let g of list){ const r=await (league==='nfl'?NFL:NCAAF).computeRow(g.id); if(r) out.push(r);} out.sort((a,b)=>b.score-a.score); return out; }
+  const [rowsNFL, rowsNCAA] = await Promise.all([rowsFor(listNFL,'nfl'), rowsFor(listNCAA,'ncaaf')]);
+
+  function fill(containerId, rows, showAll){
+    const wrap=$(containerId); wrap.innerHTML='';
+    const display= showAll ? rows : rows.slice(0,10);
+    for(const r of display){
+      const div=document.createElement('div'); div.className='lbRow';
+      div.innerHTML='<div class="lbTeam">'+(r.awayLogo?'<img src="'+r.awayLogo+'">':'')+'<span class="lbName">'+r.awayName+
+        '</span><span class="scoreTag">'+r.awayPts+'</span><span class="small" style="margin:0 6px;opacity:.8">at</span>'+
+        (r.homeLogo?'<img src="'+r.homeLogo+'">':'')+'<span class="lbName">'+r.homeName+'</span><span class="scoreTag">'+r.homePts+
+        '</span></div><div class="lbPts">'+r.score.toFixed(2)+'</div><div class="lbMeta">'+r.status+'</div>';
+      div.addEventListener('click',()=>{ if(containerId==='lbNFL') { selectTab('nfl'); NFL.openById(r.id); } else { selectTab('ncaaf'); NCAAF.openById(r.id); } });
+      wrap.appendChild(div);
+    }
+    const btn = (containerId==='lbNFL')?$('lbNFLtoggle'):$('lbNCAAtoggle');
+    btn.textContent = showAll? 'Show top 10' : 'Show all';
+    btn.setAttribute('aria-expanded', showAll?'true':'false');
+  }
+  fill('lbNFL', rowsNFL, LB_NFL_SHOW_ALL);
+  fill('lbNCAA', rowsNCAA, LB_NCAA_SHOW_ALL);
+
+  // player boards
+  await NFL.refreshBoards(); await NCAAF.refreshBoards();
+  // Put their latest HTML into Leaderboards tab containers
+  $('pNFLweek').innerHTML = NFL.nodes.pLB.innerHTML;
+  $('pNCAAweek').innerHTML = NCAAF.nodes.pLB.innerHTML;
+  $('pNFLseason').innerHTML = NFL.nodes.pSeason.innerHTML;
+  $('pNCAAseason').innerHTML = NCAAF.nodes.pSeason.innerHTML;
+}
+
+/* ======= My Picks tab (both leagues) ======= */
+async function renderMyTab(){
+  const wrap=$('mine-list');
+  const u=(await sb.auth.getUser()).data.user;
+  if(!u){ wrap.innerHTML='<div class="small">Sign in to see your picks.</div>'; return; }
+  const WK = weekKey();
+  const [nfl,ncaa] = await Promise.all([
+    sb.from('picks').select('game_id').eq('user_id',u.id).eq('league','nfl').eq('week_key',WK),
+    sb.from('picks').select('game_id').eq('user_id',u.id).eq('league','ncaaf').eq('week_key',WK),
+  ]);
+  const rows=[...(nfl.data||[]).map(x=>({league:'nfl',game_id:x.game_id})), ...(ncaa.data||[]).map(x=>({league:'ncaaf',game_id:x.game_id}))];
+  if(rows.length===0){ wrap.innerHTML='<div class="small">No picks yet. Open a game in NFL or NCAA and click “Add to my picks”.</div>'; return; }
+  wrap.innerHTML='';
+  for(const r of rows){
+    const row = await (r.league==='nfl'?NFL:NCAAF).computeRow(r.game_id); if(!row) continue;
+    const div=document.createElement('div'); div.className='rowx';
+    div.innerHTML='<div class="left">'+(row.awayLogo?'<img src="'+row.awayLogo+'">':'')+'<span>'+row.awayName+' @ '+row.homeName+' <span class="small" style="margin-left:6px;opacity:.7">['+(r.league.toUpperCase())+']</span></span></div>'+
+                  '<div>'+row.awayPts+'–'+row.homePts+'</div>'+
+                  '<div class="lbPts" style="min-width:72px;text-align:right">'+row.score.toFixed(2)+'</div>'+
+                  '<button class="btn small">Open</button>';
+    div.querySelector('button').addEventListener('click',()=>{ selectTab(r.league==='nfl'?'nfl':'ncaaf'); (r.league==='nfl'?NFL:NCAAF).openById(row.id); });
+    wrap.appendChild(div);
+  }
+}
+
 /* Tabs */
-var tabNFL=$('tab-nfl'), tabNCAAF=$('tab-ncaaf'), secNFL=$('sec-nfl'), secNCAAF=$('sec-ncaaf');
-function selectTab(which){if(which==='nfl'){tabNFL.setAttribute('aria-selected','true');tabNCAAF.setAttribute('aria-selected','false');secNFL.classList.add('active');secNCAAF.classList.remove('active');}else{tabNFL.setAttribute('aria-selected','false');tabNCAAF.setAttribute('aria-selected','true');secNFL.classList.remove('active');secNCAAF.classList.add('active');}}
+var tabNFL=$('tab-nfl'), tabNCAAF=$('tab-ncaaf'), tabMine=$('tab-mine'), tabLB=$('tab-lb');
+var secNFL=$('sec-nfl'), secNCAAF=$('sec-ncaaf'), secMine=$('sec-mine'), secLB=$('sec-lb');
+function selectTab(which){
+  const map={nfl:[tabNFL,secNFL], ncaaf:[tabNCAAF,secNCAAF], mine:[tabMine,secMine], lb:[tabLB,secLB]};
+  for(const k of Object.keys(map)){ map[k][0].setAttribute('aria-selected', k===which?'true':'false'); map[k][1].classList.toggle('active', k===which); }
+  if(which==='lb') renderLBtab();
+  if(which==='mine') renderMyTab();
+}
 tabNFL.addEventListener('click',()=>selectTab('nfl'));
 tabNCAAF.addEventListener('click',()=>selectTab('ncaaf'));
+tabMine.addEventListener('click',()=>selectTab('mine'));
+tabLB.addEventListener('click',()=>selectTab('lb'));
 
-/* One-time boot after auth + safety boot if event is slow */
+/* One-time boot + safety boot */
 var _booted=false;
-async function bootOnce(){ if(_booted) return; _booted=true; await NFL.boot(); await NCAAF.boot(); }
-async function renderAllPlayerBoards(){ await NFL.refreshBoards(); await NCAAF.refreshBoards(); }
-// Safety: if auth event doesn't arrive quickly, still boot after 1s
-setTimeout(()=>{ try{ bootOnce(); }catch(e){} },1000);
+async function bootOnce(){ if(_booted) return; _booted=true; await NFL.boot(); await NCAAF.boot(); renderLBtab(); renderMyTab(); }
+setTimeout(()=>{ try{ bootOnce(); }catch(e){ console.error(e); } }, 1000);
 </script>
 </body>
 </html>
