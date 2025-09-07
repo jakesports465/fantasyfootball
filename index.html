@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Football Fantasy — NFL + NCAA (Tue→Mon · 3 picks)</title>
+<title>Football Fantasy — NFL + NCAA (Tue→Mon · 3 picks · AI bots · Fast Mode)</title>
 <style>
   :root{ --bg:#0b0d10; --card:#12161b; --muted:#8ea0b3; --text:#e8eef4; }
   html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
@@ -59,12 +59,11 @@
   .collapsed .playersContent{display:none}
   .playersToggle[aria-expanded="false"]::after{content:"  ▸"}
   .playersToggle[aria-expanded="true"]::after{content:"  ▾"}
-  .warn{color:#ffb070}
 </style>
 </head>
 <body>
 <header>
-  <h1>Football Fantasy — <span class="sub">NFL & NCAA · Tue→Mon · 3 picks · AI bots</span></h1>
+  <h1>Football Fantasy — <span class="sub">NFL & NCAA · Tue→Mon · 3 picks · AI bots · Fast Mode</span></h1>
 </header>
 
 <nav class="tabs" role="tablist" aria-label="Leagues">
@@ -239,13 +238,21 @@
 <script>
 /* ===== Constants & utilities ===== */
 var TZ = 'America/New_York';
-var POLL_MS = 15000;
-var LB_POLL_MS = 45000;
-var GRID_POLL_MS = 20000;
+var POLL_MS = 20000;      // open game poll
+var LB_POLL_MS = 60000;   // leaderboard poll
+var GRID_POLL_MS = 30000; // grid live scores poll
 var SPREAD_LIMIT = 30;
 var INCLUDE_UNKNOWN_SPREADS = true;
 var PICKS_REQUIRED = 3;
+
+/* Fast-mode knobs */
+var FAST_LOAD = true;          // render grid instantly (odds in background)
+var ODDS_CONCURRENCY = 6;      // limit odds fetchers for mobile friendliness
+
+/* Scoring */
 var W = { TD:3, FG:2, XP:0.5, TWO:1, YARD:0.05, FIRST_DOWN:0.5, SACK:2.5, TFL:1.5, INT:5.5, FR:5, DEF_TD_BONUS:3, SAFETY:6, STOP:2, ST_RETURN_TD:8, BLOCK:5, CLOSE_GAME:10, OVERTIME:15 };
+
+/* Bots */
 var AI_COUNT = 25;
 var BOT_PREFIX = 'ai-';
 var AI_NAMES = ['GridironBot','BlitzBrain','PocketOracle','HailMaryAI','TwoMinuteDrill','ChainMover','RedZoneRobo','SnapCount','NeutralZone','DriveEngine','TurfWizard','SidelineSynth','YACMachine','PlaybookGPT','NickelNerd','SafetyValve','SkyKick','GoalLineGolem','BoothReview','AudibleAI','TempoTactician','OptionOverlord','HotRoute','EdgeRusher','FieldGeneral'];
@@ -271,7 +278,7 @@ async function safeFetch(url,opts,retries){
   }
 }
 
-/* Auto-reload when week flips */
+/* Auto-reload when Tue 8am ET flips week */
 (function(){
   var current = weekKey();
   setInterval(function(){
@@ -473,17 +480,29 @@ function createLeague(config){
       var card=document.createElement('div'); card.className='gameCard';
       var started=isLocked(g);
       var kickoff=new Date(g.start).toLocaleString([], {weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
-      var liveRow = '<div class="small" style="margin-top:6px;opacity:.9">Score: <span id="'+config.prefix+'-scr-'+g.id+'">—</span> &middot; <span id="'+config.prefix+'-st-'+g.id+'">pre</span> &middot; Spread: '+(g.spread===null?'—':Number(g.spread).toFixed(1))+' &middot; Kick: '+kickoff+'</div>';
 
       card.innerHTML =
         '<div class="band" style="background:'+band+'"></div>'+
         '<div class="gameBody">'+
           '<div class="teamsRow">'+
-            '<div class="team">'+(g.away.logo?('<img src="'+g.away.logo+'" alt="">'):'')+'<div class="name">'+g.away.name+'</div></div>'+
+            '<div class="team">'+
+              (g.away.logo?('<img src="'+g.away.logo+'" alt="">'):'')+
+              '<div class="name">'+g.away.name+'</div>'+
+              '<span class="scoreTag" id="'+config.prefix+'-a-'+g.id+'">0</span>'+
+            '</div>'+
             '<div class="small" style="opacity:.8">@</div>'+
-            '<div class="team" style="justify-content:flex-end">'+(g.home.logo?('<img src="'+g.home.logo+'" alt="">'):'')+'<div class="name">'+g.home.name+'</div></div>'+
+            '<div class="team" style="justify-content:flex-end">'+
+              (g.home.logo?('<img src="'+g.home.logo+'" alt="">'):'')+
+              '<div class="name">'+g.home.name+'</div>'+
+              '<span class="scoreTag" id="'+config.prefix+'-h-'+g.id+'">0</span>'+
+            '</div>'+
           '</div>'+
-          liveRow+
+          '<div class="small" style="margin-top:6px;opacity:.9">'+
+            'Score: <span id="'+config.prefix+'-scr-'+g.id+'">—</span>'+
+            ' &middot; <span id="'+config.prefix+'-st-'+g.id+'">pre</span>'+
+            ' &middot; Spread: '+(g.spread===null?'—':Number(g.spread).toFixed(1))+
+            ' &middot; Kick: '+kickoff+
+          '</div>'+
           '<div class="lockRow">'+
             '<button class="btn lockBtn" '+(started?'disabled':'')+'>🔒 Add to pick</button>'+
             '<button class="btn small viewBtn">Open</button>'+
@@ -566,7 +585,7 @@ function createLeague(config){
     return !!sec && sec.classList.contains('active');
   }
 
-  /* Data loading */
+  /* ===== FAST loadWeek ===== */
   async function loadWeek(){
     N.grid.innerHTML=''; N.weekNote.textContent='Loading week…';
     if(state.pollTimer) clearInterval(state.pollTimer);
@@ -574,95 +593,99 @@ function createLeague(config){
     if(state.gridTimer) clearInterval(state.gridTimer);
     state.lastScoring.clear(); state.weeklyEvents=[]; state.started=new Set();
 
-    var range=weekDateList();
-    var scoreboards = [];
-    for(var i=0;i<range.list.length;i++){
-      var d=range.list[i];
-      var sb = await apiScoreboard(d);
-      scoreboards.push(sb);
-    }
+    const range = weekDateList();
 
-    var ids=new Set(); var base=[];
-    for(var s=0;s<scoreboards.length;s++){
-      var evs = scoreboards[s] && scoreboards[s].events ? scoreboards[s].events : [];
-      for(var e=0;e<evs.length;e++){
-        var ev=evs[e];
-        if(ids.has(ev.id)) continue;
-        ids.add(ev.id);
+    // 1) Fetch the 7 daily scoreboards in PARALLEL
+    const sbList = await Promise.all(range.list.map(function(d){ return apiScoreboard(d).catch(function(){return null;}); }));
+
+    // 2) Flatten events -> base list
+    const seen = new Set(); const base=[];
+    for (var s=0; s<sbList.length; s++){
+      var sb = sbList[s]; var evs = sb && sb.events ? sb.events : [];
+      for (var e=0; e<evs.length; e++){
+        var ev = evs[e];
+        if (seen.has(ev.id)) continue; seen.add(ev.id);
         var comp = ev.competitions && ev.competitions[0] ? ev.competitions[0] : {};
         var cs = comp.competitors || [];
-        var home = null, away = null;
-        for(var c=0;c<cs.length;c++){ if(cs[c].homeAway==='home') home=cs[c]; if(cs[c].homeAway==='away') away=cs[c]; }
+        var home=null, away=null;
+        for (var c=0;c<cs.length;c++){ if(cs[c].homeAway==='home') home=cs[c]; if(cs[c].homeAway==='away') away=cs[c]; }
         var stateStr = (comp.status && comp.status.type && comp.status.type.state) ? comp.status.type.state : 'pre';
-        if(stateStr!=='pre') state.started.add(ev.id);
+        if (stateStr!=='pre') state.started.add(ev.id);
         base.push({
           id: ev.id,
-          competitionId: comp.id ? comp.id : ev.id,
-          dateISO: range.list[s],
-          start: ev.date,
-          state: stateStr,
-          home: { name: (home && home.team && (home.team.shortDisplayName || home.team.displayName)) ? (home.team.shortDisplayName || home.team.displayName) : 'Home', id: home && home.team ? home.team.id : null, abbr: home && home.team ? (home.team.abbreviation || '') : '', logo: config.logo(home && home.team ? home.team : null), color: home && home.team && home.team.color ? home.team.color : null },
-          away: { name: (away && away.team && (away.team.shortDisplayName || away.team.displayName)) ? (away.team.shortDisplayName || away.team.displayName) : 'Away', id: away && away.team ? away.team.id : null, abbr: away && away.team ? (away.team.abbreviation || '') : '', logo: config.logo(away && away.team ? away.team : null), color: away && away.team && away.team.color ? away.team.color : null }
+          competitionId: comp.id || ev.id,
+          dateISO: '', start: ev.date, state: stateStr,
+          home: { name:(home&&home.team&&(home.team.shortDisplayName||home.team.displayName))?(home.team.shortDisplayName||home.team.displayName):'Home', id:home&&home.team?home.team.id:null, abbr:home&&home.team?(home.team.abbreviation||''):'', logo:config.logo(home&&home.team?home.team:null), color:home&&home.team&&home.team.color?home.team.color:null },
+          away: { name:(away&&away.team&&(away.team.shortDisplayName||away.team.displayName))?(away.team.shortDisplayName||away.team.displayName):'Away', id:away&&away.team?away.team.id:null, abbr:away&&away.team?(away.team.abbreviation||''):'', logo:config.logo(away&&away.team?away.team:null), color:away&&away.team&&away.team.color?away.team.color:null },
+          spread: null
         });
       }
     }
 
-    if(base.length===0){ N.weekNote.textContent='No games found for this window.'; return; }
+    // 3) Render immediately (no odds yet)
+    base.sort(function(a,b){ return new Date(a.start)-new Date(b.start); });
+    state.weeklyEvents = base;
 
-    var withSpreads=[];
-    for(var g=0; g<base.length; g++){
-      var gg=base[g]; var spread = null;
-      try{
-        var idx=await apiOdds(gg.id);
-        if(idx && idx.items && idx.items.length>0){
-          var ref = idx.items[0].$ref || idx.items[0].href || null;
-          if(ref){
-            var od=await safeFetch(ref);
-            var val=null;
-            if(od && od.details && typeof od.details.spread!=='undefined') val=Number(od.details.spread);
-            else if(od && typeof od.spread!=='undefined') val=Number(od.spread);
-            else if(od && od.awayTeamOdds && typeof od.awayTeamOdds.spread!=='undefined') val=Number(od.awayTeamOdds.spread);
-            else if(od && od.homeTeamOdds && typeof od.homeTeamOdds.spread!=='undefined') val=Number(od.homeTeamOdds.spread);
-            if(val!==null && !isNaN(val)) spread=Math.abs(val);
-          }
-        }
-      }catch(e){}
-      withSpreads.push({ id: gg.id, competitionId: gg.competitionId, dateISO: gg.dateISO, start: gg.start, state: gg.state, home: gg.home, away: gg.away, spread: spread });
-    }
-
-    var eligible = withSpreads.filter(function(gm){ return gm.spread===null ? INCLUDE_UNKNOWN_SPREADS : (gm.spread<=SPREAD_LIMIT); });
-    eligible.sort(function(a,b){ return new Date(a.start)-new Date(b.start); });
-    state.weeklyEvents = eligible;
-
-    N.gridNote.textContent = 'Showing '+config.label+' games for '+range.start+' → '+range.end+' (Tue→Mon '+range.pretty+') · spread ≤ '+SPREAD_LIMIT+(INCLUDE_UNKNOWN_SPREADS?' · unknown spreads included':'')+'.';
-    N.weekNote.textContent = eligible.length+' eligible game'+(eligible.length===1?'':'s');
-    renderGrid(eligible);
+    N.gridNote.textContent = 'Showing '+config.label+' games for '+range.start+' → '+range.end+' (Tue→Mon '+range.pretty+').';
+    N.weekNote.textContent = base.length+' games';
+    renderGrid(base);
     fillJump();
 
     ensureAI(); save('players',state.players); renderPlayersPanel();
     ensureAIPicks(); save('picks',state.picks);
 
+    // start lightweight polling right away
     startGridPolling();
     refreshLB();
     if(state.lbTimer) clearInterval(state.lbTimer);
     state.lbTimer=setInterval(function(){ if(sectionVisible(config.sectionId)) refreshLB(); }, LB_POLL_MS);
+
+    // 4) Enrich odds in background (optional)
+    if (!FAST_LOAD) return;
+    const ids = base.map(function(g){return g.id;});
+    var idx = 0;
+    async function worker(){
+      while(idx<ids.length){
+        var i = idx++; var id = ids[i];
+        try{
+          var idxData = await apiOdds(id);
+          var ref = idxData && idxData.items && idxData.items[0] && (idxData.items[0].$ref || idxData.items[0].href);
+          if(ref){
+            var od=await safeFetch(ref);
+            var val=null;
+            if(od && od.details && od.details.spread!=null) val=Number(od.details.spread);
+            else if(od && od.spread!=null) val=Number(od.spread);
+            else if(od && od.awayTeamOdds && od.awayTeamOdds.spread!=null) val=Number(od.awayTeamOdds.spread);
+            else if(od && od.homeTeamOdds && od.homeTeamOdds.spread!=null) val=Number(od.homeTeamOdds.spread);
+            var s = (val==null||isNaN(val))?null:Math.abs(val);
+            var g = state.weeklyEvents.find(function(x){return x.id===id;}); if(g) g.spread=s;
+          }
+        }catch(e){}
+      }
+    }
+    var workers=[]; for(var w=0; w<ODDS_CONCURRENCY; w++){ workers.push(worker()); }
+    Promise.all(workers).then(function(){ /* odds done */ });
   }
 
   async function refreshGridScores(){
     if (!state.weeklyEvents || state.weeklyEvents.length === 0) return;
     try {
-      var batch = state.weeklyEvents; // all is fine; computeRow uses caches
-      for (var i = 0; i < batch.length; i++) {
-        var ev = batch[i];
+      for (var i = 0; i < state.weeklyEvents.length; i++) {
+        var ev = state.weeklyEvents[i];
         var row = await computeRow(ev.id);
+        if (!row) continue;
+
         var scEl = document.getElementById(config.prefix+'-scr-'+ev.id);
         var stEl = document.getElementById(config.prefix+'-st-'+ev.id);
-        if (row && scEl && stEl) {
-          scEl.textContent = row.awayPts + '–' + row.homePts;
-          stEl.textContent = row.status || '—';
-        }
+        if (scEl) scEl.textContent = row.awayPts + '–' + row.homePts;
+        if (stEl) stEl.textContent = row.status || '—';
+
+        var aEl = document.getElementById(config.prefix+'-a-'+ev.id);
+        var hEl = document.getElementById(config.prefix+'-h-'+ev.id);
+        if (aEl) aEl.textContent = row.awayPts;
+        if (hEl) hEl.textContent = row.homePts;
       }
-    } catch (e) {}
+    } catch (e) { }
   }
   function startGridPolling(){
     refreshGridScores();
@@ -887,19 +910,19 @@ function createLeague(config){
 
       var sps = summary && summary.scoringPlays ? summary.scoringPlays : [];
       var newLines=[];
-      for(var i=0;i<sps.length;i++){
-        var id = sps[i].id;
+      for(var i2=0;i2<sps.length;i2++){
+        var id = sps[i2].id;
         if(!state.lastScoring.has(id)){
-          var time = (sps[i].clock && sps[i].clock.displayValue) ? sps[i].clock.displayValue : '';
-          var q = (sps[i].period && sps[i].period.number) ? ('Q'+sps[i].period.number) : '';
-          var desc = sps[i].text || sps[i].description || '';
+          var time = (sps[i2].clock && sps[i2].clock.displayValue) ? sps[i2].clock.displayValue : '';
+          var q = (sps[i2].period && sps[i2].period.number) ? ('Q'+sps[i2].period.number) : '';
+          var desc = sps[i2].text || sps[i2].description || '';
           newLines.push('['+q+' '+time+'] '+desc);
         }
       }
       for(var k=newLines.length-1;k>=0;k--){
         var d=document.createElement('div'); d.textContent=newLines[k]; N.log.prepend(d);
       }
-      for(var i2=0;i2<sps.length;i2++){ state.lastScoring.add(sps[i2].id); }
+      for(var j=0;j<sps.length;j++){ state.lastScoring.add(sps[j].id); }
     }catch(e){}
   }
 
