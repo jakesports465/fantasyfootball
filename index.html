@@ -327,17 +327,17 @@ sb.auth.onAuthStateChange(async (_event, session)=>{
     elSignedIn.style.display='block';
     elState.textContent='Signed in';
     elWho.textContent=user.email||user.id;
-    // preload display name (if any)
     const { data } = await sb.from('players').select('*').eq('user_id', user.id).limit(1);
     if(data && data.length){ elDispName.value = data[0].display_name; }
-    // boot leagues after auth so we can respect picks
-    bootOnce();
   }else{
     elSignedOut.style.display='block';
     elSignedIn.style.display='none';
     elState.textContent='Signed out';
   }
+  // ✅ Boot either way so games load when signed out too
+  bootOnce();
 });
+
 
 /* ===================== LEAGUE FACTORY ===================== */
 function createLeague(config){
@@ -953,6 +953,10 @@ async function bootOnce(){ if(_booted) return; _booted=true; await NFL.boot(); a
 
 /* Manual refresh of player boards (after saving name) */
 async function renderAllPlayerBoards(){ await NFL.refreshBoards(); await NCAAF.refreshBoards(); }
+// Safety: if auth event doesn't arrive quickly, still boot after 1s
+setTimeout(()=>{ try{ bootOnce(); }catch(e){} }, 1000);
+ 
 </script>
 </body>
 </html>
+
