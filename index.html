@@ -1,70 +1,71 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Football Fantasy — NFL + NCAA · Supabase Auth</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Football Fantasy — NFL & NCAA · Supabase</title>
 <link rel="preconnect" href="https://a.espncdn.com">
-<link rel="dns-prefetch" href="https://a.espncdn.com">
 <style>
-  :root{ --bg:#0b0d10; --card:#12161b; --muted:#8ea0b3; --text:#e8eef4; }
-  html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-  header{padding:16px 20px;border-bottom:1px solid #1e242c;background:#0f1318;position:sticky;top:0;z-index:20}
-  h1{margin:0;font-size:18px;letter-spacing:.3px}
-  .sub{color:var(--muted);font-size:13px;margin-left:6px}
-  nav.tabs{display:flex;gap:8px;padding:10px 20px;background:#0f1318;border-bottom:1px solid #1e242c;position:sticky;top:56px;z-index:19}
-  .tab{padding:8px 12px;border:1px solid #243241;border-radius:10px;background:#111822;color:var(--text);cursor:pointer;font-size:13px}
-  .tab[aria-selected="true"]{background:#162231;border-color:#31506a;font-weight:700}
-  .section{display:none}
-  .section.active{display:block}
-  main{max-width:1200px;margin:0 auto;padding:16px 20px 40px}
-  .card{background:var(--card);border:1px solid #1c222a;border-radius:14px;padding:16px}
-  .panel{background:#0f1318;border:1px solid #1c2430;border-radius:12px;padding:12px}
-  .sep{height:1px;background:#1a2129;margin:12px 0}
-  .small{font-size:12px;color:var(--muted)}
-  .btn{background:#14202b;border:1px solid #243241;color:var(--text);padding:8px 10px;border-radius:10px;cursor:pointer;font-size:13px}
-  .btn.small{padding:6px 8px;font-size:12px}
-  .btn[disabled]{opacity:.6;cursor:not-allowed}
-  input[type="email"],input[type="password"],input[type="text"]{background:#0b1117;border:1px solid #1b2633;border-radius:8px;color:var(--text);padding:8px}
-  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .gamesGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-  .gameCard{background:#11171e;border:1px solid #1f2a36;border-radius:14px;overflow:hidden}
-  .band{height:6px}
-  .gameBody{padding:12px}
-  .teamsRow{display:flex;align-items:center;justify-content:space-between;gap:8px}
-  .team{display:flex;align-items:center;gap:8px;min-width:0}
-  .team img{width:26px;height:26px;border-radius:6px;border:1px solid #1e2732;background:#0f1318}
-  .team .name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .lockRow{display:flex;gap:8px;margin-top:10px}
-  .disabledNote{margin-top:6px;font-size:12px;color:#c78}
-  .topGrid{display:grid;grid-template-columns:1fr 260px 260px;gap:14px;align-items:start}
-  @media(max-width:980px){.topGrid{grid-template-columns:1fr}}
-  .teamline{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:12px;background:#0f1318;border:1px solid #1c2430}
-  .teamline img{width:28px;height:28px;border-radius:6px;border:1px solid #1e2732;background:#0d1218}
-  .statusBox,.scoreBox{background:#0f1318;border:1px solid #1c2430;border-radius:12px;padding:12px}
-  .scoreBox{text-align:center}
-  .scoreBox .num{font-size:42px;font-weight:900}
-  .contentGrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  @media(max-width:1060px){.contentGrid{grid-template-columns:1fr}}
-  .log{max-height:260px;overflow:auto;background:#0f1318;border-radius:10px;padding:8px;border:1px solid #1b232d}
-  .lbHeaderRow{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-  .lbRow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:8px;border-radius:10px;border:1px solid #1c2430;background:#0f1318;margin-bottom:8px;cursor:pointer}
-  .lbTeam{display:flex;gap:8px;align-items:center;min-width:0}
-  .lbTeam img{width:20px;height:20px;border-radius:4px;border:1px solid #1c2330;background:#0d1218}
-  .lbName{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .scoreTag{display:inline-block;margin-left:6px;padding:2px 6px;border:1px solid #26313c;border-radius:6px;font-weight:700}
-  .lbPts{font-weight:700}
-  .lbMeta{font-size:12px;color:var(--muted)}
-  .authBadge{display:inline-block;padding:3px 8px;border:1px solid #2a3949;border-radius:999px;background:#0f1822}
+:root{--bg:#0b0d10;--card:#11161d;--muted:#90a3b6;--text:#e9eef5;}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+header{padding:14px 20px;border-bottom:1px solid #1c2430;background:#0e1319;position:sticky;top:0;z-index:30}
+h1{margin:0;font-size:18px}
+.sub{color:var(--muted);font-size:13px;margin-left:6px}
+nav.tabs{display:flex;gap:8px;padding:10px 20px;background:#0e1319;border-bottom:1px solid #1c2430;position:sticky;top:52px;z-index:29}
+.tab{padding:8px 12px;border:1px solid #24303c;border-radius:10px;background:#101822;color:var(--text);cursor:pointer;font-size:13px}
+.tab[aria-selected="true"]{background:#162233;border-color:#2f4e67;font-weight:700}
+.section{display:none} .section.active{display:block}
+main{max-width:1200px;margin:0 auto;padding:16px 20px 40px}
+.card{background:var(--card);border:1px solid #1b2330;border-radius:14px;padding:16px}
+.panel{background:#0f151d;border:1px solid #1b2330;border-radius:12px;padding:12px}
+.sep{height:1px;background:#19212c;margin:12px 0}
+.small{font-size:12px;color:var(--muted)}
+.btn{background:#14202b;border:1px solid #243241;color:var(--text);padding:8px 10px;border-radius:10px;cursor:pointer;font-size:13px}
+.btn.small{padding:6px 8px;font-size:12px}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+input[type="email"],input[type="password"],input[type="text"]{background:#0b1117;border:1px solid #1b2633;border-radius:8px;color:var(--text);padding:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.gamesGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.gameCard{background:#10161e;border:1px solid #1e2a37;border-radius:14px;overflow:hidden}
+.band{height:6px}
+.gameBody{padding:12px}
+.teamsRow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.team{display:flex;align-items:center;gap:8px;min-width:0}
+.team img{width:26px;height:26px;border-radius:6px;border:1px solid #1e2732;background:#0f1318}
+.team .name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scoreTag{display:inline-block;margin-left:6px;padding:2px 6px;border:1px solid #26313c;border-radius:6px;font-weight:700}
+.lockRow{display:flex;gap:8px;margin-top:10px}
+.disabledNote{margin-top:6px;font-size:12px;color:#c78}
+.topGrid{display:grid;grid-template-columns:1fr 260px 260px;gap:14px;align-items:start}
+@media(max-width:980px){.topGrid{grid-template-columns:1fr}}
+.teamline{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:12px;background:#0f151d;border:1px solid #1b2330}
+.teamline img{width:28px;height:28px;border-radius:6px;border:1px solid #1e2732;background:#0d1218}
+.statusBox,.scoreBox{background:#0f151d;border:1px solid #1b2330;border-radius:12px;padding:12px}
+.scoreBox{text-align:center}
+.scoreBox .num{font-size:42px;font-weight:900}
+.contentGrid{display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
+@media(max-width:1060px){.contentGrid{grid-template-columns:1fr}}
+.log{max-height:260px;overflow:auto;background:#0f151d;border-radius:10px;padding:8px;border:1px solid #1b232d}
+.lbHeaderRow{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.lbRow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:8px;border-radius:10px;border:1px solid #1c2430;background:#0f151d;margin-bottom:8px;cursor:pointer}
+.lbTeam{display:flex;gap:8px;align-items:center;min-width:0}
+.lbTeam img{width:20px;height:20px;border-radius:4px;border:1px solid #1c2330;background:#0d1218}
+.lbName{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbPts{font-weight:700}
+.lbMeta{font-size:12px;color:var(--muted)}
+.authBadge{display:inline-block;padding:3px 8px;border:1px solid #2a3949;border-radius:999px;background:#0f1822}
+.picksList .rowx{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px;border-radius:10px;border:1px solid #1c2430;background:#0f151d;margin-bottom:8px}
+.picksList .left{display:flex;gap:8px;align-items:center;min-width:0}
+.picksList img{width:20px;height:20px;border:1px solid #1c2330;border-radius:4px;background:#0d1218}
 </style>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <header>
-  <h1>Football Fantasy — <span class="sub">NFL & NCAA · Tue→Mon · 3 picks · Supabase Auth</span></h1>
+  <h1>Football Fantasy <span class="sub">NFL & NCAA · Tue→Mon · 3 picks · Supabase</span></h1>
 </header>
 
-<!-- Auth / Account -->
+<!-- ACCOUNT -->
 <main style="max-width:1200px;margin:0 auto;padding:12px 20px 0">
   <section class="card">
     <div class="row">
@@ -78,7 +79,7 @@
         <button id="btnSignUp" class="btn small">Sign up</button>
         <button id="btnSignIn" class="btn small">Sign in</button>
       </div>
-      <div class="small" style="margin-top:6px">Use email + password. You’ll stay signed in on this device.</div>
+      <div class="small" style="margin-top:6px">Confirm by email the first time, then just sign in.</div>
     </div>
     <div id="authSignedIn" style="display:none">
       <div class="row">
@@ -91,14 +92,18 @@
         <button id="btnSaveName" class="btn small">Save name</button>
         <span id="nameSaved" class="small" style="display:none">Saved ✓</span>
       </div>
-      <div class="small" style="margin-top:6px">Your display name appears on the **Players** leaderboards.</div>
     </div>
   </section>
 </main>
 
+<!-- TABS -->
 <nav class="tabs" role="tablist" aria-label="Leagues">
-  <button id="tab-nfl" class="tab" role="tab" aria-controls="sec-nfl" aria-selected="true">NFL</button>
-  <button id="tab-ncaaf" class="tab" role="tab" aria-controls="sec-ncaaf" aria-selected="false">NCAA (FBS)</button>
+  <button id="tab-nfl" class="tab" role="tab" aria-controls="sec-nfl" aria-selected="true">
+    NFL <span id="nfl-picksBadge" class="small" style="margin-left:6px;opacity:.85"></span>
+  </button>
+  <button id="tab-ncaaf" class="tab" role="tab" aria-controls="sec-ncaaf" aria-selected="false">
+    NCAA (FBS) <span id="ncaaf-picksBadge" class="small" style="margin-left:6px;opacity:.85"></span>
+  </button>
 </nav>
 
 <!-- NFL -->
@@ -123,9 +128,9 @@
         </div>
         <div class="statusBox">
           <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Game Status</div>
-          <div class="small">Clock: <span id="nfl-clock" class="small" style="font-weight:700">—</span></div>
-          <div class="small">Quarter: <span id="nfl-q" class="small" style="font-weight:700">—</span></div>
-          <div class="small">State: <span id="nfl-state" class="small" style="font-weight:700">—</span></div>
+          <div class="small">Clock: <span id="nfl-clock" style="font-weight:700">—</span></div>
+          <div class="small">Quarter: <span id="nfl-q" style="font-weight:700">—</span></div>
+          <div class="small">State: <span id="nfl-state" style="font-weight:700">—</span></div>
         </div>
       </div>
     </div>
@@ -147,14 +152,13 @@
           <div id="nfl-lb"></div>
         </section>
         <section class="card">
-          <div class="lbHeaderRow">
-            <h2 style="margin:0">Players — This Week</h2>
-          </div>
+          <div class="lbHeaderRow"><h2 style="margin:0">My Picks — This Week</h2></div>
+          <div id="nfl-myPicks" class="picksList"></div>
+          <div class="sep"></div>
+          <div class="lbHeaderRow"><h2 style="margin:0">Players — This Week</h2></div>
           <div id="nfl-pLB"></div>
           <div class="sep"></div>
-          <div class="lbHeaderRow">
-            <h2 style="margin:0">Players — Season</h2>
-          </div>
+          <div class="lbHeaderRow"><h2 style="margin:0">Players — Season</h2></div>
           <div id="nfl-pSeason"></div>
           <div class="sep"></div>
           <h3 style="margin:0 0 6px 0">Scoring Plays</h3>
@@ -187,9 +191,9 @@
         </div>
         <div class="statusBox">
           <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Game Status</div>
-          <div class="small">Clock: <span id="ncaaf-clock" class="small" style="font-weight:700">—</span></div>
-          <div class="small">Quarter: <span id="ncaaf-q" class="small" style="font-weight:700">—</span></div>
-          <div class="small">State: <span id="ncaaf-state" class="small" style="font-weight:700">—</span></div>
+          <div class="small">Clock: <span id="ncaaf-clock" style="font-weight:700">—</span></div>
+          <div class="small">Quarter: <span id="ncaaf-q" style="font-weight:700">—</span></div>
+          <div class="small">State: <span id="ncaaf-state" style="font-weight:700">—</span></div>
         </div>
       </div>
     </div>
@@ -211,14 +215,13 @@
           <div id="ncaaf-lb"></div>
         </section>
         <section class="card">
-          <div class="lbHeaderRow">
-            <h2 style="margin:0">Players — This Week</h2>
-          </div>
+          <div class="lbHeaderRow"><h2 style="margin:0">My Picks — This Week</h2></div>
+          <div id="ncaaf-myPicks" class="picksList"></div>
+          <div class="sep"></div>
+          <div class="lbHeaderRow"><h2 style="margin:0">Players — This Week</h2></div>
           <div id="ncaaf-pLB"></div>
           <div class="sep"></div>
-          <div class="lbHeaderRow">
-            <h2 style="margin:0">Players — Season</h2>
-          </div>
+          <div class="lbHeaderRow"><h2 style="margin:0">Players — Season</h2></div>
           <div id="ncaaf-pSeason"></div>
           <div class="sep"></div>
           <h3 style="margin:0 0 6px 0">Scoring Plays</h3>
@@ -230,733 +233,467 @@
 </section>
 
 <script>
-/* ===================== SUPABASE INIT ===================== */
-const SB_URL  = "https://zrsqxylrcblcvtomamgd.supabase.co";  // <-- replace
-const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyc3F4eWxyY2JsY3Z0b21hbWdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNDAzOTYsImV4cCI6MjA3MjgxNjM5Nn0._H00AQ0VCLs3fkM2lKaWV-I4n9qKf51yjKmorxnonzw";              // <-- replace
+/* ============== SUPABASE INIT ============== */
+const SB_URL  = "https://zrsqxylrcblcvtomamgd.supabase.co";     // <-- replace
+const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyc3F4eWxyY2JsY3Z0b21hbWdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNDAzOTYsImV4cCI6MjA3MjgxNjM5Nn0._H00AQ0VCLs3fkM2lKaWV-I4n9qKf51yjKmorxnonzw";                 // <-- replace
 const sb = supabase.createClient(SB_URL, SB_ANON);
 
-/* ===================== CONFIG / UTILS ===================== */
-var TZ = 'America/New_York';
-var POLL_MS = 20000, LB_POLL_MS = 60000, GRID_POLL_MS = 30000;
-var SPREAD_LIMIT = 30, INCLUDE_UNKNOWN_SPREADS = true, PICKS_REQUIRED = 3;
-var FAST_LOAD = true, ODDS_CONCURRENCY = 6;
+/* ============== CONFIG / UTILS ============== */
+var TZ='America/New_York';
+var POLL_MS=20000, LB_POLL_MS=60000, GRID_POLL_MS=30000;
+var PICKS_REQUIRED=3, ODDS_CONCURRENCY=6, FAST_LOAD=true;
+var W={TD:3,FG:2,XP:0.5,TWO:1,YARD:0.05,FIRST_DOWN:0.5,SACK:2.5,TFL:1.5,INT:5.5,FR:5,DEF_TD_BONUS:3,SAFETY:6,STOP:2,ST_RETURN_TD:8,BLOCK:5,CLOSE_GAME:10,OVERTIME:15};
 
-var W = { TD:3, FG:2, XP:0.5, TWO:1, YARD:0.05, FIRST_DOWN:0.5, SACK:2.5, TFL:1.5, INT:5.5, FR:5, DEF_TD_BONUS:3, SAFETY:6, STOP:2, ST_RETURN_TD:8, BLOCK:5, CLOSE_GAME:10, OVERTIME:15 };
+function nowEST(){return new Date(new Date().toLocaleString('en-US',{timeZone:TZ}));}
+function addDaysEST(d,n){var x=new Date(d.getTime());x.setDate(x.getDate()+n);return new Date(x.toLocaleString('en-US',{timeZone:TZ}));}
+function fmtParts(d,opts){var p=new Intl.DateTimeFormat('en-US',opts).formatToParts(d),o={};for(var i=0;i<p.length;i++)o[p[i].type]=p[i].value;return o;}
+function fmtDateStr(d){return d.split('-').join('');}
+function timeout(ms){return new Promise(r=>setTimeout(r,ms));}
+async function safeFetch(url,opts,retries){var r=(typeof retries==='number')?retries:2;for(var i=0;i<=r;i++){try{var ctl=new AbortController();var t=setTimeout(()=>ctl.abort(),15000);var res=await fetch(url,Object.assign({},opts||{},{signal:ctl.signal}));clearTimeout(t);if(!res.ok)throw new Error('HTTP '+res.status);return await res.json()}catch(e){if(i===r)throw e;await timeout(600*(i+1));}}}
 
-function nowEST(){ return new Date(new Date().toLocaleString('en-US',{timeZone:TZ})); }
-function addDaysEST(d,days){ var n=new Date(d.getTime()); n.setDate(n.getDate()+days); return new Date(n.toLocaleString('en-US',{timeZone:TZ})); }
-function fmtParts(d,opts){ var parts=new Intl.DateTimeFormat('en-US',opts).formatToParts(d); var o={}; for(var i=0;i<parts.length;i++){ o[parts[i].type]=parts[i].value; } return o; }
-function fmtDateStr(d){ return d.split('-').join(''); }
-function timeout(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
-async function safeFetch(url,opts,retries){
-  var r = typeof retries==='number' ? retries : 2;
-  for(var i=0;i<=r;i++){
-    try{
-      var ctl = new AbortController(); var t = setTimeout(function(){ctl.abort();},15000);
-      var res = await fetch(url, Object.assign({}, opts||{}, {signal:ctl.signal}));
-      clearTimeout(t); if(!res.ok) throw new Error('HTTP '+res.status);
-      return await res.json();
-    }catch(e){ if(i===r) throw e; await timeout(600*(i+1)); }
-  }
-}
+/* Tue→Mon week key (8am ET boundary) */
+(function(){var cur=weekKey();setInterval(()=>{var wk=weekKey();if(wk!==cur)location.reload();},60000);})();
+function weekKey(){var n=nowEST(),wd=n.getDay(),since=(wd-2+7)%7,tue=addDaysEST(n,-since);
+  var parts=fmtParts(n,{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
+  var after8=Number(parts.hour)>=8||since>0,anchor=after8?tue:addDaysEST(tue,-7);
+  var k=fmtParts(anchor,{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'});return k.year+'-'+k.month+'-'+k.day+'-Tue08ET';}
+function weekDateList(){var n=nowEST(),wd=n.getDay(),since=(wd-2+7)%7,tue=addDaysEST(n,-since),dates=[];
+  for(var i=0;i<7;i++){var d=addDaysEST(tue,i);var p=fmtParts(d,{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'});dates.push(p.year+'-'+p.month+'-'+p.day);}
+  var pTue=fmtParts(tue,{timeZone:TZ,month:'2-digit',day:'2-digit'}),mon=addDaysEST(tue,6),pMon=fmtParts(mon,{timeZone:TZ,month:'2-digit',day:'2-digit'});
+  return{start:dates[0],end:dates[6],list:dates,pretty:pTue.month+'/'+pTue.day+' → '+pMon.month+'/'+pMon.day};}
 
-/* Auto-reload when Tue 8am ET flips week */
-(function(){
-  var current = weekKey();
-  setInterval(function(){ var wk=weekKey(); if(wk!==current) location.reload(); }, 60000);
-})();
+function cdnNFL(t){if(!t)return null;if(t.logos&&t.logos[0]&&t.logos[0].href)return String(t.logos[0].href).replace(/^http:/,'https:');if(t.abbreviation)return 'https://a.espncdn.com/i/teamlogos/nfl/500/'+t.abbreviation+'.png';return null;}
+function cdnNCAAF(t){if(!t)return null;if(t.logos&&t.logos[0]&&t.logos[0].href)return String(t.logos[0].href).replace(/^http:/,'https:');if(t.id)return 'https://a.espncdn.com/i/teamlogos/ncaa/500/'+t.id+'.png';if(t.abbreviation)return 'https://a.espncdn.com/i/teamlogos/ncaa/500/'+t.abbreviation+'.png';return null;}
 
-/* Tue→Mon week window */
-function weekKey(){
-  var n=nowEST(); var wd=n.getDay(); var daysSinceTue=(wd-2+7)%7; var tue=addDaysEST(n,-daysSinceTue);
-  var p=fmtParts(n,{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
-  var after8 = Number(p.hour)>=8 || daysSinceTue>0;
-  var anchor = after8 ? tue : addDaysEST(tue,-7);
-  var k=fmtParts(anchor,{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'});
-  return k.year+'-'+k.month+'-'+k.day+'-Tue08ET';
-}
-function weekDateList(){
-  var n=nowEST(); var wd=n.getDay(); var daysSinceTue=(wd-2+7)%7; var tue=addDaysEST(n,-daysSinceTue);
-  var dates=[]; for(var i=0;i<7;i++){ var d=addDaysEST(tue,i); var p=fmtParts(d,{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}); dates.push(p.year+'-'+p.month+'-'+p.day); }
-  var pTue=fmtParts(tue,{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}); var mon=addDaysEST(tue,6); var pMon=fmtParts(mon,{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'});
-  return { start: dates[0], end: dates[6], list: dates, pretty: (pTue.month+'/'+pTue.day+' → '+pMon.month+'/'+pMon.day) };
-}
+/* ============== AUTH UI ============== */
+const elSignedOut=document.getElementById('authSignedOut');
+const elSignedIn=document.getElementById('authSignedIn');
+const elState=document.getElementById('authState');
+const elWho=document.getElementById('whoami');
+const elEmail=document.getElementById('email');
+const elPass=document.getElementById('password');
+const elDispName=document.getElementById('displayName');
+const elNameSaved=document.getElementById('nameSaved');
 
-/* Logos */
-function cdnNFL(t){ if(!t) return null; if(t.logos && t.logos[0] && t.logos[0].href) return String(t.logos[0].href).replace(/^http:/,'https:'); if(t.abbreviation) return 'https://a.espncdn.com/i/teamlogos/nfl/500/'+t.abbreviation+'.png'; return null; }
-function cdnNCAAF(t){ if(!t) return null; if(t.logos && t.logos[0] && t.logos[0].href) return String(t.logos[0].href).replace(/^http:/,'https:'); if(t.id) return 'https://a.espncdn.com/i/teamlogos/ncaa/500/'+t.id+'.png'; if(t.abbreviation) return 'https://a.espncdn.com/i/teamlogos/ncaa/500/'+t.abbreviation+'.png'; return null; }
-
-/* ===================== AUTH UI ===================== */
-const elSignedOut = document.getElementById('authSignedOut');
-const elSignedIn  = document.getElementById('authSignedIn');
-const elState     = document.getElementById('authState');
-const elWho       = document.getElementById('whoami');
-const elEmail     = document.getElementById('email');
-const elPass      = document.getElementById('password');
-const elDispName  = document.getElementById('displayName');
-const elNameSaved = document.getElementById('nameSaved');
-
-document.getElementById('btnSignUp').addEventListener('click', async function(){
-  const { data, error } = await sb.auth.signUp({ email: elEmail.value.trim(), password: elPass.value.trim() });
-  if(error){ alert(error.message); return; }
-  alert('Check your email to confirm your account, then sign in.');
+document.getElementById('btnSignUp').addEventListener('click',async()=>{
+  const {error}=await sb.auth.signUp({email:elEmail.value.trim(),password:elPass.value.trim()});
+  if(error) alert(error.message); else alert('Check your email to confirm, then sign in.');
 });
-document.getElementById('btnSignIn').addEventListener('click', async function(){
-  const { error } = await sb.auth.signInWithPassword({ email: elEmail.value.trim(), password: elPass.value.trim() });
-  if(error){ alert(error.message); return; }
+document.getElementById('btnSignIn').addEventListener('click',async()=>{
+  const {error}=await sb.auth.signInWithPassword({email:elEmail.value.trim(),password:elPass.value.trim()});
+  if(error) alert(error.message);
 });
-document.getElementById('btnSignOut').addEventListener('click', async function(){ await sb.auth.signOut(); });
+document.getElementById('btnSignOut').addEventListener('click',async()=>{await sb.auth.signOut();});
 
-document.getElementById('btnSaveName').addEventListener('click', async function(){
-  const nm = (elDispName.value||'').trim(); if(!nm){ alert('Enter a display name'); return; }
-  const user = (await sb.auth.getUser()).data.user; if(!user){ alert('Sign in first'); return; }
-  // keep only one row per user: delete old, insert new
-  await sb.from('players').delete().eq('user_id', user.id);
-  const { error } = await sb.from('players').insert({ user_id: user.id, display_name: nm });
-  if(error){ alert(error.message); return; }
-  elNameSaved.style.display='inline';
-  setTimeout(()=>{ elNameSaved.style.display='none'; }, 1200);
-  // refresh LBs to show updated name
-  renderAllPlayerBoards();
+document.getElementById('btnSaveName').addEventListener('click',async()=>{
+  const nm=(elDispName.value||'').trim(); if(!nm){alert('Enter a display name');return;}
+  const u=(await sb.auth.getUser()).data.user; if(!u){alert('Sign in first');return;}
+  await sb.from('players').delete().eq('user_id',u.id);
+  const {error}=await sb.from('players').insert({user_id:u.id,display_name:nm});
+  if(error){alert(error.message);return;}
+  elNameSaved.style.display='inline'; setTimeout(()=>elNameSaved.style.display='none',1200);
+  updateTabPickBadges(); NFL.refreshBoards(); NCAAF.refreshBoards();
 });
 
-sb.auth.onAuthStateChange(async (_event, session)=>{
-  const user = session && session.user;
+sb.auth.onAuthStateChange(async(_evt,session)=>{
+  const user=session&&session.user;
   if(user){
-    elSignedOut.style.display='none';
-    elSignedIn.style.display='block';
-    elState.textContent='Signed in';
-    elWho.textContent=user.email||user.id;
-    const { data } = await sb.from('players').select('*').eq('user_id', user.id).limit(1);
-    if(data && data.length){ elDispName.value = data[0].display_name; }
+    elSignedOut.style.display='none'; elSignedIn.style.display='block';
+    elState.textContent='Signed in'; elWho.textContent=user.email||user.id;
+    const {data}=await sb.from('players').select('*').eq('user_id',user.id).limit(1);
+    if(data&&data.length) elDispName.value=data[0].display_name;
   }else{
-    elSignedOut.style.display='block';
-    elSignedIn.style.display='none';
-    elState.textContent='Signed out';
+    elSignedOut.style.display='block'; elSignedIn.style.display='none'; elState.textContent='Signed out';
   }
-  // ✅ Boot either way so games load when signed out too
-  bootOnce();
+  bootOnce(); updateTabPickBadges();
 });
 
+/* ============== SHARED UI HELPERS ============== */
+async function updateTabPickBadges(){
+  const u=(await sb.auth.getUser()).data.user;
+  const nflEl=document.getElementById('nfl-picksBadge');
+  const ncaEl=document.getElementById('ncaaf-picksBadge');
+  if(!u){nflEl.textContent=''; ncaEl.textContent=''; return;}
+  const WK=weekKey();
+  const [{data:nflRows},{data:ncaRows}] = await Promise.all([
+    sb.from('picks').select('id').eq('user_id',u.id).eq('league','nfl').eq('week_key',WK),
+    sb.from('picks').select('id').eq('user_id',u.id).eq('league','ncaaf').eq('week_key',WK),
+  ]);
+  const nflLeft=Math.max(PICKS_REQUIRED-(nflRows?.length||0),0);
+  const ncaLeft=Math.max(PICKS_REQUIRED-(ncaRows?.length||0),0);
+  nflEl.textContent=nflLeft?`(${nflLeft} left)`:'(✓ done)';
+  ncaEl.textContent=ncaLeft?`(${ncaLeft} left)`:'(✓ done)';
+}
+setInterval(updateTabPickBadges,30000);
 
-/* ===================== LEAGUE FACTORY ===================== */
+/* ============== LEAGUE FACTORY ============== */
 function createLeague(config){
-  var state = {
-    selected: null,
-    weeklyEvents: [],
-    started: new Set(),
-    lastScoring: new Set(),
-    gameScoreCache: new Map(),
-    lbRows: [],
-    showAll: false,
-    pollTimer: null,
-    lbTimer: null,
-    gridTimer: null
-  };
-  var WK = weekKey();
-  var N = config.nodes;
+  var state={selected:null,weeklyEvents:[],started:new Set(),lastScoring:new Set(),gameScoreCache:new Map(),lbRows:[],showAll:false,gridTimer:null,lbTimer:null,pollTimer:null};
+  var WK=weekKey();
+  var N=config.nodes;
 
-  function showTop(on){ N.top.style.display = on ? 'block' : 'none'; }
-  function showSplash(on){ N.splash.style.display = on ? 'block' : 'none'; }
-  function showTracker(on){ N.tracker.style.display = on ? 'block' : 'none'; }
-  function sectionVisible(id){ var sec=document.getElementById(id); return !!sec && sec.classList.contains('active'); }
+  function showTop(b){N.top.style.display=b?'block':'none';}
+  function showSplash(b){N.splash.style.display=b?'block':'none';}
+  function showTracker(b){N.tracker.style.display=b?'block':'none';}
+  function visible(){return document.getElementById(config.sectionId).classList.contains('active');}
+  function isLocked(g){try{if(state.started.has(g.id))return true;var now=nowEST().getTime(),kick=new Date(g.start).getTime();if(now>=kick){state.started.add(g.id);return true;}return false;}catch(e){return false;}}
 
-  function isLocked(g){
-    try{
-      if(state.started.has(g.id)) return true;
-      var now=nowEST().getTime(), kick=new Date(g.start).getTime();
-      if(now>=kick){ state.started.add(g.id); return true; }
-      return false;
-    }catch(e){ return false; }
-  }
+  /* ESPN endpoints */
+  function apiScoreboard(d){return safeFetch(config.endpoints.scoreboard+fmtDateStr(d));}
+  function apiSummary(id){return safeFetch(config.endpoints.summary+id);}
+  function apiBox(id){return safeFetch(config.endpoints.box+id);}
+  function apiPbp(id){return safeFetch(config.endpoints.pbp+id);}
+  function apiOdds(id){return safeFetch(config.endpoints.odds(id));}
 
-  /* ESPN fetchers */
-  function apiScoreboard(dateStr){ return safeFetch(config.endpoints.scoreboard+fmtDateStr(dateStr)); }
-  function apiOdds(eventId){ return safeFetch(config.endpoints.odds(eventId)); }
-  function apiSummary(eventId){ return safeFetch(config.endpoints.summary+eventId); }
-  function apiBox(eventId){ return safeFetch(config.endpoints.box+eventId); }
-  function apiPbp(eventId){ return safeFetch(config.endpoints.pbp+eventId); }
-
-  /* GRID */
+  /* GRID RENDER */
   function renderGrid(list){
     N.grid.innerHTML='';
     for(var i=0;i<list.length;i++){
-      var g=list[i];
+      var g=list[i]; var started=isLocked(g);
       var band='linear-gradient(90deg,'+(g.away.color?('#'+g.away.color):'#1a232d')+' 0%,'+(g.home.color?('#'+g.home.color):'#26313c')+' 100%)';
-      var card=document.createElement('div'); card.className='gameCard';
-      var started=isLocked(g);
       var kickoff=new Date(g.start).toLocaleString([], {weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
-      card.innerHTML =
+      var card=document.createElement('div'); card.className='gameCard';
+      card.innerHTML=
         '<div class="band" style="background:'+band+'"></div>'+
         '<div class="gameBody">'+
           '<div class="teamsRow">'+
-            '<div class="team">'+
-              (g.away.logo?('<img src="'+g.away.logo+'" alt="">'):'')+
-              '<div class="name">'+g.away.name+'</div>'+
-              '<span class="scoreTag" id="'+config.prefix+'-a-'+g.id+'">0</span>'+
-            '</div>'+
+            '<div class="team">'+(g.away.logo?'<img src="'+g.away.logo+'">':'')+'<div class="name">'+g.away.name+'</div><span class="scoreTag" id="'+config.prefix+'-a-'+g.id+'">0</span></div>'+
             '<div class="small" style="opacity:.8">@</div>'+
-            '<div class="team" style="justify-content:flex-end">'+
-              (g.home.logo?('<img src="'+g.home.logo+'" alt="">'):'')+
-              '<div class="name">'+g.home.name+'</div>'+
-              '<span class="scoreTag" id="'+config.prefix+'-h-'+g.id+'">0</span>'+
-            '</div>'+
+            '<div class="team" style="justify-content:flex-end">'+(g.home.logo?'<img src="'+g.home.logo+'">':'')+'<div class="name">'+g.home.name+'</div><span class="scoreTag" id="'+config.prefix+'-h-'+g.id+'">0</span></div>'+
           '</div>'+
-          '<div class="small" style="margin-top:6px;opacity:.9">'+
-            'Score: <span id="'+config.prefix+'-scr-'+g.id+'">—</span>'+
-            ' &middot; <span id="'+config.prefix+'-st-'+g.id+'">pre</span>'+
-            ' &middot; Spread: '+(g.spread===null?'—':Number(g.spread).toFixed(1))+
-            ' &middot; Kick: '+kickoff+
-          '</div>'+
-          '<div class="lockRow">'+
-            '<button class="btn lockBtn" '+(started?'disabled':'')+'>🔒 Add to my picks</button>'+
-            '<button class="btn small viewBtn">Open</button>'+
-          '</div>'+
+          '<div class="small" style="margin-top:6px;opacity:.9">Score: <span id="'+config.prefix+'-scr-'+g.id+'">—</span> · <span id="'+config.prefix+'-st-'+g.id+'">pre</span> · Kick: '+kickoff+'</div>'+
+          '<div class="lockRow"><button class="btn lockBtn" '+(started?'disabled':'')+'>🔒 Add to my picks</button><button class="btn small viewBtn">Open</button></div>'+
           (started?'<div class="disabledNote">Locked (already started)</div>':'')+
         '</div>';
-      card.querySelector('.viewBtn').addEventListener('click', function(gcopy){ return function(){ openGame(gcopy); }; }(g));
-      card.querySelector('.lockBtn').addEventListener('click', function(gcopy){ return async function(){
-        if(isLocked(gcopy)) return;
-        const u = (await sb.auth.getUser()).data.user; if(!u){ alert('Sign in first.'); return; }
-        // enforce 3 picks per user/league/week
-        const { data: myPicks } = await sb.from('picks').select('id').eq('user_id',u.id).eq('league',config.prefix).eq('week_key',WK);
-        if(myPicks && myPicks.length>=PICKS_REQUIRED){ alert('You already have '+PICKS_REQUIRED+' picks this week.'); return; }
-        const { error } = await sb.from('picks').insert({ user_id:u.id, league:config.prefix, week_key:WK, game_id:gcopy.id });
-        if(error){ alert(error.message); return; }
-        updatePicksLeft(); renderPlayersLB(); renderSeasonLB();
-      }; }(g));
+      card.querySelector('.viewBtn').addEventListener('click',(()=>openGame(g)));
+      card.querySelector('.lockBtn').addEventListener('click', (async()=>{ 
+        if(isLocked(g))return; const u=(await sb.auth.getUser()).data.user; if(!u){alert('Sign in first.');return;}
+        const {data:mine}=await sb.from('picks').select('id').eq('user_id',u.id).eq('league',config.prefix).eq('week_key',WK);
+        if(mine && mine.length>=PICKS_REQUIRED){alert('You already have '+PICKS_REQUIRED+' picks this week.');return;}
+        const {error}=await sb.from('picks').insert({user_id:u.id,league:config.prefix,week_key:WK,game_id:g.id});
+        if(error){alert(error.message);return;}
+        updateTabPickBadges(); renderMyPicks(); renderPlayersLB(); renderSeasonLB();
+      }));
       N.grid.appendChild(card);
     }
   }
-
   function fillJump(){
-    N.jump.innerHTML='';
-    var items=state.weeklyEvents.slice().sort(function(a,b){ return new Date(a.start)-new Date(b.start); });
-    for(var i=0;i<items.length;i++){
-      var g=items[i];
-      var o=document.createElement('option');
-      var when=new Date(g.start).toLocaleString([], {weekday:'short', hour:'numeric', minute:'2-digit'});
-      o.value=g.id; o.textContent=when+' — '+g.away.name+' @ '+g.home.name;
-      N.jump.appendChild(o);
-    }
+    N.jump.innerHTML=''; var items=state.weeklyEvents.slice().sort((a,b)=>new Date(a.start)-new Date(b.start));
+    for(var i=0;i<items.length;i++){var g=items[i],o=document.createElement('option'); var when=new Date(g.start).toLocaleString([],{weekday:'short',hour:'numeric',minute:'2-digit'}); o.value=g.id;o.textContent=when+' — '+g.away.name+' @ '+g.home.name; N.jump.appendChild(o);}
   }
-  N.jumpBtn.addEventListener('click',function(){
-    var id=N.jump.value; var g=null;
-    for(var i=0;i<state.weeklyEvents.length;i++){ if(state.weeklyEvents[i].id===id){ g=state.weeklyEvents[i]; break; } }
-    if(g) openGame(g);
-  });
+  N.jumpBtn.addEventListener('click',()=>{ var id=N.jump.value; var g=state.weeklyEvents.find(x=>x.id===id); if(g) openGame(g); });
 
   function openGame(g){
     state.selected=g;
-    N.liveHeader.textContent = g.away.name+' @ '+g.home.name+(g.spread===null?'':(' (spread '+Number(g.spread).toFixed(1)+')'));
-    N.teamSide.innerHTML =
-      '<div class="teamline" style="border-left:6px solid '+(g.away.color?('#'+g.away.color):'#2a3643')+'">'+
-        '<div style="display:flex;gap:10px;align-items:center">'+(g.away.logo?('<img src="'+g.away.logo+'" alt="">'):'')+'<div style="font-weight:700">'+g.away.name+'</div></div>'+
-        '<div id="'+config.ids.awayScore+'" style="font-weight:800">—</div>'+
-      '</div>'+
-      '<div class="teamline" style="border-left:6px solid '+(g.home.color?('#'+g.home.color):'#2a3643')+'">'+
-        '<div style="display:flex;gap:10px;align-items:center">'+(g.home.logo?('<img src="'+g.home.logo+'" alt="">'):'')+'<div style="font-weight:700">'+g.home.name+'</div></div>'+
-        '<div id="'+config.ids.homeScore+'" style="font-weight:800">—</div>'+
-      '</div>';
-    showTop(true); showSplash(false); showTracker(true);
-    var bb=document.getElementById(config.ids.backBtn); if(bb) bb.style.display='inline-block';
+    N.liveHeader.textContent=g.away.name+' @ '+g.home.name;
+    N.teamSide.innerHTML=
+      '<div class="teamline" style="border-left:6px solid '+(g.away.color?('#'+g.away.color):'#2a3643')+'"><div style="display:flex;gap:10px;align-items:center">'+(g.away.logo?'<img src="'+g.away.logo+'">':'')+'<div style="font-weight:700">'+g.away.name+'</div></div><div id="'+config.ids.awayScore+'" style="font-weight:800">—</div></div>'+
+      '<div class="teamline" style="border-left:6px solid '+(g.home.color?('#'+g.home.color):'#2a3643')+'"><div style="display:flex;gap:10px;align-items:center">'+(g.home.logo?'<img src="'+g.home.logo+'">':'')+'<div style="font-weight:700">'+g.home.name+'</div></div><div id="'+config.ids.homeScore+'" style="font-weight:800">—</div></div>';
+    showTop(true); showSplash(false); showTracker(true); document.getElementById(config.ids.backBtn).style.display='inline-block';
     if(state.pollTimer) clearInterval(state.pollTimer);
-    refreshOnce();
-    state.pollTimer=setInterval(function(){ if(sectionVisible(config.sectionId)) refreshOnce(); }, POLL_MS);
-    fillJump(); updatePicksLeft();
+    refreshOnce(); state.pollTimer=setInterval(()=>{ if(visible()) refreshOnce(); },POLL_MS);
+    fillJump(); updateHeaderPicksLeft();
   }
-
-  function updatePicksLeft(){
-    (async function(){
-      const user = (await sb.auth.getUser()).data.user; if(!user){ N.picksLeft.textContent='Sign in to pick games'; return; }
-      const { data } = await sb.from('picks').select('id').eq('user_id',user.id).eq('league',config.prefix).eq('week_key',WK);
-      const count = (data && data.length) ? data.length : 0;
-      const left = Math.max(PICKS_REQUIRED - count, 0);
-      N.picksLeft.textContent = left+' pick'+(left===1?'':'s')+' left this week';
+  function updateHeaderPicksLeft(){
+    (async()=>{const u=(await sb.auth.getUser()).data.user; if(!u){N.picksLeft.textContent='Sign in to pick games';return;}
+      const {data}=await sb.from('picks').select('id').eq('user_id',u.id).eq('league',config.prefix).eq('week_key',WK);
+      const left=Math.max(PICKS_REQUIRED-(data?.length||0),0); N.picksLeft.textContent=left+' pick'+(left===1?'':'s')+' left this week';
     })();
   }
 
-  /* ===== FAST loadWeek ===== */
+  /* Load week (FAST mode) */
   async function loadWeek(){
     N.grid.innerHTML=''; N.weekNote.textContent='Loading week…';
-    if(state.pollTimer) clearInterval(state.pollTimer);
-    if(state.lbTimer) clearInterval(state.lbTimer);
-    if(state.gridTimer) clearInterval(state.gridTimer);
+    if(state.pollTimer)clearInterval(state.pollTimer); if(state.lbTimer)clearInterval(state.lbTimer); if(state.gridTimer)clearInterval(state.gridTimer);
     state.lastScoring.clear(); state.weeklyEvents=[]; state.started=new Set();
 
-    const range = weekDateList();
-    const sbList = await Promise.all(range.list.map(function(d){ return apiScoreboard(d).catch(function(){return null;}); }));
-
-    const seen = new Set(); const base=[];
-    for (var s=0; s<sbList.length; s++){
-      var sb = sbList[s]; var evs = sb && sb.events ? sb.events : [];
-      for (var e=0; e<evs.length; e++){
-        var ev = evs[e];
-        if (seen.has(ev.id)) continue; seen.add(ev.id);
-        var comp = ev.competitions && ev.competitions[0] ? ev.competitions[0] : {};
-        var cs = comp.competitors || [];
-        var home=null, away=null;
-        for (var c=0;c<cs.length;c++){ if(cs[c].homeAway==='home') home=cs[c]; if(cs[c].homeAway==='away') away=cs[c]; }
-        var stateStr = (comp.status && comp.status.type && comp.status.type.state) ? comp.status.type.state : 'pre';
-        if (stateStr!=='pre') state.started.add(ev.id);
-        base.push({
-          id: ev.id,
-          competitionId: comp.id || ev.id,
-          dateISO: '', start: ev.date, state: stateStr,
-          home: { name:(home&&home.team&&(home.team.shortDisplayName||home.team.displayName))?(home.team.shortDisplayName||home.team.displayName):'Home', id:home&&home.team?home.team.id:null, abbr:home&&home.team?(home.team.abbreviation||''):'', logo:config.logo(home&&home.team?home.team:null), color:home&&home.team&&home.team.color?home.team.color:null },
-          away: { name:(away&&away.team&&(away.team.shortDisplayName||away.team.displayName))?(away.team.shortDisplayName||away.team.displayName):'Away', id:away&&away.team?away.team.id:null, abbr:away&&away.team?(away.team.abbreviation||''):'', logo:config.logo(away&&away.team?away.team:null), color:away&&away.team&&away.team.color?away.team.color:null },
-          spread: null
+    const range=weekDateList();
+    const lists=await Promise.all(range.list.map(d=>apiScoreboard(d).catch(()=>null)));
+    const seen=new Set(), base=[];
+    for(var k=0;k<lists.length;k++){
+      var sb=lists[k], evs=sb&&sb.events?sb.events:[];
+      for(var e=0;e<evs.length;e++){
+        var ev=evs[e]; if(seen.has(ev.id))continue; seen.add(ev.id);
+        var comp=ev.competitions&&ev.competitions[0]?ev.competitions[0]:{}, cs=comp.competitors||[];
+        var home=null,away=null; for(var c=0;c<cs.length;c++){if(cs[c].homeAway==='home')home=cs[c]; if(cs[c].homeAway==='away')away=cs[c];}
+        var stateStr=(comp.status&&comp.status.type&&comp.status.type.state)?comp.status.type.state:'pre'; if(stateStr!=='pre') state.started.add(ev.id);
+        base.push({id:ev.id,start:ev.date,state:stateStr,
+          home:{name:home&&home.team?(home.team.shortDisplayName||home.team.displayName):'Home',id:home&&home.team?home.team.id:null,abbr:home&&home.team?(home.team.abbreviation||''):'',logo:config.logo(home&&home.team?home.team:null),color:home&&home.team&&home.team.color?home.team.color:null},
+          away:{name:away&&away.team?(away.team.shortDisplayName||away.team.displayName):'Away',id:away&&away.team?away.team.id:null,abbr:away&&away.team?(away.team.abbreviation||''):'',logo:config.logo(away&&away.team?away.team:null),color:away&&away.team&&away.team.color?away.team.color:null}
         });
       }
     }
-
-    base.sort(function(a,b){ return new Date(a.start)-new Date(b.start); });
-    state.weeklyEvents = base;
-
-    N.gridNote.textContent = 'Showing '+config.label+' games for '+range.start+' → '+range.end+' (Tue→Mon '+range.pretty+').';
-    N.weekNote.textContent = base.length+' games';
-    renderGrid(base);
-    fillJump();
-    updatePicksLeft();
-
-    startGridPolling();
-    refreshLB();
-    if(state.lbTimer) clearInterval(state.lbTimer);
-    state.lbTimer=setInterval(function(){ if(sectionVisible(config.sectionId)) refreshLB(); }, LB_POLL_MS);
-
-    if (!FAST_LOAD) return;
-    const ids = base.map(function(g){return g.id;});
-    var idx = 0;
-    async function worker(){
-      while(idx<ids.length){
-        var i = idx++; var id = ids[i];
-        try{
-          var idxData = await apiOdds(id);
-          var ref = idxData && idxData.items && idxData.items[0] && (idxData.items[0].$ref || idxData.items[0].href);
-          if(ref){
-            var od=await safeFetch(ref);
-            var val=null;
-            if(od && od.details && od.details.spread!=null) val=Number(od.details.spread);
-            else if(od && od.spread!=null) val=Number(od.spread);
-            else if(od && od.awayTeamOdds && od.awayTeamOdds.spread!=null) val=Number(od.awayTeamOdds.spread);
-            else if(od && od.homeTeamOdds && od.homeTeamOdds.spread!=null) val=Number(od.homeTeamOdds.spread);
-            var s = (val==null||isNaN(val))?null:Math.abs(val);
-            var g = state.weeklyEvents.find(function(x){return x.id===id;}); if(g) g.spread=s;
-          }
-        }catch(e){}
-      }
-    }
-    var workers=[]; for(var w=0; w<ODDS_CONCURRENCY; w++){ workers.push(worker()); }
-    Promise.all(workers).then(function(){ /* odds done */ });
+    base.sort((a,b)=>new Date(a.start)-new Date(b.start)); state.weeklyEvents=base;
+    N.gridNote.textContent='Showing '+config.label+' games '+range.start+' → '+range.end+' (Tue→Mon '+range.pretty+').';
+    N.weekNote.textContent=base.length+' games'; renderGrid(base); fillJump(); updateHeaderPicksLeft();
+    startGridPolling(); refreshLB(); if(state.lbTimer)clearInterval(state.lbTimer); state.lbTimer=setInterval(()=>{if(visible())refreshLB();},LB_POLL_MS);
   }
-
   async function refreshGridScores(){
-    if (!state.weeklyEvents || state.weeklyEvents.length === 0) return;
-    try{
-      for (var i = 0; i < state.weeklyEvents.length; i++) {
-        var ev = state.weeklyEvents[i];
-        var row = await computeRow(ev.id);
-        if (!row) continue;
-        var scEl = document.getElementById(config.prefix+'-scr-'+ev.id);
-        var stEl = document.getElementById(config.prefix+'-st-'+ev.id);
-        if (scEl) scEl.textContent = row.awayPts + '–' + row.homePts;
-        if (stEl) stEl.textContent = row.status || '—';
-        var aEl = document.getElementById(config.prefix+'-a-'+ev.id);
-        var hEl = document.getElementById(config.prefix+'-h-'+ev.id);
-        if (aEl) aEl.textContent = row.awayPts;
-        if (hEl) hEl.textContent = row.homePts;
-      }
-    }catch(e){}
+    for(var i=0;i<state.weeklyEvents.length;i++){
+      var row=await computeRow(state.weeklyEvents[i].id); if(!row) continue;
+      var sc=document.getElementById(config.prefix+'-scr-'+row.id), st=document.getElementById(config.prefix+'-st-'+row.id),
+          a=document.getElementById(config.prefix+'-a-'+row.id), h=document.getElementById(config.prefix+'-h-'+row.id);
+      if(sc) sc.textContent=row.awayPts+'–'+row.homePts; if(st) st.textContent=row.status||'—'; if(a) a.textContent=row.awayPts; if(h) h.textContent=row.homePts;
+    }
   }
-  function startGridPolling(){ refreshGridScores(); if (state.gridTimer) clearInterval(state.gridTimer); state.gridTimer=setInterval(refreshGridScores, GRID_POLL_MS); }
+  function startGridPolling(){ refreshGridScores(); if(state.gridTimer)clearInterval(state.gridTimer); state.gridTimer=setInterval(refreshGridScores,GRID_POLL_MS); }
 
-  /* ===== Scoring (summary/box/pbp) ===== */
+  /* STATS */
   function sumStatsFromSummary(summary){
-    var totals={ yards:0, firstDowns:0, tfl:0, sacks:0, thirdMade:0, thirdAtt:0, fourthMade:0, fourthAtt:0, safeties:0 };
-    var teams = summary && summary.boxscore && summary.boxscore.teams ? summary.boxscore.teams : [];
-    function add(statArr, keyName){ for(var i=0;i<statArr.length;i++){ if(statArr[i].name===keyName || statArr[i].abbreviation===keyName) return statArr[i]; } return null; }
+    var totals={yards:0,firstDowns:0,tfl:0,sacks:0,thirdMade:0,thirdAtt:0,fourthMade:0,fourthAtt:0,safeties:0};
+    var teams=summary&&summary.boxscore&&summary.boxscore.teams?summary.boxscore.teams:[];
+    function pick(arr,name){for(var i=0;i<arr.length;i++){if(arr[i].name===name||arr[i].abbreviation===name)return arr[i];}return null;}
     for(var t=0;t<teams.length;t++){
-      var st = teams[t].statistics || [];
-      var ry=add(st,'rushingYards'); var py=add(st,'netPassingYards');
-      var ryv = ry ? Number(ry.value || ry.displayValue || 0) : 0;
-      var pyv = py ? Number(py.value || py.displayValue || 0) : 0;
-      totals.yards += (isNaN(ryv)?0:ryv) + (isNaN(pyv)?0:pyv);
-      var fd=add(st,'firstDowns'); totals.firstDowns += fd ? Number(fd.value || fd.displayValue || 0) : 0;
-      var sa=add(st,'sacks'); var sval=0; if(sa){ var dv=String(sa.displayValue||'').split('-')[0]; sval = sa.value ? Number(sa.value) : Number(dv); if(isNaN(sval)) sval=0; }
-      totals.sacks += sval;
-      var tfl=add(st,'tacklesForLoss'); totals.tfl += tfl ? Number(tfl.value || tfl.displayValue || 0) : 0;
-      var th=add(st,'thirdDownEff'); var thv = th ? String(th.displayValue||'0-0').split('-') : ['0','0']; totals.thirdMade+=Number(thv[0]||0); totals.thirdAtt+=Number(thv[1]||0);
-      var fh=add(st,'fourthDownEff'); var fhv = fh ? String(fh.displayValue||'0-0').split('-') : ['0','0']; totals.fourthMade+=Number(fhv[0]||0); totals.fourthAtt+=Number(fhv[1]||0);
-      var saf=add(st,'safeties'); totals.safeties += saf ? Number(saf.value || saf.displayValue || 0) : 0;
+      var st=teams[t].statistics||[], ry=pick(st,'rushingYards'), py=pick(st,'netPassingYards');
+      var ryv=ry?Number(ry.value||ry.displayValue||0):0, pyv=py?Number(py.value||py.displayValue||0):0;
+      totals.yards+=(isNaN(ryv)?0:ryv)+(isNaN(pyv)?0:pyv);
+      var fd=pick(st,'firstDowns'); totals.firstDowns+=fd?Number(fd.value||fd.displayValue||0):0;
+      var sa=pick(st,'sacks'); var sval=0; if(sa){var dv=String(sa.displayValue||'').split('-')[0]; sval=sa.value?Number(sa.value):Number(dv); if(isNaN(sval))sval=0;} totals.sacks+=sval;
+      var tfl=pick(st,'tacklesForLoss'); totals.tfl+=tfl?Number(tfl.value||tfl.displayValue||0):0;
+      var th=pick(st,'thirdDownEff'), thv=th?String(th.displayValue||'0-0').split('-'):['0','0']; totals.thirdMade+=Number(thv[0]||0); totals.thirdAtt+=Number(thv[1]||0);
+      var fh=pick(st,'fourthDownEff'), fhv=fh?String(fh.displayValue||'0-0').split('-'):['0','0']; totals.fourthMade+=Number(fhv[0]||0); totals.fourthAtt+=Number(fhv[1]||0);
+      var saf=pick(st,'safeties'); totals.safeties+=saf?Number(saf.value||saf.displayValue||0):0;
     }
     return totals;
   }
-  function parsePBP(pbp){
-    var plays=[]; try{
-      var gp=pbp && pbp.gamepackageJSON ? pbp.gamepackageJSON : null;
-      var prev=gp && gp.drives && gp.drives.previous ? gp.drives.previous : null;
-      var curr=gp && gp.drives && gp.drives.current ? gp.drives.current : null;
-      function add(arr){ if(Array.isArray(arr)){ for(var i=0;i<arr.length;i++){ if(Array.isArray(arr[i].plays)) plays=plays.concat(arr[i].plays); } } }
-      add(prev); add(curr);
-    }catch(e){}
-    return plays;
-  }
-  function calcFantasyFrom(summary, box, pbp){
-    var comp = summary && summary.header && summary.header.competitions && summary.header.competitions[0] ? summary.header.competitions[0] : {};
-    var status = comp.status || {};
-    var teams = comp.competitors || [];
-    var homeC=null, awayC=null; for(var i=0;i<teams.length;i++){ if(teams[i].homeAway==='home') homeC=teams[i]; if(teams[i].homeAway==='away') awayC=teams[i]; }
-    var homePts = Number(homeC && typeof homeC.score!=='undefined' ? homeC.score : 0);
-    var awayPts = Number(awayC && typeof awayC.score!=='undefined' ? awayC.score : 0);
+  function parsePBP(pbp){var plays=[];try{var gp=pbp&&pbp.gamepackageJSON?pbp.gamepackageJSON:null; var prev=gp&&gp.drives&&gp.drives.previous?gp.drives.previous:null; var curr=gp&&gp.drives&&gp.drives.current?gp.drives.current:null; function add(arr){if(Array.isArray(arr)){for(var i=0;i<arr.length;i++){if(Array.isArray(arr[i].plays))plays=plays.concat(arr[i].plays);}}} add(prev); add(curr);}catch(e){} return plays;}
+  function calcFantasyFrom(summary,box,pbp){
+    var comp=summary&&summary.header&&summary.header.competitions&&summary.header.competitions[0]?summary.header.competitions[0]:{}, status=comp.status||{}, teams=comp.competitors||[];
+    var homeC=null,awayC=null; for(var i=0;i<teams.length;i++){if(teams[i].homeAway==='home')homeC=teams[i]; if(teams[i].homeAway==='away')awayC=teams[i];}
+    var homePts=Number(homeC&&typeof homeC.score!=='undefined'?homeC.score:0), awayPts=Number(awayC&&typeof awayC.score!=='undefined'?awayC.score:0);
 
-    var totals = sumStatsFromSummary(summary);
-    var stopsEff = (totals.thirdAtt - totals.thirdMade) + (totals.fourthAtt - totals.fourthMade);
+    var totals=sumStatsFromSummary(summary);
+    var stopsEff=(totals.thirdAtt-totals.thirdMade)+(totals.fourthAtt-totals.fourthMade);
 
-    var TD=0, FG=0, XP=0, TWO=0, stReturnTD=0, blocks=0, defTdBonus=0, safeties=(totals.safeties||0);
-    var scoringPlays = summary && summary.scoringPlays ? summary.scoringPlays : [];
+    var TD=0,FG=0,XP=0,TWO=0,stReturnTD=0,blocks=0,defTdBonus=0,safeties=(totals.safeties||0);
+    var scoringPlays=summary&&summary.scoringPlays?summary.scoringPlays:[];
     for(var s=0;s<scoringPlays.length;s++){
-      var sp=scoringPlays[s];
-      var d=String(sp.text||sp.description||'').toLowerCase();
-      var t=String((sp.type && sp.type.text)||sp.scoringType||'').toLowerCase();
-      if(t.indexOf('touchdown')>-1 || d.indexOf('touchdown')>-1){
-        TD++;
-        if(d.indexOf('punt return')>-1 || d.indexOf('kickoff return')>-1 || d.indexOf('kick return')>-1) stReturnTD++;
-        if(d.indexOf('interception return')>-1 || d.indexOf('fumble return')>-1 || d.indexOf('blocked punt')>-1 || d.indexOf('blocked kick')>-1 || d.indexOf('fumble recovered in end zone')>-1) defTdBonus++;
-        if(d.indexOf('safety')>-1) safeties++;
-      }else if(t.indexOf('field goal')>-1 || d.indexOf('field goal')>-1){ FG++; }
-      else if(t.indexOf('extra point')>-1 || d.indexOf('extra point is good')>-1){ XP++; }
-      else if(t.indexOf('two-point')>-1 || d.indexOf('two-point')>-1){ if(d.indexOf('successful')>-1 || d.indexOf('is good')>-1 || d.indexOf('good')>-1) TWO++; }
-      if(d.indexOf('blocked')>-1) blocks++;
+      var sp=scoringPlays[s], d=String(sp.text||sp.description||'').toLowerCase(), t=String((sp.type&&sp.type.text)||sp.scoringType||'').toLowerCase();
+      if(t.includes('touchdown')||d.includes('touchdown')){TD++; if(d.includes('punt return')||d.includes('kickoff return')||d.includes('kick return'))stReturnTD++; if(d.includes('interception return')||d.includes('fumble return')||d.includes('blocked punt')||d.includes('blocked kick')||d.includes('fumble recovered in end zone'))defTdBonus++; if(d.includes('safety'))safeties++;}
+      else if(t.includes('field goal')||d.includes('field goal')){FG++;}
+      else if(t.includes('extra point')||d.includes('extra point is good')){XP++;}
+      else if(t.includes('two-point')||d.includes('two-point')){ if(d.includes('successful')||d.includes('is good')||d.includes('good')) TWO++; }
+      if(d.includes('blocked')) blocks++;
     }
 
-    var plays = parsePBP(pbp);
-    var sacksP=0,tflP=0,stopsP=0,fdP=0,intP=0,frP=0,defTDP=0,stTDP=stReturnTD,safetyP=0,blockP=blocks,xpP=0,twoP=0;
+    var plays=parsePBP(pbp); var sacksP=0,tflP=0,stopsP=0,fdP=0,intP=0,frP=0,defTDP=0,stTDP=stReturnTD,safetyP=0,blockP=blocks,xpP=0,twoP=0;
     for(var p=0;p<plays.length;p++){
       var txt=String(plays[p].text||'').toLowerCase();
-      if(txt.indexOf('sacked')>-1) sacksP++;
-      if(txt.indexOf('tackle for loss')>-1) tflP++;
-      var dn=plays[p].down;
-      var gotFirst = txt.indexOf('first down')>-1 || /1st and/i.test(txt);
-      var tod = txt.indexOf('turnover on downs')>-1;
-      var punt = txt.indexOf('punt')===0;
-      var fg  = (txt.indexOf('field goal')>-1) && (txt.indexOf('is good')>-1 || txt.indexOf('missed')>-1 || txt.indexOf('blocked')>-1);
-      if((dn===3 || dn===4) && !gotFirst && (tod || punt || fg)) stopsP++;
-      if(txt.indexOf('first down')>-1) fdP++;
-      if(txt.indexOf('intercepted')>-1){ intP++; if(txt.indexOf('for a touchdown')>-1) defTDP++; }
-      if(txt.indexOf('fumble')>-1){ if(txt.indexOf('recovered')>-1) frP++; if(txt.indexOf('for a touchdown')>-1 || txt.indexOf('recovered in end zone')>-1) defTDP++; }
-      if((txt.indexOf('punt')>-1 || txt.indexOf('kickoff')>-1 || txt.indexOf('kick return')>-1) && txt.indexOf('returns')>-1 && txt.indexOf('for a touchdown')>-1) stTDP++;
-      if(txt.indexOf('safety')>-1) safetyP++;
-      if(txt.indexOf('blocked punt')>-1 || txt.indexOf('blocked field goal')>-1 || (txt.indexOf('blocked')>-1 && txt.indexOf('kick')>-1)) blockP++;
-      if(txt.indexOf('extra point')>-1 && (txt.indexOf('is good')>-1 || txt.indexOf('good')>-1)) xpP++;
-      if(txt.indexOf('two-point')>-1 && (txt.indexOf('successful')>-1 || txt.indexOf('good')>-1)) twoP++;
+      if(txt.includes('sacked'))sacksP++;
+      if(txt.includes('tackle for loss'))tflP++;
+      var dn=plays[p].down, gotFirst=txt.includes('first down')||/1st and/i.test(txt), tod=txt.includes('turnover on downs'), punt=txt.startsWith('punt'), fg=(txt.includes('field goal')&&(txt.includes('is good')||txt.includes('missed')||txt.includes('blocked')));
+      if((dn===3||dn===4)&&!gotFirst&&(tod||punt||fg))stopsP++;
+      if(txt.includes('first down'))fdP++;
+      if(txt.includes('intercepted')){intP++; if(txt.includes('for a touchdown'))defTDP++;}
+      if(txt.includes('fumble')){if(txt.includes('recovered'))frP++; if(txt.includes('for a touchdown')||txt.includes('recovered in end zone'))defTDP++;}
+      if((txt.includes('punt')||txt.includes('kickoff')||txt.includes('kick return'))&&txt.includes('returns')&&txt.includes('for a touchdown'))stTDP++;
+      if(txt.includes('safety'))safetyP++;
+      if(txt.includes('blocked punt')||txt.includes('blocked field goal')||(txt.includes('blocked')&&txt.includes('kick')))blockP++;
+      if(txt.includes('extra point')&&(txt.includes('is good')||txt.includes('good')))xpP++;
+      if(txt.includes('two-point')&&(txt.includes('successful')||txt.includes('good')))twoP++;
     }
     if(!totals.sacks || totals.sacks<sacksP) totals.sacks=sacksP;
     if(!totals.tfl   || totals.tfl<tflP)     totals.tfl=tflP;
     if(!totals.firstDowns) totals.firstDowns=fdP;
 
-    var stops = Math.max(stopsEff, stopsP);
-    var XPf = Math.max(XP, xpP);
-    var TWOf = Math.max(TWO, twoP);
-    var stTDB = Math.max(stReturnTD, stTDP);
-    var safF = Math.max(safeties, safetyP, totals.safeties||0);
-    var blockF = Math.max(blocks, blockP);
+    var stops=Math.max(stopsEff,stopsP), XPf=Math.max(XP,xpP), TWOf=Math.max(TWO,twoP), stTDB=Math.max(stReturnTD,stTDP), safF=Math.max(safeties,safetyP,totals.safeties||0), blockF=Math.max(blocks,blockP);
+    var offense=TD*W.TD+FG*W.FG+XPf*W.XP+TWOf*W.TWO+totals.yards*W.YARD+totals.firstDowns*W.FIRST_DOWN;
+    var defense=totals.sacks*W.SACK+totals.tfl*W.TFL+intP*W.INT+frP*W.FR+defTdBonus*W.DEF_TD_BONUS+safF*W.SAFETY+stops*W.STOP+stTDB*W.ST_RETURN_TD+blockF*W.BLOCK;
 
-    var offense = TD*W.TD + FG*W.FG + XPf*W.XP + TWOf*W.TWO + totals.yards*W.YARD + totals.firstDowns*W.FIRST_DOWN;
-    var defense = totals.sacks*W.SACK + totals.tfl*W.TFL + intP*W.INT + frP*W.FR + defTdBonus*W.DEF_TD_BONUS + safF*W.SAFETY + stops*W.STOP + stTDB*W.ST_RETURN_TD + blockF*W.BLOCK;
+    var isFinal=(status&&status.type&&(status.type.state==='post'||status.type.completed===true));
+    var margin=Math.abs(homePts-awayPts), closeBonus=(isFinal&&margin<=7)?W.CLOSE_GAME:0, otBonus=((status&&status.period&&status.period>4)&&isFinal)?W.OVERTIME:0;
+    var total=offense+defense+closeBonus+otBonus;
 
-    var isFinal = (status && status.type && (status.type.state==='post' || status.type.completed===true)) ? true : false;
-    var margin = Math.abs(homePts-awayPts);
-    var closeBonus = (isFinal && margin<=7) ? W.CLOSE_GAME : 0;
-    var otBonus = ((status && status.period && status.period>4) && isFinal) ? W.OVERTIME : 0;
-    var total = offense + defense + closeBonus + otBonus;
-
-    return {
-      total: Number(total.toFixed(2)),
-      homePts: homePts, awayPts: awayPts,
-      statusText: (status && status.type && (status.type.shortDetail || status.type.description)) ? (status.type.shortDetail || status.type.description) : '—',
-      isFinal: isFinal
-    };
+    return {total:Number(total.toFixed(2)),homePts,awayPts,statusText:(status&&status.type&&(status.type.shortDetail||status.type.description))?(status.type.shortDetail||status.type.description):'—',isFinal:isFinal};
   }
-  async function computeRow(eventId){
-    var cached = state.gameScoreCache.get(eventId);
-    if(cached && cached.isFinal) return cached;
+  async function computeRow(id){
+    var cached=state.gameScoreCache.get(id); if(cached&&cached.isFinal) return cached;
     try{
-      var summary = await apiSummary(eventId);
-      var box = await apiBox(eventId);
-      var pbp = await apiPbp(eventId);
-
-      var comp = summary && summary.header && summary.header.competitions && summary.header.competitions[0] ? summary.header.competitions[0] : {};
-      var homeC=null, awayC=null; var cs=comp.competitors||[];
-      for(var i=0;i<cs.length;i++){ if(cs[i].homeAway==='home') homeC=cs[i]; if(cs[i].homeAway==='away') awayC=cs[i]; }
-
-      var homeName = homeC && homeC.team ? (homeC.team.shortDisplayName || homeC.team.displayName || 'Home') : 'Home';
-      var awayName = awayC && awayC.team ? (awayC.team.shortDisplayName || awayC.team.displayName || 'Away') : 'Away';
-      var homeLogo = config.logo(homeC && homeC.team ? homeC.team : null);
-      var awayLogo = config.logo(awayC && awayC.team ? awayC.team : null);
-
-      var scoreObj = calcFantasyFrom(summary, box, pbp);
-      var row = { id:eventId, awayName, homeName, awayLogo, homeLogo, awayPts:scoreObj.awayPts, homePts:scoreObj.homePts, score:scoreObj.total, status:scoreObj.statusText, final:scoreObj.isFinal };
-      if(row.final) state.gameScoreCache.set(eventId,row);
+      var summary=await apiSummary(id), box=await apiBox(id), pbp=await apiPbp(id);
+      var comp=summary&&summary.header&&summary.header.competitions&&summary.header.competitions[0]?summary.header.competitions[0]:{}, cs=comp.competitors||[];
+      var h=null,a=null; for(var i=0;i<cs.length;i++){if(cs[i].homeAway==='home')h=cs[i]; if(cs[i].homeAway==='away')a=cs[i];}
+      var score=calcFantasyFrom(summary,box,pbp);
+      var row={id,awayName:a&&a.team?(a.team.shortDisplayName||a.team.displayName):'Away',homeName:h&&h.team?(h.team.shortDisplayName||h.team.displayName):'Home',
+               awayLogo:config.logo(a&&a.team?a.team:null),homeLogo:config.logo(h&&h.team?h.team:null),awayPts:score.awayPts,homePts:score.homePts,score:score.total,status:score.statusText,final:score.isFinal};
+      if(row.final) state.gameScoreCache.set(id,row);
       return row;
-    }catch(e){ return null; }
+    }catch(e){return null;}
   }
 
-  /* ===== Games leaderboard ===== */
-  function renderLB(){
-    N.lb.innerHTML='';
-    var rows = state.showAll ? state.lbRows : state.lbRows.slice(0,10);
-    if(rows.length===0){ N.lb.innerHTML='<div class="small">—</div>'; return; }
-    for(var i=0;i<rows.length;i++){
-      var r=rows[i]; var div=document.createElement('div'); div.className='lbRow';
-      div.innerHTML =
-        '<div class="lbTeam">'+
-          (r.awayLogo?('<img src="'+r.awayLogo+'" alt="">'):'')+'<span class="lbName">'+r.awayName+'</span>'+
-          '<span class="scoreTag">'+r.awayPts+'</span>'+
-          '<span class="small" style="margin:0 6px;opacity:.8">at</span>'+
-          (r.homeLogo?('<img src="'+r.homeLogo+'" alt="">'):'')+'<span class="lbName">'+r.homeName+'</span>'+
-          '<span class="scoreTag">'+r.homePts+'</span>'+
-        '</div>'+
-        '<div class="lbPts">'+r.score.toFixed(2)+'</div>'+
-        '<div class="lbMeta">'+r.status+'</div>';
-      (function(eventId){ div.addEventListener('click',function(){
-        for(var j=0;j<state.weeklyEvents.length;j++){ if(state.weeklyEvents[j].id===eventId){ openGame(state.weeklyEvents[j]); break; } }
-      }); })(r.id);
+  /* Leaderboard (games) */
+  function renderLB(){N.lb.innerHTML=''; var rows=state.showAll?state.lbRows:state.lbRows.slice(0,10); if(rows.length===0){N.lb.innerHTML='<div class="small">—</div>';return;}
+    for(var i=0;i<rows.length;i++){var r=rows[i],div=document.createElement('div');div.className='lbRow';
+      div.innerHTML='<div class="lbTeam">'+(r.awayLogo?'<img src="'+r.awayLogo+'">':'')+'<span class="lbName">'+r.awayName+'</span><span class="scoreTag">'+r.awayPts+
+        '</span><span class="small" style="margin:0 6px;opacity:.8">at</span>'+(r.homeLogo?'<img src="'+r.homeLogo+'">':'')+'<span class="lbName">'+r.homeName+'</span><span class="scoreTag">'+r.homePts+
+        '</span></div><div class="lbPts">'+r.score.toFixed(2)+'</div><div class="lbMeta">'+r.status+'</div>';
+      div.addEventListener('click',(()=>{for(var j=0;j<state.weeklyEvents.length;j++){if(state.weeklyEvents[j].id===r.id){openGame(state.weeklyEvents[j]);break;}}));
       N.lb.appendChild(div);
     }
-    N.toggleAll.textContent = state.showAll ? 'Show top 10' : 'Show all';
-    N.toggleAll.setAttribute('aria-expanded', state.showAll ? 'true' : 'false');
+    N.toggleAll.textContent=state.showAll?'Show top 10':'Show all';
+    N.toggleAll.setAttribute('aria-expanded',state.showAll?'true':'false');
   }
-  N.toggleAll.addEventListener('click',function(){ state.showAll=!state.showAll; renderLB(); });
+  N.toggleAll.addEventListener('click',()=>{state.showAll=!state.showAll;renderLB();});
+  async function refreshLB(){var rows=[];for(var i=0;i<state.weeklyEvents.length;i++){var r=await computeRow(state.weeklyEvents[i].id); if(r) rows.push(r);} rows.sort((a,b)=>b.score-a.score); state.lbRows=rows; renderLB();}
 
-  async function refreshLB(){
-    if(!state.weeklyEvents || state.weeklyEvents.length===0){ return; }
-    var rows=[];
-    for(var i=0;i<state.weeklyEvents.length;i++){ var r=await computeRow(state.weeklyEvents[i].id); if(r) rows.push(r); }
-    rows.sort(function(a,b){ return b.score-a.score; });
-    state.lbRows=rows; renderLB();
-  }
-
-  /* ===== Live game view ===== */
+  /* Live view */
   async function refreshOnce(){
-    if(!state.selected) return;
+    if(!state.selected)return;
     try{
-      var gameId = state.selected.id;
-      var summary = await apiSummary(gameId);
-      var box = await apiBox(gameId);
-      var pbp = await apiPbp(gameId);
+      var id=state.selected.id, summary=await apiSummary(id), box=await apiBox(id), pbp=await apiPbp(id);
+      var comp=summary&&summary.header&&summary.header.competitions&&summary.header.competitions[0]?summary.header.competitions[0]:{}, status=comp.status||{}, cs=comp.competitors||[];
+      var h=null,a=null; for(var i=0;i<cs.length;i++){if(cs[i].homeAway==='home')h=cs[i]; if(cs[i].homeAway==='away')a=cs[i];}
+      document.getElementById(config.ids.homeScore).textContent=String(h&&typeof h.score!=='undefined'?h.score:0);
+      document.getElementById(config.ids.awayScore).textContent=String(a&&typeof a.score!=='undefined'?a.score:0);
+      N.clock.textContent=status&&status.displayClock?status.displayClock:'—'; N.q.textContent=(status&&typeof status.period!=='undefined')?String(status.period):'—';
+      N.state.textContent=(status&&status.type&&(status.type.description||status.type.shortDetail))?(status.type.description||status.type.shortDetail):'—';
 
-      var comp = summary && summary.header && summary.header.competitions && summary.header.competitions[0] ? summary.header.competitions[0] : {};
-      var status = comp.status || {};
-      var teams = comp.competitors || [];
-      var homeC=null, awayC=null;
-      for(var i=0;i<teams.length;i++){ if(teams[i].homeAway==='home') homeC=teams[i]; if(teams[i].homeAway==='away') awayC=teams[i]; }
-      var hs=document.getElementById(config.ids.homeScore), as=document.getElementById(config.ids.awayScore);
-      if(hs) hs.textContent = String(homeC && typeof homeC.score!=='undefined' ? homeC.score : 0);
-      if(as) as.textContent = String(awayC && typeof awayC.score!=='undefined' ? awayC.score : 0);
-      N.clock.textContent = status && status.displayClock ? status.displayClock : '—';
-      N.q.textContent = status && typeof status.period!=='undefined' ? String(status.period) : '—';
-      N.state.textContent = status && status.type && (status.type.description || status.type.shortDetail) ? (status.type.description || status.type.shortDetail) : '—';
+      var s=calcFantasyFrom(summary,box,pbp);
+      N.fscore.textContent=s.total.toFixed(2);
+      N.flow.textContent='Bonuses: '+((s.isFinal&&Math.abs((Number(h&&h.score||0))-(Number(a&&a.score||0)))<=7)?'Close (+10)':'—')+' · '+((status&&status.period&&status.period>4&&s.isFinal)?'OT (+15)':'—');
 
-      var scoreObj = calcFantasyFrom(summary, box, pbp);
-      N.fscore.textContent = scoreObj.total.toFixed(2);
-      var closeTxt = (scoreObj.isFinal && Math.abs((Number(homeC && homeC.score || 0))-(Number(awayC && awayC.score || 0)))<=7) ? 'Close (+10)' : '—';
-      var otTxt = (status && status.period && status.period>4 && scoreObj.isFinal) ? 'OT (+15)' : '—';
-      N.flow.textContent = 'Bonuses: '+closeTxt+' · '+otTxt;
+      var sp=summary&&summary.scoringPlays?summary.scoringPlays:[], newLines=[];
+      for(var i=0;i<sp.length;i++){var idp=sp[i].id;if(!state.lastScoring.has(idp)){var t=(sp[i].clock&&sp[i].clock.displayValue)?sp[i].clock.displayValue:'', q=(sp[i].period&&sp[i].period.number)?('Q'+sp[i].period.number):'', d=sp[i].text||sp[i].description||''; newLines.push('['+q+' '+t+'] '+d);}}
+      for(var k=newLines.length-1;k>=0;k--){var d=document.createElement('div');d.textContent=newLines[k]; N.log.prepend(d);}
+      for(var j=0;j<sp.length;j++) state.lastScoring.add(sp[j].id);
 
-      var sps = summary && summary.scoringPlays ? summary.scoringPlays : [];
-      var newLines=[];
-      for(var i2=0;i2<sps.length;i2++){
-        var id = sps[i2].id;
-        if(!state.lastScoring.has(id)){
-          var time = (sps[i2].clock && sps[i2].clock.displayValue) ? sps[i2].clock.displayValue : '';
-          var q = (sps[i2].period && sps[i2].period.number) ? ('Q'+sps[i2].period.number) : '';
-          var desc = sps[i2].text || sps[i2].description || '';
-          newLines.push('['+q+' '+time+'] '+desc);
-        }
-      }
-      for(var k=newLines.length-1;k>=0;k--){ var d=document.createElement('div'); d.textContent=newLines[k]; N.log.prepend(d); }
-      for(var j=0;j<sps.length;j++){ state.lastScoring.add(sps[j].id); }
+      // also refresh "My Picks" lines so scores tick
+      renderMyPicks();
     }catch(e){}
   }
 
-  /* ===== Player Leaderboards (Supabase) ===== */
-  async function displayNameMap(){
-    const { data } = await sb.from('players').select('*');
-    var map={}; if(data){ for(var i=0;i<data.length;i++){ map[data[i].user_id]=data[i].display_name; } }
-    return map;
-  }
-  async function fetchWeekPicks(){
-    const { data } = await sb.from('picks').select('user_id,game_id').eq('league',config.prefix).eq('week_key',WK);
-    return data||[];
-  }
-  async function totalScoreForGame(gameId){ var r=await computeRow(gameId); return r ? (r.score||0) : 0; }
+  /* Players LBs (shared DB) */
+  async function displayNameMap(){const {data}=await sb.from('players').select('*'); var m={}; if(data){for(var i=0;i<data.length;i++)m[data[i].user_id]=data[i].display_name;} return m;}
+  async function fetchWeekPicks(){const {data}=await sb.from('picks').select('user_id,game_id').eq('league',config.prefix).eq('week_key',WK); return data||[];}
+  async function totalScoreForGame(gid){var r=await computeRow(gid); return r?(r.score||0):0;}
 
-  async function weeklyTotalsByUser(){
-    var picks=await fetchWeekPicks();
-    var totals={};
-    for(var i=0;i<picks.length;i++){
-      var row=picks[i]; totals[row.user_id]=totals[row.user_id]||0;
-      totals[row.user_id]+=await totalScoreForGame(row.game_id);
-    }
-    return totals;
-  }
+  async function weeklyTotalsByUser(){var picks=await fetchWeekPicks(), tot={}; for(var i=0;i<picks.length;i++){var r=picks[i]; tot[r.user_id]=tot[r.user_id]||0; tot[r.user_id]+=await totalScoreForGame(r.game_id);} return tot;}
   async function renderPlayersLB(){
-    var totals=await weeklyTotalsByUser();
-    var names=await displayNameMap();
-    var rows=[];
-    Object.keys(totals).forEach(function(uid){ rows.push({ name:names[uid]||uid.slice(0,8), total:totals[uid] }); });
-    rows.sort(function(a,b){ return b.total-a.total; });
-    N.pLB.innerHTML='';
-    if(rows.length===0){ N.pLB.innerHTML='<div class="small">No picks this week.</div>'; return; }
-    for(var r=0;r<rows.length;r++){
-      var row=rows[r]; var div=document.createElement('div'); div.className='lbRow';
-      div.innerHTML='<div class="lbTeam"><span class="lbName">'+row.name+'</span></div><div class="lbPts">'+row.total.toFixed(2)+'</div><div class="lbMeta">Weekly</div>';
-      N.pLB.appendChild(div);
-    }
+    var totals=await weeklyTotalsByUser(), names=await displayNameMap(), rows=[];
+    Object.keys(totals).forEach(uid=>rows.push({name:names[uid]||uid.slice(0,8),total:totals[uid]}));
+    rows.sort((a,b)=>b.total-a.total); N.pLB.innerHTML=''; if(rows.length===0){N.pLB.innerHTML='<div class="small">No picks this week.</div>';return;}
+    for(var i=0;i<rows.length;i++){var r=rows[i], div=document.createElement('div'); div.className='lbRow'; div.innerHTML='<div class="lbTeam"><span class="lbName">'+r.name+'</span></div><div class="lbPts">'+r.total.toFixed(2)+'</div><div class="lbMeta">Weekly</div>'; N.pLB.appendChild(div);}
   }
-
-  // Season = rank points (Mon 8am gating is implicit: previous weeks only)
   async function seasonTotals(){
-    var cur=WK;
-    const { data } = await sb.from('picks').select('user_id,week_key,game_id').eq('league',config.prefix);
-    var byWeek={};
-    for(var i=0;i<(data||[]).length;i++){
-      var r=data[i];
-      if(r.week_key>=cur) continue; // only past weeks
-      byWeek[r.week_key]=byWeek[r.week_key]||{};
-      byWeek[r.week_key][r.user_id]=byWeek[r.week_key][r.user_id]||[];
-      byWeek[r.week_key][r.user_id].push(r.game_id);
-    }
-    var totals={};
-    var weeks=Object.keys(byWeek).sort();
-    for(var w=0; w<weeks.length; w++){
-      var wk=weeks[w], users=Object.keys(byWeek[wk]);
-      var rows=[];
-      for(var u=0; u<users.length; u++){
-        var uid=users[u], sum=0, gids=byWeek[wk][uid];
-        for(var g=0; g<gids.length; g++){ sum += await totalScoreForGame(gids[g]); }
-        rows.push({uid, sum});
-      }
-      rows.sort(function(a,b){ return b.sum-a.sum; });
-      for(var r=0;r<rows.length;r++){
-        totals[rows[r].uid]=(totals[rows[r].uid]||0)+Math.max(10-r,0);
-      }
+    var cur=WK, {data}=await sb.from('picks').select('user_id,week_key,game_id').eq('league',config.prefix);
+    var byWeek={}, totals={};
+    for(var i=0;i<(data||[]).length;i++){var r=data[i]; if(r.week_key>=cur) continue; (byWeek[r.week_key]??=( {} )) ; (byWeek[r.week_key][r.user_id]??=( [] )).push(r.game_id);}
+    var weeks=Object.keys(byWeek).sort(); for(var w=0; w<weeks.length; w++){var wk=weeks[w], users=Object.keys(byWeek[wk]), rows=[];
+      for(var u=0; u<users.length; u++){var uid=users[u], sum=0, gids=byWeek[wk][uid]; for(var g=0; g<gids.length; g++) sum+=await totalScoreForGame(gids[g]); rows.push({uid,sum});}
+      rows.sort((a,b)=>b.sum-a.sum); for(var r=0;r<rows.length;r++) totals[rows[r].uid]=(totals[rows[r].uid]||0)+Math.max(10-r,0);
     }
     return totals;
   }
   async function renderSeasonLB(){
-    var totals=await seasonTotals();
-    var names=await displayNameMap();
-    var rows=[];
-    Object.keys(totals).forEach(function(uid){ rows.push({ name:names[uid]||uid.slice(0,8), total:totals[uid] }); });
-    rows.sort(function(a,b){ return b.total-a.total; });
-    N.pSeason.innerHTML='';
-    if(rows.length===0){ N.pSeason.innerHTML='<div class="small">No season data yet.</div>'; return; }
-    for(var r=0;r<rows.length;r++){
-      var row=rows[r]; var div=document.createElement('div'); div.className='lbRow';
-      div.innerHTML='<div class="lbTeam"><span class="lbName">'+row.name+'</span></div><div class="lbPts">'+row.total+'</div><div class="lbMeta">Season</div>';
-      N.pSeason.appendChild(div);
+    var totals=await seasonTotals(), names=await displayNameMap(), rows=[];
+    Object.keys(totals).forEach(uid=>rows.push({name:names[uid]||uid.slice(0,8), total:totals[uid]}));
+    rows.sort((a,b)=>b.total-a.total); N.pSeason.innerHTML=''; if(rows.length===0){N.pSeason.innerHTML='<div class="small">No season data yet.</div>';return;}
+    for(var i=0;i<rows.length;i++){var r=rows[i], div=document.createElement('div'); div.className='lbRow'; div.innerHTML='<div class="lbTeam"><span class="lbName">'+r.name+'</span></div><div class="lbPts">'+r.total+'</div><div class="lbMeta">Season</div>'; N.pSeason.appendChild(div);}
+  }
+
+  /* My Picks (for current user) */
+  async function myPicksRows(){
+    const u=(await sb.auth.getUser()).data.user; if(!u) return [];
+    const {data}=await sb.from('picks').select('game_id').eq('user_id',u.id).eq('league',config.prefix).eq('week_key',WK);
+    return data||[];
+  }
+  async function renderMyPicks(){
+    const wrap=N.myPicks; if(!wrap) return;
+    const u=(await sb.auth.getUser()).data.user; if(!u){wrap.innerHTML='<div class="small">Sign in to see your picks.</div>'; return;}
+    const rows=await myPicksRows(); if(rows.length===0){wrap.innerHTML='<div class="small">No picks yet. Open a game and click “Add to my picks”.</div>'; return;}
+    wrap.innerHTML='';
+    for(var i=0;i<rows.length;i++){
+      var gid=rows[i].game_id, r=await computeRow(gid); if(!r) continue;
+      var div=document.createElement('div'); div.className='rowx';
+      div.innerHTML='<div class="left">'+(r.awayLogo?'<img src="'+r.awayLogo+'">':'')+'<span>'+r.awayName+' @ '+r.homeName+'</span></div>'+
+                    '<div>'+r.awayPts+'–'+r.homePts+'</div>'+
+                    '<div class="lbPts" style="min-width:72px;text-align:right">'+r.score.toFixed(2)+'</div>'+
+                    '<button class="btn small">Open</button>';
+      div.querySelector('button').addEventListener('click',()=>{var g=state.weeklyEvents.find(x=>x.id===gid); if(g) openGame(g);});
+      wrap.appendChild(div);
     }
   }
-  async function renderAllPlayerBoards(){ await renderPlayersLB(); await renderSeasonLB(); }
 
   /* Controls */
-  N.addPickBtn.addEventListener('click', async function(){
-    if(!state.selected) return;
-    const u = (await sb.auth.getUser()).data.user; if(!u){ alert('Sign in first.'); return; }
-    if(isLocked(state.selected)) return;
-    const { data: myPicks } = await sb.from('picks').select('id,game_id').eq('user_id',u.id).eq('league',config.prefix).eq('week_key',WK);
-    if(myPicks && myPicks.find(p=>p.game_id===state.selected.id)){ alert('Already picked.'); return; }
-    if(myPicks && myPicks.length>=PICKS_REQUIRED){ alert('You already have '+PICKS_REQUIRED+' picks.'); return; }
-    const { error } = await sb.from('picks').insert({ user_id:u.id, league:config.prefix, week_key:WK, game_id:state.selected.id });
-    if(error){ alert(error.message); return; }
-    updatePicksLeft(); renderPlayersLB(); renderSeasonLB();
+  document.getElementById(config.ids.backBtn).addEventListener('click',()=>{showTop(false);showTracker(false);showSplash(true);state.selected=null;if(state.pollTimer){clearInterval(state.pollTimer);state.pollTimer=null;}});
+  N.addPickBtn.addEventListener('click',async()=>{ if(!state.selected)return; const u=(await sb.auth.getUser()).data.user; if(!u){alert('Sign in first.');return;}
+    if(isLocked(state.selected))return;
+    const {data:mine}=await sb.from('picks').select('id,game_id').eq('user_id',u.id).eq('league',config.prefix).eq('week_key',WK);
+    if(mine && mine.find(p=>p.game_id===state.selected.id)){alert('Already picked.');return;}
+    if(mine && mine.length>=PICKS_REQUIRED){alert('You already have '+PICKS_REQUIRED+' picks.');return;}
+    const {error}=await sb.from('picks').insert({user_id:u.id,league:config.prefix,week_key:WK,game_id:state.selected.id});
+    if(error){alert(error.message);return;}
+    updateHeaderPicksLeft(); updateTabPickBadges(); renderMyPicks(); renderPlayersLB(); renderSeasonLB();
   });
 
-  (function wireBack(){ var bb=document.getElementById(config.ids.backBtn); if(bb) bb.addEventListener('click', function(){ showTop(false); showTracker(false); showSplash(true); state.selected=null; if(state.pollTimer){ clearInterval(state.pollTimer); state.pollTimer=null; } }); })();
-
   /* Boot */
-  async function boot(){
-    await loadWeek();
-    setInterval(function(){ if(sectionVisible(config.sectionId)) renderPlayersLB(); }, LB_POLL_MS);
-    setInterval(function(){ if(sectionVisible(config.sectionId)) renderSeasonLB(); }, LB_POLL_MS*2);
-  }
-
-  return {
-    boot: boot,
-    refreshBoards: renderAllPlayerBoards,
-    computeRow: computeRow
+  async function boot(){await loadWeek(); setInterval(()=>{if(visible())renderPlayersLB();},LB_POLL_MS); setInterval(()=>{if(visible())renderSeasonLB();},LB_POLL_MS*2); setInterval(renderMyPicks, LB_POLL_MS);}
+  return{
+    boot:boot,
+    refreshBoards:async()=>{await renderPlayersLB(); await renderSeasonLB(); await renderMyPicks();}
   };
 }
 
-/* ===================== BUILD LEAGUES ===================== */
-var NFL = (function(){
-  return createLeague({
-    sectionId: 'sec-nfl', prefix: 'nfl', label:'NFL', logo: cdnNFL,
-    ids: { awayScore:'awayScoreNFL', homeScore:'homeScoreNFL', backBtn:'nfl-backBtn' },
-    nodes: {
-      top:document.getElementById('nfl-top'), splash:document.getElementById('nfl-splash'), tracker:document.getElementById('nfl-tracker'),
-      liveHeader:document.getElementById('nfl-liveHeader'), teamSide:document.getElementById('nfl-teamSide'),
-      addPickBtn:document.getElementById('nfl-addPickBtn'), picksLeft:document.getElementById('nfl-picksLeft'),
-      jump:document.getElementById('nfl-jump'), jumpBtn:document.getElementById('nfl-jumpBtn'),
-      fscore:document.getElementById('nfl-fscore'), flow:document.getElementById('nfl-flow'),
-      clock:document.getElementById('nfl-clock'), q:document.getElementById('nfl-q'), state:document.getElementById('nfl-state'),
-      weekNote:document.getElementById('nfl-weekNote'), gridNote:document.getElementById('nfl-gridNote'), grid:document.getElementById('nfl-grid'),
-      lb:document.getElementById('nfl-lb'), toggleAll:document.getElementById('nfl-toggleAll'),
-      pLB:document.getElementById('nfl-pLB'), pSeason:document.getElementById('nfl-pSeason'), log:document.getElementById('nfl-log')
-    },
-    endpoints: {
-      scoreboard:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=',
-      summary:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=',
-      box:'https://cdn.espn.com/core/nfl/boxscore?xhr=1&gameId=',
-      pbp:'https://cdn.espn.com/core/nfl/playbyplay?xhr=1&gameId=',
-      odds:function(id){ return 'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/'+id+'/competitions/'+id+'/odds'; }
-    }
-  });
-})();
+/* ============== BUILD LEAGUES ============== */
+var NFL=(function(){return createLeague({
+  sectionId:'sec-nfl', prefix:'nfl', label:'NFL', logo:cdnNFL,
+  ids:{awayScore:'awayScoreNFL',homeScore:'homeScoreNFL',backBtn:'nfl-backBtn'},
+  nodes:{
+    top:$('#nfl-top'), splash:$('#nfl-splash'), tracker:$('#nfl-tracker'),
+    liveHeader:$('#nfl-liveHeader'), teamSide:$('#nfl-teamSide'),
+    addPickBtn:$('#nfl-addPickBtn'), picksLeft:$('#nfl-picksLeft'),
+    jump:$('#nfl-jump'), jumpBtn:$('#nfl-jumpBtn'),
+    fscore:$('#nfl-fscore'), flow:$('#nfl-flow'),
+    clock:$('#nfl-clock'), q:$('#nfl-q'), state:$('#nfl-state'),
+    weekNote:$('#nfl-weekNote'), gridNote:$('#nfl-gridNote'), grid:$('#nfl-grid'),
+    lb:$('#nfl-lb'), toggleAll:$('#nfl-toggleAll'),
+    pLB:$('#nfl-pLB'), pSeason:$('#nfl-pSeason'),
+    log:$('#nfl-log'), myPicks:$('#nfl-myPicks')
+  },
+  endpoints:{
+    scoreboard:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=',
+    summary:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=',
+    box:'https://cdn.espn.com/core/nfl/boxscore?xhr=1&gameId=',
+    pbp:'https://cdn.espn.com/core/nfl/playbyplay?xhr=1&gameId=',
+    odds:(id)=>'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/'+id+'/competitions/'+id+'/odds'
+  }
+});})();
+var NCAAF=(function(){return createLeague({
+  sectionId:'sec-ncaaf', prefix:'ncaaf', label:'NCAA FBS', logo:cdnNCAAF,
+  ids:{awayScore:'awayScoreNCAAF',homeScore:'homeScoreNCAAF',backBtn:'ncaaf-backBtn'},
+  nodes:{
+    top:$('#ncaaf-top'), splash:$('#ncaaf-splash'), tracker:$('#ncaaf-tracker'),
+    liveHeader:$('#ncaaf-liveHeader'), teamSide:$('#ncaaf-teamSide'),
+    addPickBtn:$('#ncaaf-addPickBtn'), picksLeft:$('#ncaaf-picksLeft'),
+    jump:$('#ncaaf-jump'), jumpBtn:$('#ncaaf-jumpBtn'),
+    fscore:$('#ncaaf-fscore'), flow:$('#ncaaf-flow'),
+    clock:$('#ncaaf-clock'), q:$('#ncaaf-q'), state:$('#ncaaf-state'),
+    weekNote:$('#ncaaf-weekNote'), gridNote:$('#ncaaf-gridNote'), grid:$('#ncaaf-grid'),
+    lb:$('#ncaaf-lb'), toggleAll:$('#ncaaf-toggleAll'),
+    pLB:$('#ncaaf-pLB'), pSeason:$('#ncaaf-pSeason'),
+    log:$('#ncaaf-log'), myPicks:$('#ncaaf-myPicks')
+  },
+  endpoints:{
+    scoreboard:'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=',
+    summary:'https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=',
+    box:'https://cdn.espn.com/core/college-football/boxscore?xhr=1&gameId=',
+    pbp:'https://cdn.espn.com/core/college-football/playbyplay?xhr=1&gameId=',
+    odds:(id)=>'https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/'+id+'/competitions/'+id+'/odds'
+  }
+});})();
 
-var NCAAF = (function(){
-  return createLeague({
-    sectionId: 'sec-ncaaf', prefix: 'ncaaf', label:'NCAA FBS', logo: cdnNCAAF,
-    ids: { awayScore:'awayScoreNCAAF', homeScore:'homeScoreNCAAF', backBtn:'ncaaf-backBtn' },
-    nodes: {
-      top:document.getElementById('ncaaf-top'), splash:document.getElementById('ncaaf-splash'), tracker:document.getElementById('ncaaf-tracker'),
-      liveHeader:document.getElementById('ncaaf-liveHeader'), teamSide:document.getElementById('ncaaf-teamSide'),
-      addPickBtn:document.getElementById('ncaaf-addPickBtn'), picksLeft:document.getElementById('ncaaf-picksLeft'),
-      jump:document.getElementById('ncaaf-jump'), jumpBtn:document.getElementById('ncaaf-jumpBtn'),
-      fscore:document.getElementById('ncaaf-fscore'), flow:document.getElementById('ncaaf-flow'),
-      clock:document.getElementById('ncaaf-clock'), q:document.getElementById('ncaaf-q'), state:document.getElementById('ncaaf-state'),
-      weekNote:document.getElementById('ncaaf-weekNote'), gridNote:document.getElementById('ncaaf-gridNote'), grid:document.getElementById('ncaaf-grid'),
-      lb:document.getElementById('ncaaf-lb'), toggleAll:document.getElementById('ncaaf-toggleAll'),
-      pLB:document.getElementById('ncaaf-pLB'), pSeason:document.getElementById('ncaaf-pSeason'), log:document.getElementById('ncaaf-log')
-    },
-    endpoints: {
-      scoreboard:'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=',
-      summary:'https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=',
-      box:'https://cdn.espn.com/core/college-football/boxscore?xhr=1&gameId=',
-      pbp:'https://cdn.espn.com/core/college-football/playbyplay?xhr=1&gameId=',
-      odds:function(id){ return 'https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/'+id+'/competitions/'+id+'/odds'; }
-    }
-  });
-})();
+/* Tiny $ helper */
+function $(id){return document.getElementById(id);}
 
 /* Tabs */
-var tabNFL=document.getElementById('tab-nfl'), tabNCAAF=document.getElementById('tab-ncaaf');
-var secNFL=document.getElementById('sec-nfl'), secNCAAF=document.getElementById('sec-ncaaf');
-function selectTab(which){ if(which==='nfl'){ tabNFL.setAttribute('aria-selected','true'); tabNCAAF.setAttribute('aria-selected','false'); secNFL.classList.add('active'); secNCAAF.classList.remove('active'); } else { tabNFL.setAttribute('aria-selected','false'); tabNCAAF.setAttribute('aria-selected','true'); secNFL.classList.remove('active'); secNCAAF.classList.add('active'); } }
-tabNFL.addEventListener('click',function(){ selectTab('nfl'); });
-tabNCAAF.addEventListener('click',function(){ selectTab('ncaaf'); });
+var tabNFL=$('tab-nfl'), tabNCAAF=$('tab-ncaaf'), secNFL=$('sec-nfl'), secNCAAF=$('sec-ncaaf');
+function selectTab(which){if(which==='nfl'){tabNFL.setAttribute('aria-selected','true');tabNCAAF.setAttribute('aria-selected','false');secNFL.classList.add('active');secNCAAF.classList.remove('active');}else{tabNFL.setAttribute('aria-selected','false');tabNCAAF.setAttribute('aria-selected','true');secNFL.classList.remove('active');secNCAAF.classList.add('active');}}
+tabNFL.addEventListener('click',()=>selectTab('nfl')); tabNCAAF.addEventListener('click',()=>selectTab('ncaaf'));
 
-/* One-time boot after auth (so picks reflect the user) */
+/* One-time boot after auth (but also force after 1s) */
 var _booted=false;
 async function bootOnce(){ if(_booted) return; _booted=true; await NFL.boot(); await NCAAF.boot(); }
-
-/* Manual refresh of player boards (after saving name) */
 async function renderAllPlayerBoards(){ await NFL.refreshBoards(); await NCAAF.refreshBoards(); }
-// Safety: if auth event doesn't arrive quickly, still boot after 1s
-setTimeout(()=>{ try{ bootOnce(); }catch(e){} }, 1000);
- 
+setTimeout(()=>{ try{ bootOnce(); }catch(e){} },1000);
 </script>
 </body>
 </html>
-
