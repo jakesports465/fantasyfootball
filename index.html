@@ -4,596 +4,793 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Football Fantasy — NFL + NCAA (Tue→Mon · 3 picks)</title>
-<link rel="preconnect" href="https://site.api.espn.com">
-<link rel="preconnect" href="https://cdn.espn.com">
 <style>
-:root{--bg:#0b0d10;--card:#12161b;--muted:#8ea0b3;--text:#e8eef4;--line:#1a2129}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-a{color:#a6d3ff;text-decoration:none}
-header{padding:14px 20px;border-bottom:1px solid var(--line);background:#0f1318;position:sticky;top:0;z-index:40}
-h1{margin:0;font-size:18px;letter-spacing:.3px}
-.sub{color:var(--muted);font-size:13px;margin-left:6px}
-.badge{display:inline-block;border:1px solid #2a3645;background:#101821;color:var(--text);padding:3px 8px;border-radius:999px;font-size:12px;margin-left:8px}
-nav.tabs{display:flex;gap:8px;padding:10px 20px;background:#0f1318;border-bottom:1px solid var(--line);position:sticky;top:56px;z-index:35}
-.tab{padding:8px 12px;border:1px solid #243241;border-radius:10px;background:#111822;color:var(--text);cursor:pointer;font-size:13px}
-.tab[aria-selected="true"]{background:#162231;border-color:#31506a;font-weight:700}
-main{max-width:1200px;margin:0 auto;padding:16px 20px 40px}
-.card{background:var(--card);border:1px solid #1c222a;border-radius:14px;padding:16px}
-.panel{background:#0f1318;border:1px solid #1c2430;border-radius:12px;padding:12px}
-.sep{height:1px;background:var(--line);margin:12px 0}
-.small{font-size:12px;color:var(--muted)}
-.btn{background:#14202b;border:1px solid #243241;color:var(--text);padding:8px 10px;border-radius:10px;cursor:pointer;font-size:13px}
-.btn.small{padding:6px 8px;font-size:12px}
-.btn[disabled]{opacity:.6;cursor:not-allowed}
-.section{display:none}
-.section.active{display:block}
-.gamesGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
-.gameCard{background:#11171e;border:1px solid #1f2a36;border-radius:14px;overflow:hidden}
-.band{height:6px}
-.gameBody{padding:12px}
-.teamsRow{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.team{display:flex;align-items:center;gap:8px;min-width:0}
-.team img{width:22px;height:22px;border-radius:6px;border:1px solid #1e2732;background:#0f1318}
-.team .name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lockRow{display:flex;gap:8px;margin-top:10px}
-.topGrid{display:grid;grid-template-columns:1fr 260px 260px;gap:14px;align-items:start}
-@media(max-width:980px){.topGrid{grid-template-columns:1fr}}
-.teamline{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:12px;background:#0f1318;border:1px solid #1c2430;margin-bottom:8px}
-.teamline img{width:22px;height:22px;border-radius:6px;border:1px solid #1e2732;background:#0d1218}
-.statusBox,.scoreBox{background:#0f1318;border:1px solid #1c2430;border-radius:12px;padding:12px}
-.scoreBox{text-align:center}
-.scoreBox .num{font-size:42px;font-weight:900}
-.contentGrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:1060px){.contentGrid{grid-template-columns:1fr}}
-.log{max-height:260px;overflow:auto;background:#0f1318;border-radius:10px;padding:8px;border:1px solid #1b232d}
-.lbHeaderRow{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.lbRow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:8px;border-radius:10px;border:1px solid #1c2430;background:#0f1318;margin-bottom:8px}
-.lbTeam{display:flex;gap:8px;align-items:center;min-width:0}
-.lbTeam img{width:18px;height:18px;border-radius:4px;border:1px solid #1c2330;background:#0d1218}
-.lbName{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.scoreTag{display:inline-block;margin-left:6px;padding:2px 6px;border:1px solid #26313c;border-radius:6px;font-weight:700}
-.lbPts{font-weight:700}
-.lbMeta{font-size:12px;color:var(--muted)}
-.field{display:flex;gap:8px;margin-top:8px}
-input[type="email"],input[type="text"]{flex:1;background:#0b1117;border:1px solid #1b2633;border-radius:8px;color:var(--text);padding:8px}
-.gridNote{margin-bottom:6px}
-header .right{display:flex;gap:8px;align-items:center}
-.toast{position:fixed;right:14px;bottom:14px;padding:10px 12px;border-radius:10px;background:#0f1318;border:1px solid #243241;color:#dfe9f5;box-shadow:0 4px 16px rgba(0,0,0,.35);z-index:100}
-.lg-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:1060px){.lg-grid{grid-template-columns:1fr}}
+  :root{ --bg:#0b0d10; --card:#12161b; --muted:#8ea0b3; --text:#e8eef4; --br:#1b232d; --ink:#0f1318; --accent:#2d89ff; }
+  html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+  header{padding:14px 18px;border-bottom:1px solid var(--br);background:#0f1318;position:sticky;top:0;z-index:20;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  h1{margin:0;font-size:18px}
+  .sub{color:var(--muted);font-size:13px;margin-left:6px}
+  .chip{font-size:12px;border:1px solid var(--br);padding:4px 8px;border-radius:999px;background:#0d1218}
+  .ok{color:#7dffa0;border-color:#214831;background:#122818}
+  .bad{color:#ffb4b4;border-color:#4a1d1d;background:#201112}
+  nav.tabs{display:flex;gap:8px;padding:10px 18px;background:#0f1318;border-bottom:1px solid var(--br);position:sticky;top:56px;z-index:19}
+  .tab{padding:8px 12px;border:1px solid #243241;border-radius:10px;background:#111822;color:var(--text);cursor:pointer;font-size:13px}
+  .tab[aria-selected="true"]{background:#162231;border-color:#31506a;font-weight:700}
+  .section{display:none}
+  .section.active{display:block}
+  main{max-width:1160px;margin:0 auto;padding:16px 18px 46px}
+  .card{background:var(--card);border:1px solid var(--br);border-radius:14px;padding:14px}
+  .panel{background:#0f1318;border:1px solid var(--br);border-radius:12px;padding:12px}
+  .sep{height:1px;background:var(--br);margin:12px 0}
+  .small{font-size:12px;color:var(--muted)}
+  .btn{background:#14202b;border:1px solid #243241;color:var(--text);padding:8px 10px;border-radius:10px;cursor:pointer;font-size:13px}
+  .btn.small{padding:6px 8px;font-size:12px}
+  .btn[disabled]{opacity:.6;cursor:not-allowed}
+  .gamesGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  .gameCard{background:#11171e;border:1px solid #1f2a36;border-radius:14px;overflow:hidden}
+  .band{height:6px}
+  .gameBody{padding:12px}
+  .teamsRow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .team{display:flex;align-items:center;gap:8px;min-width:0}
+  .team img{width:22px;height:22px;border-radius:6px;border:1px solid #1e2732;background:#0f1318}
+  .team .name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .scoreTag{display:inline-block;margin-left:6px;padding:2px 6px;border:1px solid #26313c;border-radius:6px;font-weight:700;min-width:24px;text-align:center}
+  .lockRow{display:flex;gap:8px;margin-top:10px}
+  .topGrid{display:grid;grid-template-columns:1fr 240px 240px;gap:14px;align-items:start}
+  @media(max-width:980px){.topGrid{grid-template-columns:1fr}}
+  .teamline{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:12px;background:#0f1318;border:1px solid #1c2430}
+  .teamline img{width:44px;height:44px;border-radius:8px;border:1px solid #1e2732;background:#0d1218} /* small logo on score page */
+  .statusBox,.scoreBox{background:#0f1318;border:1px solid #1c2430;border-radius:12px;padding:12px}
+  .scoreBox{text-align:center}
+  .scoreBox .num{font-size:38px;font-weight:900}
+  .log{max-height:260px;overflow:auto;background:#0f1318;border-radius:10px;padding:8px;border:1px solid #1b232d}
+  .lbHeaderRow{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .lbRow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:8px;border-radius:10px;border:1px solid #1c2430;background:#0f1318;margin-bottom:8px;cursor:pointer}
+  .lbTeam{display:flex;gap:8px;align-items:center;min-width:0}
+  .lbTeam img{width:18px;height:18px;border-radius:4px;border:1px solid #1c2330;background:#0d1218}
+  .lbName{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lbPts{font-weight:800}
+  .field{display:flex;gap:8px;align-items:center}
+  input[type="email"],input[type="text"]{flex:1;background:#0b1117;border:1px solid #1b2633;border-radius:8px;color:var(--text);padding:8px}
+  .pill{border:1px dashed #364353;border-radius:999px;padding:4px 10px;font-size:12px}
 </style>
 </head>
 <body>
+
 <header>
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-    <h1>Football Fantasy <span class="sub">NFL & NCAA · Tue→Mon · 3 picks</span></h1>
-    <div class="right">
-      <span id="sbState" class="badge">Supabase: OFF</span>
-      <span id="userLabel" class="small" style="opacity:.85"></span>
-      <button id="loginBtn" class="btn small">Login</button>
-      <button id="logoutBtn" class="btn small" style="display:none">Sign out</button>
-    </div>
-  </div>
+  <h1>Football Fantasy <span class="sub">NFL & NCAA · Tue→Mon · 3 picks</span></h1>
+  <span id="sbStatus" class="chip bad">Supabase: OFF</span>
+  <span id="authStatus" class="chip">Logged out</span>
+  <span id="picksLeft" class="pill" title="Each league: max 3 picks per week">3 picks left</span>
 </header>
 
 <nav class="tabs" role="tablist" aria-label="Sections">
-  <button id="tab-nfl" class="tab" role="tab" aria-controls="sec-nfl" aria-selected="true">NFL</button>
-  <button id="tab-ncaaf" class="tab" role="tab" aria-controls="sec-ncaaf" aria-selected="false">NCAA (FBS)</button>
-  <button id="tab-picks" class="tab" role="tab" aria-controls="sec-picks" aria-selected="false">My Picks</button>
-  <button id="tab-leaders" class="tab" role="tab" aria-controls="sec-leaders" aria-selected="false">Leaderboards</button>
+  <button class="tab" id="tab-nfl"   role="tab" aria-controls="sec-nfl"   aria-selected="true">NFL</button>
+  <button class="tab" id="tab-ncaa"  role="tab" aria-controls="sec-ncaa"  aria-selected="false">NCAA (FBS)</button>
+  <button class="tab" id="tab-lb"    role="tab" aria-controls="sec-lb"    aria-selected="false">Leaderboards</button>
+  <span class="small" style="margin-left:auto">
+    <span id="weekLabel">—</span>
+  </span>
 </nav>
+
+<!-- ===== AUTH ===== -->
+<main class="card" id="authCard" style="max-width:1160px;margin:16px auto;">
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <strong>Account</strong>
+    <span id="acctEmail" class="small">Not signed in</span>
+    <button id="btnSignOut" class="btn small" style="display:none">Sign out</button>
+  </div>
+  <div id="authForm" style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <input id="emailInput" type="email" placeholder="Email for sign in link" />
+    <button id="btnSendLink" class="btn small">Send magic link</button>
+    <input id="displayName" type="text" placeholder="Your display name (optional)" />
+    <button id="btnSaveName" class="btn small">Save name</button>
+    <span class="small" id="authNote" style="opacity:.85"></span>
+  </div>
+</main>
 
 <!-- ===== NFL ===== -->
 <section id="sec-nfl" class="section active" aria-labelledby="tab-nfl">
   <main>
-    <div id="nfl-top" class="card" style="display:none">
+    <section id="nfl-top" class="card" style="display:none">
       <div class="small" id="nfl-liveHeader">—</div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0">
-        <button id="nfl-backBtn" class="btn small" style="display:none">← Back to games</button>
-        <button id="nfl-addPickBtn" class="btn small">Add to my picks</button>
-        <span id="nfl-picksLeft" class="small" style="opacity:.85"></span>
-        <span class="small" style="margin-left:10px;opacity:.8">Jump:</span>
-        <select id="nfl-jump" class="btn small" style="min-width:260px;max-width:60vw"></select>
-        <button id="nfl-jumpBtn" class="btn small">View</button>
-      </div>
-      <div class="topGrid">
+      <div class="topGrid" style="margin-top:8px">
         <div id="nfl-teamSide"></div>
         <div class="scoreBox">
           <div class="small" style="margin-bottom:4px">Fantasy Score</div>
           <div id="nfl-fscore" class="num">—</div>
-          <div id="nfl-flow" class="small"></div>
+          <div id="nfl-bonuses" class="small">—</div>
         </div>
         <div class="statusBox">
           <div class="small" style="margin-bottom:4px">Game Status</div>
-          <div class="small">Clock: <strong id="nfl-clock">—</strong></div>
-          <div class="small">Quarter: <strong id="nfl-q">—</strong></div>
-          <div class="small">State: <strong id="nfl-state">—</strong></div>
+          <div class="small">Clock: <b id="nfl-clock">—</b></div>
+          <div class="small">Quarter: <b id="nfl-q">—</b></div>
+          <div class="small">State: <b id="nfl-state">—</b></div>
         </div>
       </div>
-    </div>
-
-    <section id="nfl-splash" class="card">
-      <div id="nfl-weekNote" class="small">Loading…</div>
       <div class="sep"></div>
-      <div id="nfl-gridNote" class="small gridNote">—</div>
-      <div id="nfl-grid" class="gamesGrid"></div>
+      <div>
+        <button id="nfl-back" class="btn small">← Back to games</button>
+        <button id="nfl-addPick" class="btn small" style="margin-left:8px">Add to my picks</button>
+      </div>
+      <div class="sep"></div>
+      <h3 style="margin:0 0 6px 0">Recent Scoring Plays</h3>
+      <div id="nfl-log" class="log"></div>
     </section>
 
-    <section id="nfl-tracker" style="display:none">
-      <div class="contentGrid">
-        <section class="card">
-          <div class="lbHeaderRow">
-            <h2 style="margin:0">Games Leaderboard (Top 10)</h2>
-            <button id="nfl-toggleAll" class="btn small" aria-expanded="false">Show all</button>
-          </div>
-          <div id="nfl-lb"></div>
-        </section>
-        <section class="card">
-          <h3 style="margin:0 0 6px 0">Recent Scoring Plays</h3>
-          <div id="nfl-log" class="log"></div>
-        </section>
-      </div>
+    <section id="nfl-gridCard" class="card">
+      <div class="small" id="nfl-note">Loading NFL week…</div>
+      <div class="sep"></div>
+      <div id="nfl-grid" class="gamesGrid"></div>
     </section>
   </main>
 </section>
 
 <!-- ===== NCAA ===== -->
-<section id="sec-ncaaf" class="section" aria-labelledby="tab-ncaaf">
+<section id="sec-ncaa" class="section" aria-labelledby="tab-ncaa">
   <main>
-    <div id="ncaaf-top" class="card" style="display:none">
-      <div class="small" id="ncaaf-liveHeader">—</div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0">
-        <button id="ncaaf-backBtn" class="btn small" style="display:none">← Back to games</button>
-        <button id="ncaaf-addPickBtn" class="btn small">Add to my picks</button>
-        <span id="ncaaf-picksLeft" class="small" style="opacity:.85"></span>
-        <span class="small" style="margin-left:10px;opacity:.8">Jump:</span>
-        <select id="ncaaf-jump" class="btn small" style="min-width:260px;max-width:60vw"></select>
-        <button id="ncaaf-jumpBtn" class="btn small">View</button>
-      </div>
-      <div class="topGrid">
-        <div id="ncaaf-teamSide"></div>
+    <section id="ncaa-top" class="card" style="display:none">
+      <div class="small" id="ncaa-liveHeader">—</div>
+      <div class="topGrid" style="margin-top:8px">
+        <div id="ncaa-teamSide"></div>
         <div class="scoreBox">
           <div class="small" style="margin-bottom:4px">Fantasy Score</div>
-          <div id="ncaaf-fscore" class="num">—</div>
-          <div id="ncaaf-flow" class="small"></div>
+          <div id="ncaa-fscore" class="num">—</div>
+          <div id="ncaa-bonuses" class="small">—</div>
         </div>
         <div class="statusBox">
           <div class="small" style="margin-bottom:4px">Game Status</div>
-          <div class="small">Clock: <strong id="ncaaf-clock">—</strong></div>
-          <div class="small">Quarter: <strong id="ncaaf-q">—</strong></div>
-          <div class="small">State: <strong id="ncaaf-state">—</strong></div>
+          <div class="small">Clock: <b id="ncaa-clock">—</b></div>
+          <div class="small">Quarter: <b id="ncaa-q">—</b></div>
+          <div class="small">State: <b id="ncaa-state">—</b></div>
         </div>
       </div>
-    </div>
-
-    <section id="ncaaf-splash" class="card">
-      <div id="ncaaf-weekNote" class="small">Loading…</div>
       <div class="sep"></div>
-      <div id="ncaaf-gridNote" class="small gridNote">—</div>
-      <div id="ncaaf-grid" class="gamesGrid"></div>
+      <div>
+        <button id="ncaa-back" class="btn small">← Back to games</button>
+        <button id="ncaa-addPick" class="btn small" style="margin-left:8px">Add to my picks</button>
+      </div>
+      <div class="sep"></div>
+      <h3 style="margin:0 0 6px 0">Recent Scoring Plays</h3>
+      <div id="ncaa-log" class="log"></div>
     </section>
 
-    <section id="ncaaf-tracker" style="display:none">
-      <div class="contentGrid">
-        <section class="card">
-          <div class="lbHeaderRow">
-            <h2 style="margin:0">Games Leaderboard (Top 10)</h2>
-            <button id="ncaaf-toggleAll" class="btn small" aria-expanded="false">Show all</button>
-          </div>
-          <div id="ncaaf-lb"></div>
-        </section>
-        <section class="card">
-          <h3 style="margin:0 0 6px 0">Recent Scoring Plays</h3>
-          <div id="ncaaf-log" class="log"></div>
-        </section>
-      </div>
+    <section id="ncaa-gridCard" class="card">
+      <div class="small" id="ncaa-note">Loading NCAA week…</div>
+      <div class="sep"></div>
+      <div id="ncaa-grid" class="gamesGrid"></div>
     </section>
   </main>
 </section>
 
-<!-- ===== My Picks (DB) ===== -->
-<section id="sec-picks" class="section" aria-labelledby="tab-picks">
-  <main>
-    <section class="card">
-      <div class="lbHeaderRow">
-        <h2 style="margin:0">My Picks (this week · stored in DB)</h2>
-        <div class="small" id="picksBadge">—</div>
-      </div>
-      <div id="myPicksList"></div>
-    </section>
-  </main>
-</section>
-
-<!-- ===== Leaderboards ===== -->
-<section id="sec-leaders" class="section" aria-labelledby="tab-leaders">
-  <main>
-    <div class="lg-grid">
-      <section class="card">
-        <div class="lbHeaderRow">
-          <h2 style="margin:0">NFL — Weekly</h2>
-          <button id="lb-nfl-week-refresh" class="btn small">Refresh</button>
-        </div>
-        <div id="lb-nfl-week"></div>
+<!-- ===== LEADERBOARD ===== -->
+<section id="sec-lb" class="section" aria-labelledby="tab-lb">
+  <main class="card">
+    <div class="lbHeaderRow">
+      <h2 style="margin:0">Leaderboards</h2>
+      <span class="small" id="lbWeekLabel">—</span>
+    </div>
+    <div class="sep"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <section class="panel">
+        <h3 style="margin:0 0 6px 0">NFL — This Week</h3>
+        <div id="lbNFLWeek"></div>
+        <div class="sep"></div>
+        <h3 style="margin:0 0 6px 0">NFL — Season</h3>
+        <div id="lbNFLSeason"></div>
       </section>
-      <section class="card">
-        <div class="lbHeaderRow">
-          <h2 style="margin:0">NFL — Season</h2>
-          <button id="lb-nfl-season-refresh" class="btn small">Refresh</button>
-        </div>
-        <div id="lb-nfl-season"></div>
-      </section>
-      <section class="card">
-        <div class="lbHeaderRow">
-          <h2 style="margin:0">NCAA — Weekly</h2>
-          <button id="lb-ncaa-week-refresh" class="btn small">Refresh</button>
-        </div>
-        <div id="lb-ncaa-week"></div>
-      </section>
-      <section class="card">
-        <div class="lbHeaderRow">
-          <h2 style="margin:0">NCAA — Season</h2>
-          <button id="lb-ncaa-season-refresh" class="btn small">Refresh</button>
-        </div>
-        <div id="lb-ncaa-season"></div>
+      <section class="panel">
+        <h3 style="margin:0 0 6px 0">NCAA — This Week</h3>
+        <div id="lbNCAAWeek"></div>
+        <div class="sep"></div>
+        <h3 style="margin:0 0 6px 0">NCAA — Season</h3>
+        <div id="lbNCAASeason"></div>
       </section>
     </div>
   </main>
 </section>
 
-<div id="toasts"></div>
+<!-- =========================  SCRIPT  ========================= -->
+<script type="module">
+/* ---------- Supabase ---------- */
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-<script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script>
-/* ===================== CONFIG / STATE ===================== */
-const TZ='America/New_York';
-const POLL_MS=20000, LB_POLL_MS=60000, GRID_POLL_MS=30000, PICKS_REQUIRED=3;
+const SB_URL  = "https://zrsqxylrcblcvtomamgd.supabase.co";
+const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyc3F4eWxyY2JsY3Z0b21hbWdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNDAzOTYsImV4cCI6MjA3MjgxNjM5Nn0._H00AQ0VCLs3fkM2lKaWV-I4n9qKf51yjKmorxnonzw";
 
-/* Fantasy scoring weights */
-const W={TD:3,FG:2,XP:0.5,TWO:1,YARD:0.05,FIRST_DOWN:0.5,SACK:2.5,TFL:1.5,INT:5.5,FR:5,DEF_TD_BONUS:3,SAFETY:6,STOP:2,ST_RETURN_TD:8,BLOCK:5,CLOSE_GAME:10,OVERTIME:15};
+const sb = createClient(SB_URL, SB_ANON);
+window.sb = sb; // for quick debugging
 
-/* Bots (leaderboard only) */
-const AI_COUNT=25, BOT_PREFIX='ai-';
-const AI_NAMES=['GridironBot','BlitzBrain','PocketOracle','HailMaryAI','TwoMinuteDrill','ChainMover','RedZoneRobo','SnapCount','NeutralZone','DriveEngine','TurfWizard','SidelineSynth','YACMachine','PlaybookGPT','NickelNerd','SafetyValve','SkyKick','GoalLineGolem','BoothReview','AudibleAI','TempoTactician','OptionOverlord','HotRoute','EdgeRusher','FieldGeneral'];
+/* ---------- UI helpers ---------- */
+const $ = (id)=>document.getElementById(id);
+const weekLabel    = $("weekLabel");
+const sbStatus     = $("sbStatus");
+const authStatus   = $("authStatus");
+const picksLeftUI  = $("picksLeft");
 
-/* Supabase */
-const SB_URL="https://zrsqxylrcblcvtomamgd.supabase.co";
-const SB_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyc3F4eWxyY2JsY3Z0b21hbWdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNDAzOTYsImV4cCI6MjA3MjgxNjM5Nn0._H00AQ0VCLs3fkM2lKaWV-I4n9qKf51yjKmorxnonzw";
-const sb=supabase.createClient(SB_URL, SB_ANON);
+const tabs = {
+  nfl:  { tab:$("tab-nfl"),  sec:$("sec-nfl") },
+  ncaa: { tab:$("tab-ncaa"), sec:$("sec-ncaa") },
+  lb:   { tab:$("tab-lb"),   sec:$("sec-lb") },
+};
+Object.keys(tabs).forEach(k=>{
+  tabs[k].tab.addEventListener("click", ()=>{
+    Object.keys(tabs).forEach(x=>{
+      tabs[x].tab.setAttribute("aria-selected", x===k ? "true" : "false");
+      tabs[x].sec.classList.toggle("active", x===k);
+    });
+  });
+});
 
-/* Helpers */
-const $=id=>document.getElementById(id);
-function toast(m){const d=document.createElement('div');d.className='toast';d.textContent=m;$('toasts').appendChild(d);setTimeout(()=>d.remove(),2600);}
-function nowEST(){return new Date(new Date().toLocaleString('en-US',{timeZone:TZ}));}
-function addDaysEST(d,n){const x=new Date(d.getTime());x.setDate(x.getDate()+n);return new Date(x.toLocaleString('en-US',{timeZone:TZ}));}
-function parts(d,o){const p=new Intl.DateTimeFormat('en-US',o).formatToParts(d),r={};p.forEach(x=>r[x.type]=x.value);return r;}
-function weekKey(){const n=nowEST(),wd=n.getDay(),ds=(wd-2+7)%7,tue=addDaysEST(n,-ds);const hh=Number(parts(n,{hour:'2-digit',hour12:false,timeZone:TZ}).hour);const a=(hh>=8||ds>0)?tue:addDaysEST(tue,-7);const k=parts(a,{year:'numeric',month:'2-digit',day:'2-digit',timeZone:TZ});return `${k.year}-${k.month}-${k.day}-Tue08ET`;}
-function weekDates(){const n=nowEST(),wd=n.getDay(),ds=(wd-2+7)%7,tue=addDaysEST(n,-ds);const list=[];for(let i=0;i<7;i++){const dd=addDaysEST(tue,i),p=parts(dd,{year:'numeric',month:'2-digit',day:'2-digit',timeZone:TZ});list.push(`${p.year}-${p.month}-${p.day}`);}const P=parts(tue,{month:'2-digit',day:'2-digit',timeZone:TZ});const mon=addDaysEST(tue,6);const Q=parts(mon,{month:'2-digit',day:'2-digit',timeZone:TZ});return{start:list[0],end:list[6],list,pretty:`${P.month}/${P.day} → ${Q.month}/${Q.day}`};}
-function ymd(s){return s.replaceAll('-','');}
-async function safeFetch(url,opts={},retries=2){for(let i=0;i<=retries;i++){try{const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),15000);const res=await fetch(url,{...opts,signal:ctl.signal});clearTimeout(t);if(!res.ok)throw new Error('HTTP '+res.status);return await res.json();}catch(e){if(i===retries)throw e;await new Promise(r=>setTimeout(r,600*(i+1)));}}}
-function logoNFL(t){if(!t)return null;if(t.logos?.[0]?.href)return String(t.logos[0].href).replace(/^http:/,'https:');if(t.abbreviation)return`https://a.espncdn.com/i/teamlogos/nfl/500/${t.abbreviation}.png`;return null;}
-function logoNCAAF(t){if(!t)return null;if(t.logos?.[0]?.href)return String(t.logos[0].href).replace(/^http:/,'https:');if(t.id)return`https://a.espncdn.com/i/teamlogos/ncaa/500/${t.id}.png`;if(t.abbreviation)return`https://a.espncdn.com/i/teamlogos/ncaa/500/${t.abbreviation}.png`;return null;}
+/* ---------- Week window (Tue→Mon) ---------- */
+const TZ = "America/New_York";
+function nowEST(){ return new Date(new Date().toLocaleString('en-US',{timeZone:TZ})); }
+function addDaysEST(d,days){ const x=new Date(d.getTime()); x.setDate(x.getDate()+days); return new Date(x.toLocaleString('en-US',{timeZone:TZ})); }
+function parts(d,opts){ const p=new Intl.DateTimeFormat('en-US',opts).formatToParts(d); const o={}; p.forEach(x=>o[x.type]=x.value); return o; }
+function weekKey(){
+  const n=nowEST(), wd=n.getDay(); // 0 Sun
+  const daysSinceTue=(wd-2+7)%7;
+  const tue=addDaysEST(n,-daysSinceTue);
+  const hh=Number(parts(n,{hour:'2-digit',hour12:false}).hour);
+  const anchor=(daysSinceTue>0 || hh>=8)?tue:addDaysEST(tue,-7);
+  const p=parts(anchor,{year:'numeric',month:'2-digit',day:'2-digit'});
+  return `${p.year}-${p.month}-${p.day}-Tue08ET`;
+}
+function weekDates(){
+  const n=nowEST(), wd=n.getDay();
+  const daysSinceTue=(wd-2+7)%7; const tue=addDaysEST(n,-daysSinceTue);
+  const list=[]; for(let i=0;i<7;i++){ const d=addDaysEST(tue,i); const p=parts(d,{year:'numeric',month:'2-digit',day:'2-digit'}); list.push(`${p.year}-${p.month}-${p.day}`); }
+  const sp=parts(tue,{month:'2-digit',day:'2-digit'}), ep=parts(addDaysEST(tue,6),{month:'2-digit',day:'2-digit'});
+  return {list, pretty:`${sp.month}/${sp.day} → ${ep.month}/${ep.day}`, start:list[0], end:list[6]};
+}
+const WEEK_KEY = weekKey();
+const WEEK = weekDates();
+weekLabel.textContent = `Week: ${WEEK.pretty} (Tue→Mon)`;
 
-/* ============== AUTH ============== */
-const sbStateEl=$('sbState'), userLabel=$('userLabel'), loginBtn=$('loginBtn'), logoutBtn=$('logoutBtn');
-let currentUser=null;
-function setAuthUI(){if(currentUser){sbStateEl.textContent='Supabase: Signed in';userLabel.textContent=currentUser.email;loginBtn.style.display='none';logoutBtn.style.display='inline-block';}else{sbStateEl.textContent='Supabase: Ready (signed out)';userLabel.textContent='';loginBtn.style.display='inline-block';logoutBtn.style.display='none';}}
-sb.auth.onAuthStateChange((_e,session)=>{currentUser=session?.user||null;setAuthUI();nfl.refreshPicksFromDB();ncaaf.refreshPicksFromDB();buildWeeklyBoards();});
-loginBtn.onclick=async()=>{const email=prompt('Enter email to sign in (magic link):');if(!email)return;const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.href}});if(error){alert('Sign-in error: '+error.message);return;}alert('Check your email for the sign-in link, then return here.');};
-logoutBtn.onclick=async()=>{await sb.auth.signOut();toast('Signed out');};
+/* ---------- Auth UI ---------- */
+const authCard    = $("authCard");
+const acctEmail   = $("acctEmail");
+const btnSendLink = $("btnSendLink");
+const btnSignOut  = $("btnSignOut");
+const emailInput  = $("emailInput");
+const displayName = $("displayName");
+const btnSaveName = $("btnSaveName");
+const authNote    = $("authNote");
 
-/* =================== LEAGUE (DB picks) =================== */
-function createLeague(cfg){
-  const ST={selected:null,weekly:[],started:new Set(),cache:new Map(),lbRows:[],showAll:false,poll:null,lbPoll:null,gridPoll:null,myPicks:new Set()};
-  const WK=weekKey();
+btnSendLink.addEventListener("click", async ()=>{
+  const email = (emailInput.value||"").trim();
+  if(!email){ authNote.textContent="Enter your email first."; return; }
+  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.href }});
+  authNote.textContent = error ? ("Error: "+error.message) : "Check your inbox for the sign-in link.";
+});
 
-  /* DB */
-  async function refreshPicksFromDB(){
-    if(!currentUser){ST.myPicks.clear();updatePicksLeft();renderMyPicks();return;}
-    const {data,error}=await sb.from('picks').select('game_id').eq('user_id',currentUser.id).eq('week_key',WK);
-    if(error){console.error(error);return;}
-    ST.myPicks=new Set((data||[]).map(r=>r.game_id));
-    updatePicksLeft();renderMyPicks();
+btnSignOut.addEventListener("click", async ()=>{
+  await sb.auth.signOut();
+});
+
+btnSaveName.addEventListener("click", async ()=>{
+  const name=(displayName.value||"").trim();
+  const { data:{user} } = await sb.auth.getUser(); if(!user){ alert("Sign in first"); return; }
+  const { error } = await sb.from("players").upsert({ user_id:user.id, display_name:name }, { onConflict:"user_id" });
+  alert(error ? "Save failed" : "Name saved");
+});
+
+sb.auth.onAuthStateChange(async (evt, sess)=>{
+  const on = !!sess;
+  sbStatus.className = "chip " + (on ? "ok" : "bad");
+  sbStatus.textContent = "Supabase: " + (on? "ON":"OFF");
+  authStatus.textContent = on ? "Signed in" : "Logged out";
+  acctEmail.textContent  = on ? (sess.user.email||"") : "Not signed in";
+  btnSignOut.style.display = on ? "" : "none";
+});
+
+/* ---------- ESPN helpers ---------- */
+function cdnNFL(t){ if(!t) return null; if(t.logos?.[0]?.href) return String(t.logos[0].href).replace(/^http:/,'https:'); if(t.abbreviation) return `https://a.espncdn.com/i/teamlogos/nfl/500/${t.abbreviation}.png`; return null; }
+function cdnNCAA(t){ if(!t) return null; if(t.logos?.[0]?.href) return String(t.logos[0].href).replace(/^http:/,'https:'); if(t.id) return `https://a.espncdn.com/i/teamlogos/ncaa/500/${t.id}.png`; if(t.abbreviation) return `https://a.espncdn.com/i/teamlogos/ncaa/500/${t.abbreviation}.png`; return null; }
+
+async function safeJson(url, retries=2){
+  for(let i=0;i<=retries;i++){
+    try{
+      const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(), 15000);
+      const r=await fetch(url,{signal:ctl.signal}); clearTimeout(t);
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      return await r.json();
+    }catch(e){ if(i===retries) throw e; await new Promise(r=>setTimeout(r, 600*(i+1))); }
   }
-  async function addPickDB(gameId){
-    if(!currentUser){toast('Sign in first');return;}
-    if(ST.myPicks.size>=PICKS_REQUIRED){toast('You already have '+PICKS_REQUIRED+' picks.');return;}
-    const {error}=await sb.from('picks').upsert(
-      {user_id:currentUser.id,week_key:WK,game_id:gameId},
-      {onConflict:'user_id,week_key,game_id',ignoreDuplicates:true}
-    ).select().maybeSingle();
-    if(error){toast('Save failed');console.error(error);return;}
-    ST.myPicks.add(gameId);updatePicksLeft();renderMyPicks();toast('Pick added');
-  }
-  async function removePickDB(gameId){
-    if(!currentUser)return;
-    const {error}=await sb.from('picks').delete().eq('user_id',currentUser.id).eq('week_key',WK).eq('game_id',gameId);
-    if(error){console.error(error);toast('Remove failed');return;}
-    ST.myPicks.delete(gameId);updatePicksLeft();renderMyPicks();toast('Pick removed');
-  }
-  function picksCount(){return ST.myPicks.size;}
-  function hasPick(id){return ST.myPicks.has(id);}
-  function updatePicksLeft(){const left=Math.max(0,PICKS_REQUIRED-picksCount());$(cfg.ids.picksLeft).textContent=`${left} pick${left===1?'':'s'} left this week`;$('picksBadge').textContent=`${cfg.label}: ${picksCount()}/${PICKS_REQUIRED}`;}
+}
 
-  /* UI toggles */
-  function isLocked(g){if(ST.started.has(g.id))return true;const now=nowEST().getTime(),kick=new Date(g.start).getTime();if(now>=kick){ST.started.add(g.id);return true;}return false;}
-  function renderGrid(list){
-    const grid=$(cfg.ids.grid);grid.innerHTML='';
-    for(const g of list){
-      const band=`linear-gradient(90deg, ${g.away.color?('#'+g.away.color):'#1a232d'} 0%, ${g.home.color?('#'+g.home.color):'#26313c'} 100%)`;
-      const started=isLocked(g);
-      const kick=new Date(g.start).toLocaleString([], {weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
-      const picked=hasPick(g.id);
-      const card=document.createElement('div');card.className='gameCard';
-      card.innerHTML=`
-        <div class="band" style="background:${band}"></div>
+/* ---------- Fantasy math (your weights) ---------- */
+const W = { TD:3, FG:2, XP:0.5, TWO:1, YARD:0.05, FIRST_DOWN:0.5, SACK:2.5, TFL:1.5, INT:5.5, FR:5, DEF_TD_BONUS:3, SAFETY:6, STOP:2, ST_RETURN_TD:8, BLOCK:5, CLOSE_GAME:10, OVERTIME:15 };
+
+function sumStatsFromSummary(summary){
+  const t={ yards:0, firstDowns:0, tfl:0, sacks:0, thirdMade:0, thirdAtt:0, fourthMade:0, fourthAtt:0, safeties:0 };
+  const teams = summary?.boxscore?.teams || [];
+  const f=(arr, key)=>arr.find(s=>s.name===key || s.abbreviation===key) || null;
+  for(const tm of teams){
+    const st = tm.statistics||[];
+    const ry=f(st,'rushingYards'), py=f(st,'netPassingYards');
+    const ryv = ry ? Number(ry.value || ry.displayValue || 0) : 0;
+    const pyv = py ? Number(py.value || py.displayValue || 0) : 0;
+    t.yards += (isNaN(ryv)?0:ryv) + (isNaN(pyv)?0:pyv);
+    const fd=f(st,'firstDowns'); t.firstDowns += fd ? Number(fd.value || fd.displayValue || 0) : 0;
+    const sa=f(st,'sacks'); let sval=0; if(sa){ const dv=String(sa.displayValue||'').split('-')[0]; sval = sa.value ? Number(sa.value) : Number(dv); if(isNaN(sval)) sval=0; }
+    t.sacks += sval;
+    const tl=f(st,'tacklesForLoss'); t.tfl += tl ? Number(tl.value || tl.displayValue || 0) : 0;
+    const th=f(st,'thirdDownEff'); const thv = th ? String(th.displayValue||'0-0').split('-') : ['0','0']; t.thirdMade+=Number(thv[0]||0); t.thirdAtt+=Number(thv[1]||0);
+    const fh=f(st,'fourthDownEff'); const fhv = fh ? String(fh.displayValue||'0-0').split('-') : ['0','0']; t.fourthMade+=Number(fhv[0]||0); t.fourthAtt+=Number(fhv[1]||0);
+    const sf=f(st,'safeties'); t.safeties += sf ? Number(sf.value || sf.displayValue || 0) : 0;
+  }
+  return t;
+}
+function parsePBP(pbp){
+  let plays=[]; try{
+    const gp=pbp?.gamepackageJSON;
+    const prev=gp?.drives?.previous || [];
+    const curr=gp?.drives?.current || [];
+    const add=(arr)=>{ if(Array.isArray(arr)){ for(const d of arr){ if(Array.isArray(d.plays)) plays = plays.concat(d.plays); } } };
+    add(prev); add(curr);
+  }catch(e){}
+  return plays;
+}
+function calcFantasyFrom(summary, box, pbp){
+  const comp = summary?.header?.competitions?.[0] || {};
+  const status = comp.status || {};
+  const teams = comp.competitors || [];
+  let homeC=null, awayC=null; for(const c of teams){ if(c.homeAway==='home') homeC=c; if(c.homeAway==='away') awayC=c; }
+  const homePts=Number(homeC?.score ?? 0), awayPts=Number(awayC?.score ?? 0);
+
+  const totals = sumStatsFromSummary(summary);
+  const stopsEff=(totals.thirdAtt - totals.thirdMade) + (totals.fourthAtt - totals.fourthMade);
+
+  let TD=0, FG=0, XP=0, TWO=0, stReturnTD=0, blocks=0, defTdBonus=0, safeties=totals.safeties||0;
+  const sps = summary?.scoringPlays || [];
+  for(const sp of sps){
+    const d=String(sp.text||sp.description||'').toLowerCase();
+    const t=String(sp.type?.text||sp.scoringType||'').toLowerCase();
+    if(t.includes('touchdown') || d.includes('touchdown')){
+      TD++;
+      if(d.includes('punt return') || d.includes('kickoff return') || d.includes('kick return')) stReturnTD++;
+      if(d.includes('interception return') || d.includes('fumble return') || d.includes('blocked punt') || d.includes('blocked kick') || d.includes('fumble recovered in end zone')) defTdBonus++;
+      if(d.includes('safety')) safeties++;
+    } else if(t.includes('field goal') || d.includes('field goal')) FG++;
+    else if(t.includes('extra point') || d.includes('extra point is good')) XP++;
+    else if(t.includes('two-point') || d.includes('two-point')){ if(d.includes('successful') || d.includes('is good') || d.includes('good')) TWO++; }
+    if(d.includes('blocked')) blocks++;
+  }
+
+  const plays = parsePBP(pbp);
+  let sacksP=0,tflP=0,stopsP=0,fdP=0,intP=0,frP=0,defTDP=0,stTDP=stReturnTD,safetyP=0,blockP=blocks,xpP=0,twoP=0;
+  for(const p of plays){
+    const txt=String(p.text||'').toLowerCase();
+    if(txt.includes('sacked')) sacksP++;
+    if(txt.includes('tackle for loss')) tflP++;
+    const dn=p.down;
+    const gotFirst = txt.includes('first down') || /1st and/i.test(txt);
+    const tod = txt.includes('turnover on downs');
+    const punt = txt.startsWith('punt');
+    const fg  = (txt.includes('field goal')) && (txt.includes('is good') || txt.includes('missed') || txt.includes('blocked'));
+    if((dn===3 || dn===4) && !gotFirst && (tod || punt || fg)) stopsP++;
+    if(txt.includes('first down')) fdP++;
+    if(txt.includes('intercepted')){ intP++; if(txt.includes('for a touchdown')) defTDP++; }
+    if(txt.includes('fumble')){ if(txt.includes('recovered')) frP++; if(txt.includes('for a touchdown') || txt.includes('recovered in end zone')) defTDP++; }
+    if((txt.includes('punt') || txt.includes('kickoff') || txt.includes('kick return')) && txt.includes('returns') && txt.includes('for a touchdown')) stTDP++;
+    if(txt.includes('safety')) safetyP++;
+    if(txt.includes('blocked punt') || txt.includes('blocked field goal') || (txt.includes('blocked') && txt.includes('kick'))) blockP++;
+    if(txt.includes('extra point') && (txt.includes('is good') || txt.includes('good'))) xpP++;
+    if(txt.includes('two-point') && (txt.includes('successful') || txt.includes('good'))) twoP++;
+  }
+  if(!totals.sacks || totals.sacks<sacksP) totals.sacks=sacksP;
+  if(!totals.tfl   || totals.tfl<tflP)     totals.tfl=tflP;
+  if(!totals.firstDowns) totals.firstDowns=fdP;
+
+  const stops = Math.max(stopsEff, stopsP);
+  const XPf   = Math.max(XP, xpP);
+  const TWOf  = Math.max(TWO, twoP);
+  const stTDB = Math.max(stReturnTD, stTDP);
+  const safF  = Math.max(safeties, safetyP, totals.safeties||0);
+  const blockF= Math.max(blocks, blockP);
+
+  const offense = TD*W.TD + FG*W.FG + XPf*W.XP + TWOf*W.TWO + totals.yards*W.YARD + totals.firstDowns*W.FIRST_DOWN;
+  const defense = totals.sacks*W.SACK + totals.tfl*W.TFL + intP*W.INT + frP*W.FR + defTdBonus*W.DEF_TD_BONUS + safF*W.SAFETY + stops*W.STOP + stTDB*W.ST_RETURN_TD + blockF*W.BLOCK;
+
+  const isFinal = (status?.type?.state==='post' || status?.type?.completed===true) ? true:false;
+  const margin = Math.abs(homePts-awayPts);
+  const closeBonus = (isFinal && margin<=7) ? W.CLOSE_GAME : 0;
+  const otBonus = ((status?.period>4) && isFinal) ? W.OVERTIME : 0;
+  const total = offense + defense + closeBonus + otBonus;
+
+  return {
+    total: Number(total.toFixed(2)),
+    homePts, awayPts,
+    statusText: (status?.type?.shortDetail || status?.type?.description || "—"),
+    isFinal
+  };
+}
+
+/* ---------- League builder ---------- */
+function leagueFactory({ league, label, secIds, cdn, api }) {
+  const state = {
+    events: [],
+    selected: null,
+    poll: null,
+    scoreCache: new Map()
+  };
+
+  const dom = {
+    gridCard: $(secIds.gridCard),
+    note:     $(secIds.note),
+    grid:     $(secIds.grid),
+    top:      $(secIds.top),
+    back:     $(secIds.backBtn),
+    addPick:  $(secIds.addBtn),
+    live:     $(secIds.liveHeader),
+    teamSide: $(secIds.teamSide),
+    fscore:   $(secIds.fscore),
+    bonus:    $(secIds.bonus),
+    clock:    $(secIds.clock),
+    q:        $(secIds.q),
+    st:       $(secIds.state),
+    log:      $(secIds.log)
+  };
+
+  dom.back.addEventListener("click", ()=>{ dom.top.style.display="none"; dom.gridCard.style.display="block"; state.selected=null; });
+
+  dom.addPick.addEventListener("click", async ()=>{
+    try{
+      const { data:{user} } = await sb.auth.getUser();
+      if(!user){ alert("Sign in first"); return; }
+      if(!state.selected){ return; }
+      // lock at kickoff
+      const kick = new Date(state.selected.start).getTime();
+      if(Date.now() >= kick){ alert("Locked (game already started)"); return; }
+      const { error } = await sb.from("picks").upsert(
+        { user_id:user.id, week_key:WEEK_KEY, league, game_id:String(state.selected.id) },
+        { onConflict:"user_id,week_key,league,game_id" }
+      );
+      if(error) throw error;
+      toast("Pick saved ✓");
+      updatePicksLeft();
+    }catch(e){ console.error(e); toast("Save failed"); }
+  });
+
+  function toast(msg){
+    const t=document.createElement("div");
+    t.textContent=msg;
+    Object.assign(t.style,{position:"fixed",right:"16px",bottom:"16px",background:"#0f1318",border:"1px solid #264",padding:"8px 10px",borderRadius:"10px",zIndex:50});
+    document.body.appendChild(t); setTimeout(()=>t.remove(), 1600);
+  }
+
+  function band(aColor, hColor){
+    return `linear-gradient(90deg, ${aColor?("#"+aColor):"#1a232d"} 0%, ${hColor?("#"+hColor):"#26313c"} 100%)`;
+  }
+
+  function renderGrid(){
+    dom.grid.innerHTML="";
+    for(const g of state.events){
+      const started = Date.now() >= new Date(g.start).getTime();
+      const card = document.createElement("div");
+      card.className="gameCard";
+      const kick = new Date(g.start).toLocaleString([], {weekday:"short", month:"short", day:"numeric", hour:"numeric", minute:"2-digit"});
+      card.innerHTML = `
+        <div class="band" style="background:${band(g.away.color, g.home.color)}"></div>
         <div class="gameBody">
           <div class="teamsRow">
             <div class="team">
-              ${g.away.logo?`<img src="${g.away.logo}" alt="">`:''}
+              ${g.away.logo?`<img src="${g.away.logo}" alt="">`:``}
               <div class="name">${g.away.name}</div>
-              <span class="scoreTag" id="${cfg.prefix}-a-${g.id}">0</span>
+              <span class="scoreTag" id="${league}-a-${g.id}">0</span>
             </div>
             <div class="small" style="opacity:.8">@</div>
             <div class="team" style="justify-content:flex-end">
-              ${g.home.logo?`<img src="${g.home.logo}" alt="">`:''}
+              ${g.home.logo?`<img src="${g.home.logo}" alt="">`:``}
               <div class="name">${g.home.name}</div>
-              <span class="scoreTag" id="${cfg.prefix}-h-${g.id}">0</span>
+              <span class="scoreTag" id="${league}-h-${g.id}">0</span>
             </div>
           </div>
           <div class="small" style="margin-top:6px;opacity:.9">
-            Score: <span id="${cfg.prefix}-scr-${g.id}">—</span> · <span id="${cfg.prefix}-st-${g.id}">pre</span> · Kick: ${kick}
+            Score: <span id="${league}-scr-${g.id}">—</span>
+            &middot; <span id="${league}-st-${g.id}">pre</span>
+            &middot; Kick: ${kick}
           </div>
           <div class="lockRow">
-            <button class="btn pickBtn">${picked?'Remove pick':'Add to my picks'}</button>
+            <button class="btn lockBtn" ${started?'disabled':''}>Add to my picks</button>
             <button class="btn small viewBtn">Open</button>
           </div>
           ${started?'<div class="small" style="color:#c78;margin-top:6px">Locked (already started)</div>':''}
-        </div>`;
-      card.querySelector('.viewBtn').onclick=()=>openGame(g);
-      card.querySelector('.pickBtn').onclick=async()=>{
-        if(started){toast('Locked');return;}
-        if(!currentUser){toast('Sign in first');return;}
-        if(hasPick(g.id)) await removePickDB(g.id); else await addPickDB(g.id);
-        renderGrid(ST.weekly);
-      };
-      grid.appendChild(card);
+        </div>
+      `;
+      card.querySelector(".viewBtn").addEventListener("click", ()=>openGame(g));
+      card.querySelector(".lockBtn").addEventListener("click", async ()=>{
+        const { data:{user} } = await sb.auth.getUser(); if(!user){ alert("Sign in first"); return; }
+        if(Date.now() >= new Date(g.start).getTime()){ alert("Locked (game already started)"); return; }
+        const { error } = await sb.from("picks").upsert(
+          { user_id:user.id, week_key:WEEK_KEY, league, game_id:String(g.id) },
+          { onConflict:"user_id,week_key,league,game_id" }
+        );
+        if(error){ console.error(error); toast("Save failed"); }
+        else { toast("Pick saved ✓"); updatePicksLeft(); }
+      });
+      dom.grid.appendChild(card);
     }
   }
-  function fillJump(){const sel=$(cfg.ids.jump);sel.innerHTML='';const items=ST.weekly.slice().sort((a,b)=>new Date(a.start)-new Date(b.start));for(const g of items){const when=new Date(g.start).toLocaleString([],{weekday:'short',hour:'numeric',minute:'2-digit'});const o=document.createElement('option');o.value=g.id;o.textContent=`${when} — ${g.away.name} @ ${g.home.name}`;sel.appendChild(o);}}
-  $(cfg.ids.jumpBtn).onclick=()=>{const id=$(cfg.ids.jump).value;const g=ST.weekly.find(x=>x.id===id);if(g)openGame(g);};
-  function openGame(g){
-    ST.selected=g;
-    $(cfg.ids.liveHeader).textContent=`${g.away.name} @ ${g.home.name}`;
-    $(cfg.ids.teamSide).innerHTML=`
-      <div class="teamline" style="border-left:6px solid ${g.away.color?('#'+g.away.color):'#2a3643'}">
-        <div style="display:flex;gap:10px;align-items:center">${g.away.logo?`<img src="${g.away.logo}" alt="" style="width:22px;height:22px">`:''}<div style="font-weight:700">${g.away.name}</div></div>
-        <div id="${cfg.ids.awayScore}" style="font-weight:800">—</div>
-      </div>
-      <div class="teamline" style="border-left:6px solid ${g.home.color?('#'+g.home.color):'#2a3643'}">
-        <div style="display:flex;gap:10px;align-items:center">${g.home.logo?`<img src="${g.home.logo}" alt="" style="width:22px;height:22px">`:''}<div style="font-weight:700">${g.home.name}</div></div>
-        <div id="${cfg.ids.homeScore}" style="font-weight:800">—</div>
-      </div>`;
-    $(cfg.ids.splash).style.display='none';$(cfg.ids.top).style.display='block';$(cfg.ids.tracker).style.display='block';
-    $(cfg.ids.backBtn).style.display='inline-block';
-    refreshOnce(); if(ST.poll)clearInterval(ST.poll); ST.poll=setInterval(refreshOnce, POLL_MS); fillJump(); updatePicksLeft();
-  }
-  $(cfg.ids.backBtn).onclick=()=>{ $(cfg.ids.top).style.display='none'; $(cfg.ids.tracker).style.display='none'; $(cfg.ids.splash).style.display='block'; ST.selected=null; if(ST.poll) clearInterval(ST.poll); };
 
-  /* ESPN ingest */
+  async function computeRow(eventId){
+    const cached = state.scoreCache.get(eventId);
+    if(cached?.final) return cached;
+    try{
+      const summary = await safeJson(api.summary(eventId));
+      const box     = await safeJson(api.box(eventId));
+      const pbp     = await safeJson(api.pbp(eventId));
+      const comp = summary?.header?.competitions?.[0] || {};
+      let homeC=null, awayC=null; (comp.competitors||[]).forEach(c=>{ if(c.homeAway==='home') homeC=c; if(c.homeAway==='away') awayC=c; });
+      const homeName = homeC?.team ? (homeC.team.shortDisplayName||homeC.team.displayName) : "Home";
+      const awayName = awayC?.team ? (awayC.team.shortDisplayName||awayC.team.displayName) : "Away";
+      const homeLogo = cdn(homeC?.team||null), awayLogo = cdn(awayC?.team||null);
+      const sc = calcFantasyFrom(summary, box, pbp);
+      const row = { id:eventId, awayName, homeName, awayLogo, homeLogo, awayPts:sc.awayPts, homePts:sc.homePts, score:sc.total, status:sc.statusText, final:sc.isFinal };
+      if(row.final) state.scoreCache.set(eventId,row);
+      return row;
+    }catch(e){ return null; }
+  }
+
+  async function refreshGridScores(){
+    for(const g of state.events){
+      const r = await computeRow(g.id); if(!r) continue;
+      const scEl = $(`${league}-scr-${g.id}`), stEl = $(`${league}-st-${g.id}`);
+      const aEl  = $(`${league}-a-${g.id}`),  hEl  = $(`${league}-h-${g.id}`);
+      if(scEl) scEl.textContent = `${r.awayPts}–${r.homePts}`;
+      if(stEl) stEl.textContent = r.status||"—";
+      if(aEl)  aEl.textContent  = r.awayPts;
+      if(hEl)  hEl.textContent  = r.homePts;
+    }
+  }
+
+  function openGame(g){
+    state.selected=g;
+    dom.live.textContent = `${g.away.name} @ ${g.home.name}`;
+    dom.teamSide.innerHTML = `
+      <div class="teamline" style="border-left:6px solid ${g.away.color?("#"+g.away.color):"#2a3643"}">
+        <div style="display:flex;gap:10px;align-items:center">${g.away.logo?`<img src="${g.away.logo}" alt="">`:``}<div style="font-weight:700">${g.away.name}</div></div>
+        <div id="${league}-awayScore" style="font-weight:800">—</div>
+      </div>
+      <div class="teamline" style="border-left:6px solid ${g.home.color?("#"+g.home.color):"#2a3643"}">
+        <div style="display:flex;gap:10px;align-items:center">${g.home.logo?`<img src="${g.home.logo}" alt="">`:``}<div style="font-weight:700">${g.home.name}</div></div>
+        <div id="${league}-homeScore" style="font-weight:800">—</div>
+      </div>
+    `;
+    dom.gridCard.style.display="none";
+    dom.top.style.display="block";
+    updateGameOnce();
+    if(state.poll) clearInterval(state.poll);
+    state.poll=setInterval(updateGameOnce, 20000);
+  }
+
+  async function updateGameOnce(){
+    if(!state.selected) return;
+    const id = state.selected.id;
+    try{
+      const summary = await safeJson(api.summary(id));
+      const box     = await safeJson(api.box(id));
+      const pbp     = await safeJson(api.pbp(id));
+      const comp = summary?.header?.competitions?.[0] || {};
+      const status = comp.status || {};
+      let homeC=null, awayC=null; (comp.competitors||[]).forEach(c=>{ if(c.homeAway==='home') homeC=c; if(c.homeAway==='away') awayC=c; });
+      $(`${league}-homeScore`).textContent = String(homeC?.score ?? 0);
+      $(`${league}-awayScore`).textContent = String(awayC?.score ?? 0);
+      dom.clock.textContent = status.displayClock || "—";
+      dom.q.textContent     = String(status.period ?? "—");
+      dom.st.textContent    = (status.type?.description || status.type?.shortDetail || "—");
+
+      const sc = calcFantasyFrom(summary, box, pbp);
+      dom.fscore.textContent = sc.total.toFixed(2);
+      const closeTxt = (sc.isFinal && Math.abs((homeC?.score??0)-(awayC?.score??0))<=7) ? 'Close (+10)' : '—';
+      const otTxt = ((status.period>4) && sc.isFinal) ? 'OT (+15)' : '—';
+      dom.bonus.textContent = `Bonuses: ${closeTxt} · ${otTxt}`;
+
+      const sps = summary?.scoringPlays || [];
+      dom.log.innerHTML = "";
+      for(const sp of sps.slice(-10).reverse()){
+        const t = (sp.clock?.displayValue||"");
+        const q = (sp.period?.number ? "Q"+sp.period.number : "");
+        const d = sp.text || sp.description || "";
+        const div=document.createElement("div"); div.textContent=`[${q} ${t}] ${d}`;
+        dom.log.appendChild(div);
+      }
+    }catch(e){}
+  }
+
   async function loadWeek(){
-    $(cfg.ids.grid).innerHTML='';$(cfg.ids.weekNote).textContent='Loading week…';
-    if(ST.poll)clearInterval(ST.poll);if(ST.lbPoll)clearInterval(ST.lbPoll);if(ST.gridPoll)clearInterval(ST.gridPoll);
-    ST.started.clear();ST.weekly.length=0;ST.cache.clear();ST.lbRows.length=0;
-    const range=weekDates();
-    const boards=await Promise.all(range.list.map(d=>safeFetch(cfg.scoreboard+ymd(d)).catch(()=>null)));
-    const seen=new Set(),base=[];
-    for(const sb of boards){
-      const evs=sb?.events||[];
+    dom.note.textContent = `Loading ${label} games for ${WEEK.start} → ${WEEK.end} …`;
+    const all=[];
+    for(const d of WEEK.list){
+      const sb = await safeJson(api.scoreboard(d)).catch(()=>null);
+      const evs = sb?.events || [];
       for(const ev of evs){
-        if(seen.has(ev.id))continue;seen.add(ev.id);
-        const comp=ev.competitions?.[0]||{};const cs=comp.competitors||[];
-        let home=null,away=null;for(const c of cs){if(c.homeAway==='home')home=c;if(c.homeAway==='away')away=c;}
-        const stateStr=comp.status?.type?.state||'pre'; if(stateStr!=='pre') ST.started.add(ev.id);
-        base.push({id:ev.id,competitionId:comp.id||ev.id,start:ev.date,state:stateStr,
-          home:{name:home?.team?(home.team.shortDisplayName||home.team.displayName):'Home',id:home?.team?.id||null,abbr:home?.team?.abbreviation||'',logo:cfg.logo(home?.team||null),color:home?.team?.color||null},
-          away:{name:away?.team?(away.team.shortDisplayName||away.team.displayName):'Away',id:away?.team?.id||null,abbr:away?.team?.abbreviation||'',logo:cfg.logo(away?.team||null),color:away?.team?.color||null}});
+        const comp = ev.competitions?.[0]||{};
+        const cs = comp.competitors||[];
+        let home=null, away=null;
+        for(const c of cs){ if(c.homeAway==='home') home=c; if(c.homeAway==='away') away=c; }
+        all.push({
+          id: ev.id,
+          start: ev.date,
+          home: { name: home?.team ? (home.team.shortDisplayName||home.team.displayName) : "Home", color: home?.team?.color||null, logo: cdn(home?.team||null) },
+          away: { name: away?.team ? (away.team.shortDisplayName||away.team.displayName) : "Away", color: away?.team?.color||null, logo: cdn(away?.team||null) }
+        });
       }
     }
-    base.sort((a,b)=>new Date(a.start)-new Date(b.start)); ST.weekly=base;
-    $(cfg.ids.gridNote).textContent=`${cfg.label}: ${range.start} → ${range.end} (Tue→Mon ${range.pretty})`;
-    $(cfg.ids.weekNote).textContent=`${base.length} games`;
-    renderGrid(base); fillJump(); updatePicksLeft();
-    await refreshPicksFromDB(); startGridPolling(); refreshLB(); if(ST.lbPoll)clearInterval(ST.lbPoll); ST.lbPoll=setInterval(refreshLB,LB_POLL_MS);
+    all.sort((a,b)=> new Date(a.start)-new Date(b.start));
+    state.events = all;
+    dom.note.textContent = `${all.length} games`;
+    renderGrid();
+    refreshGridScores();
+    setInterval(refreshGridScores, 30000);
   }
-  async function refreshGridScores(){
-    if(!ST.weekly.length) return;
-    for(const ev of ST.weekly){
-      const row=await computeRow(ev.id); if(!row)continue;
-      const sc=$(`${cfg.prefix}-scr-${ev.id}`), st=$(`${cfg.prefix}-st-${ev.id}`);
-      if(sc) sc.textContent=`${row.awayPts}–${row.homePts}`; if(st) st.textContent=row.status||'—';
-      const a=$(`${cfg.prefix}-a-${ev.id}`), h=$(`${cfg.prefix}-h-${ev.id}`); if(a) a.textContent=row.awayPts; if(h) h.textContent=row.homePts;
-    }
-  }
-  function startGridPolling(){refreshGridScores();if(ST.gridPoll)clearInterval(ST.gridPoll);ST.gridPoll=setInterval(refreshGridScores,GRID_POLL_MS);}
 
-  /* Scoring (same as earlier build) */
-  function sumStats(summary){const t={yards:0,firstDowns:0,tfl:0,sacks:0,thirdMade:0,thirdAtt:0,fourthMade:0,fourthAtt:0,safeties:0},teams=summary?.boxscore?.teams||[];const get=(a,k)=>a.find(s=>s.name===k||s.abbreviation===k)||null;for(const m of teams){const s=m.statistics||[];const ry=get(s,'rushingYards'),py=get(s,'netPassingYards');const ryv=ry?Number(ry.value||ry.displayValue||0):0;const pyv=py?Number(py.value||py.displayValue||0):0;t.yards+=(isNaN(ryv)?0:ryv)+(isNaN(pyv)?0:pyv);const fd=get(s,'firstDowns');t.firstDowns+=fd?Number(fd.value||fd.displayValue||0):0;const sa=get(s,'sacks');let sval=0;if(sa){const dv=String(sa.displayValue||'').split('-')[0];sval=sa.value?Number(sa.value):Number(dv);if(isNaN(sval))sval=0;}t.sacks+=sval;const tf=get(s,'tacklesForLoss');t.tfl+=tf?Number(tf.value||tf.displayValue||0):0;const th=get(s,'thirdDownEff');const tv=th?String(th.displayValue||'0-0').split('-'):['0','0'];t.thirdMade+=Number(tv[0]||0);t.thirdAtt+=Number(tv[1]||0);const fh=get(s,'fourthDownEff');const fv=fh?String(fh.displayValue||'0-0').split('-'):['0','0'];t.fourthMade+=Number(fv[0]||0);t.fourthAtt+=Number(fv[1]||0);const sf=get(s,'safeties');t.safeties+=sf?Number(sf.value||sf.displayValue||0):0;}return t;}
-  function parsePBP(pbp){let a=[];try{const gp=pbp?.gamepackageJSON;const prev=gp?.drives?.previous,curr=gp?.drives?.current;const add=X=>{if(Array.isArray(X)) for(const d of X) if(Array.isArray(d.plays)) a=a.concat(d.plays);};add(prev);add(curr);}catch(_){ }return a;}
-  function calcFantasy(summary,box,pbp){const comp=summary?.header?.competitions?.[0]||{};const status=comp.status||{},cs=comp.competitors||[];let homeC=null,awayC=null;for(const c of cs){if(c.homeAway==='home')homeC=c;if(c.homeAway==='away')awayC=c;}const homePts=Number(homeC?.score??0),awayPts=Number(awayC?.score??0);const totals=sumStats(summary);const stopsEff=(totals.thirdAtt-totals.thirdMade)+(totals.fourthAtt-totals.fourthMade);let TD=0,FG=0,XP=0,TWO=0,stReturnTD=0,blocks=0,defTdBonus=0,safeties=totals.safeties||0;const sps=summary?.scoringPlays||[];for(const sp of sps){const d=String(sp.text||sp.description||'').toLowerCase();const t=String((sp.type&&sp.type.text)||sp.scoringType||'').toLowerCase();if(t.includes('touchdown')||d.includes('touchdown')){TD++;if(d.includes('punt return')||d.includes('kickoff return')||d.includes('kick return'))stReturnTD++;if(d.includes('interception return')||d.includes('fumble return')||d.includes('blocked punt')||d.includes('blocked kick')||d.includes('fumble recovered in end zone'))defTdBonus++;if(d.includes('safety'))safeties++;}else if(t.includes('field goal')||d.includes('field goal'))FG++;else if(t.includes('extra point')||d.includes('extra point is good'))XP++;else if(t.includes('two-point')||d.includes('two-point')){if(d.includes('successful')||d.includes('is good')||d.includes('good'))TWO++;}if(d.includes('blocked'))blocks++;}const plays=parsePBP(pbp);let sacksP=0,tflP=0,stopsP=0,fdP=0,intP=0,frP=0,defTDP=0,stTDP=stReturnTD,safetyP=0,blockP=blocks,xpP=0,twoP=0;for(const p of plays){const x=String(p.text||'').toLowerCase();if(x.includes('sacked'))sacksP++;if(x.includes('tackle for loss'))tflP++;const dn=p.down;const gotFirst=x.includes('first down')||/1st and/i.test(x);const tod=x.includes('turnover on downs');const punt=x.startsWith('punt');const fg=(x.includes('field goal'))&&(x.includes('is good')||x.includes('missed')||x.includes('blocked'));if((dn===3||dn===4)&&!gotFirst&&(tod||punt||fg))stopsP++;if(x.includes('first down'))fdP++;if(x.includes('intercepted')){intP++;if(x.includes('for a touchdown'))defTDP++;}if(x.includes('fumble')){if(x.includes('recovered'))frP++;if(x.includes('for a touchdown')||x.includes('recovered in end zone'))defTDP++;}if((x.includes('punt')||x.includes('kickoff')||x.includes('kick return'))&&x.includes('returns')&&x.includes('for a touchdown'))stTDP++;if(x.includes('safety'))safetyP++;if(x.includes('blocked punt')||x.includes('blocked field goal')||(x.includes('blocked')&&x.includes('kick')))blockP++;if(x.includes('extra point')&&(x.includes('is good')||x.includes('good')))xpP++;if(x.includes('two-point')&&(x.includes('successful')||x.includes('good')))twoP++;}if(!totals.sacks||totals.sacks<sacksP)totals.sacks=sacksP;if(!totals.tfl||totals.tfl<tflP)totals.tfl=tflP;if(!totals.firstDowns)totals.firstDowns=fdP;const stops=Math.max(stopsEff,stopsP);const XPf=Math.max(XP,xpP);const TWOf=Math.max(TWO,twoP);const stTDB=Math.max(stReturnTD,stTDP);const safF=Math.max(safeties,safetyP,totals.safeties||0);const blockF=Math.max(blocks,blockP);const offense=TD*W.TD+FG*W.FG+XPf*W.XP+TWOf*W.TWO+totals.yards*W.YARD+totals.firstDowns*W.FIRST_DOWN;const defense=totals.sacks*W.SACK+totals.tfl*W.TFL+intP*W.INT+frP*W.FR+defTdBonus*W.DEF_TD_BONUS+safF*W.SAFETY+stops*W.STOP+stTDB*W.ST_RETURN_TD+blockF*W.BLOCK;const isFinal=(status?.type&&(status.type.state==='post'||status.type.completed===true))?true:false;const margin=Math.abs(homePts-awayPts);const closeBonus=(isFinal&&margin<=7)?W.CLOSE_GAME:0;const otBonus=((status?.period>4)&&isFinal)?W.OVERTIME:0;const total=offense+defense+closeBonus+otBonus;return{total:Number(total.toFixed(2)),homePts,awayPts,statusText:(status?.type?.shortDetail||status?.type?.description||'—'),isFinal};}
-  async function computeRow(eventId){const c=ST.cache.get(eventId);if(c?.final)return c;try{const summary=await safeFetch(cfg.summary+eventId);const box=await safeFetch(cfg.box+eventId);const pbp=await safeFetch(cfg.pbp+eventId);const comp=summary?.header?.competitions?.[0]||{};const cs=comp.competitors||[];let homeC=null,awayC=null;for(const x of cs){if(x.homeAway==='home')homeC=x;if(x.homeAway==='away')awayC=x;}const homeName=homeC?.team?(homeC.team.shortDisplayName||homeC.team.displayName||'Home'):'Home';const awayName=awayC?.team?(awayC.team.shortDisplayName||awayC.team.displayName||'Away'):'Away';const homeLogo=cfg.logo(homeC?.team||null),awayLogo=cfg.logo(awayC?.team||null);const f=calcFantasy(summary,box,pbp);const row={id:eventId,awayName,homeName,awayLogo,homeLogo,awayPts:f.awayPts,homePts:f.homePts,score:f.total,status:f.statusText,final:f.isFinal};if(row.final)ST.cache.set(eventId,row);return row;}catch(_){return null;}}
-  async function refreshLB(){if(!ST.weekly.length)return;const rows=[];for(const g of ST.weekly){const r=await computeRow(g.id);if(r)rows.push(r);}rows.sort((a,b)=>b.score-a.score);ST.lbRows=rows;renderLB();}
-  function renderLB(){const box=$(cfg.ids.lb);box.innerHTML='';const rows=ST.showAll?ST.lbRows:ST.lbRows.slice(0,10);if(!rows.length){box.innerHTML='<div class="small">—</div>';return;}for(const r of rows){const div=document.createElement('div');div.className='lbRow';div.innerHTML=`<div class="lbTeam">${r.awayLogo?`<img src="${r.awayLogo}" alt="">`:''}<span class="lbName">${r.awayName}</span><span class="scoreTag">${r.awayPts}</span><span class="small" style="margin:0 6px;opacity:.8">at</span>${r.homeLogo?`<img src="${r.homeLogo}" alt="">`:''}<span class="lbName">${r.homeName}</span><span class="scoreTag">${r.homePts}</span></div><div class="lbPts">${r.score.toFixed(2)}</div><div class="lbMeta">${r.status}</div>`;div.onclick=()=>{const g=ST.weekly.find(x=>x.id===r.id);if(g)openGame(g);};box.appendChild(div);}$(cfg.ids.toggleAll).textContent=ST.showAll?'Show top 10':'Show all';$(cfg.ids.toggleAll).setAttribute('aria-expanded',ST.showAll?'true':'false');}
-  $(cfg.ids.toggleAll).onclick=()=>{ST.showAll=!ST.showAll;renderLB();};
-  async function refreshOnce(){if(!ST.selected)return;try{const id=ST.selected.id;const summary=await safeFetch(cfg.summary+id);const box=await safeFetch(cfg.box+id);const pbp=await safeFetch(cfg.pbp+id);const comp=summary?.header?.competitions?.[0]||{};const status=comp.status||{};const cs=comp.competitors||[];let homeC=null,awayC=null;for(const c of cs){if(c.homeAway==='home')homeC=c;if(c.homeAway==='away')awayC=c;}$(cfg.ids.homeScore).textContent=String(homeC?.score??0);$(cfg.ids.awayScore).textContent=String(awayC?.score??0);$(cfg.ids.clock).textContent=status.displayClock||'—';$(cfg.ids.q).textContent=(status.period??'—');$(cfg.ids.state).textContent=(status.type?.description||status.type?.shortDetail||'—');const f=calcFantasy(summary,box,pbp);$(cfg.ids.fscore).textContent=f.total.toFixed(2);const closeTxt=(f.isFinal&&Math.abs((Number(homeC?.score||0))-(Number(awayC?.score||0)))<=7)?'Close (+10)':'—';const otTxt=((status.period>4)&&f.isFinal)?'OT (+15)':'—';$(cfg.ids.flow).textContent=`Bonuses: ${closeTxt} · ${otTxt}`;const logBox=$(cfg.ids.log);const sps=summary?.scoringPlays||[];const key=cfg.prefix+'.seen.'+id;const seen=new Set(JSON.parse(localStorage.getItem(key)||'[]'));const now=[];for(const sp of sps){if(!seen.has(sp.id)){const t=(sp.clock?.displayValue)||'';const q=(sp.period?.number)?('Q'+sp.period.number):'';now.push(`[${q} ${t}] ${sp.text||sp.description||''}`);seen.add(sp.id);}}for(let i=now.length-1;i>=0;i--){const d=document.createElement('div');d.textContent=now[i];logBox.prepend(d);}localStorage.setItem(key,JSON.stringify([...seen]));}catch(_){ }}
-  function renderMyPicks(){const target=$('myPicksList');target.innerHTML='';const ids=[...ST.myPicks];if(!ids.length){target.innerHTML='<div class="small">No picks yet. Open a game and click “Add to my picks”.</div>';return;}for(const id of ids){const row=ST.weekly.find(x=>x.id===id)||{};const item=document.createElement('div');item.className='lbRow';item.innerHTML=`<div class="lbTeam">${row.away?.logo?`<img src="${row.away.logo}" alt="">`:''}<span class="lbName">${row.away?.name||'Away'}</span><span class="small" style="margin:0 6px;opacity:.8">at</span>${row.home?.logo?`<img src="${row.home.logo}" alt="">`:''}<span class="lbName">${row.home?.name||'Home'}</span></div><div class="lbPts" id="${cfg.prefix}-pickpts-${id}">…</div><div><button class="btn small" data-open="${id}">Open</button> <button class="btn small" data-del="${id}">Remove</button></div>`;target.appendChild(item);}target.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{const g=ST.weekly.find(x=>x.id===b.dataset.open);if(g)openGame(g);});target.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>removePickDB(b.dataset.del));(async()=>{for(const id of ids){const r=await computeRow(id);if(r){const el=$(`${cfg.prefix}-pickpts-${id}`);if(el)el.textContent=r.score.toFixed(2);}}})();}
-
-  /* boot */
-  (async()=>{await loadWeek();})();
-  return { getWeeklyEvents:()=>ST.weekly.slice(), computeRow, refreshPicksFromDB };
+  return { loadWeek };
 }
 
-/* Build leagues */
-const nfl=createLeague({
-  sectionId:'sec-nfl', prefix:'nfl', label:'NFL', logo:logoNFL,
-  scoreboard:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=',
-  summary:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=',
-  box:'https://cdn.espn.com/core/nfl/boxscore?xhr=1&gameId=',
-  pbp:'https://cdn.espn.com/core/nfl/playbyplay?xhr=1&gameId=',
-  ids:{ splash:'nfl-splash', top:'nfl-top', tracker:'nfl-tracker', liveHeader:'nfl-liveHeader', teamSide:'nfl-teamSide',
-        addPickBtn:'nfl-addPickBtn', picksLeft:'nfl-picksLeft', jump:'nfl-jump', jumpBtn:'nfl-jumpBtn',
-        fscore:'nfl-fscore', flow:'nfl-flow', clock:'nfl-clock', q:'nfl-q', state:'nfl-state',
-        weekNote:'nfl-weekNote', gridNote:'nfl-gridNote', grid:'nfl-grid',
-        lb:'nfl-lb', toggleAll:'nfl-toggleAll', log:'nfl-log',
-        awayScore:'awayScoreNFL', homeScore:'homeScoreNFL', backBtn:'nfl-backBtn' }
-});
-const ncaaf=createLeague({
-  sectionId:'sec-ncaaf', prefix:'ncaaf', label:'NCAA FBS', logo:logoNCAAF,
-  scoreboard:'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=',
-  summary:'https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=',
-  box:'https://cdn.espn.com/core/college-football/boxscore?xhr=1&gameId=',
-  pbp:'https://cdn.espn.com/core/college-football/playbyplay?xhr=1&gameId=',
-  ids:{ splash:'ncaaf-splash', top:'ncaaf-top', tracker:'ncaaf-tracker', liveHeader:'ncaaf-liveHeader', teamSide:'ncaaf-teamSide',
-        addPickBtn:'ncaaf-addPickBtn', picksLeft:'ncaaf-picksLeft', jump:'ncaaf-jump', jumpBtn:'ncaaf-jumpBtn',
-        fscore:'ncaaf-fscore', flow:'ncaaf-flow', clock:'ncaaf-clock', q:'ncaaf-q', state:'ncaaf-state',
-        weekNote:'ncaaf-weekNote', gridNote:'ncaaf-gridNote', grid:'ncaaf-grid',
-        lb:'ncaaf-lb', toggleAll:'ncaaf-toggleAll', log:'ncaaf-log',
-        awayScore:'awayScoreNCAAF', homeScore:'homeScoreNCAAF', backBtn:'ncaaf-backBtn' }
-});
-
-/* Tabs */
-const tabs=[{btn:$('tab-nfl'),sec:$('sec-nfl')},{btn:$('tab-ncaaf'),sec:$('sec-ncaaf')},{btn:$('tab-picks'),sec:$('sec-picks')},{btn:$('tab-leaders'),sec:$('sec-leaders')}];
-function selectTab(ix){tabs.forEach((t,i)=>{t.btn.setAttribute('aria-selected',i===ix?'true':'false');t.sec.classList.toggle('active',i===ix);});}
-tabs.forEach((t,i)=>t.btn.addEventListener('click',()=>selectTab(i)));
-
-/* ===== Weekly + Season Leaderboards (NFL/NCAA) ===== */
-function currentWK(){return weekKey();}
-async function computeAnyRow(id){return await nfl.computeRow(id) || await ncaaf.computeRow(id);}
-
-function renderLBList(container, rows){
-  const el=$(container); el.innerHTML='';
-  if(!rows.length){ el.innerHTML='<div class="small">No data.</div>'; return; }
-  for(const r of rows){
-    const d=document.createElement('div'); d.className='lbRow';
-    d.innerHTML=`<div class="lbTeam"><span class="lbName">${r.name}</span>${r.isAI?'<span class="scoreTag" style="margin-left:8px">AI</span>':''}</div><div class="lbPts">${r.total.toFixed(2)}</div><div class="lbMeta">${r.meta||''}</div>`;
-    el.appendChild(d);
+/* ---------- Build NFL / NCAA ---------- */
+const NFL = leagueFactory({
+  league:"NFL", label:"NFL",
+  cdn: cdnNFL,
+  secIds:{
+    gridCard:"nfl-gridCard", note:"nfl-note", grid:"nfl-grid",
+    top:"nfl-top", backBtn:"nfl-back", addBtn:"nfl-addPick", liveHeader:"nfl-liveHeader",
+    teamSide:"nfl-teamSide", fscore:"nfl-fscore", bonus:"nfl-bonuses",
+    clock:"nfl-clock", q:"nfl-q", state:"nfl-state", log:"nfl-log"
+  },
+  api:{
+    scoreboard:(d)=>`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${d.replace(/-/g,"")}`,
+    summary:(id)=>`https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${id}`,
+    box:(id)=>`https://cdn.espn.com/core/nfl/boxscore?xhr=1&gameId=${id}`,
+    pbp:(id)=>`https://cdn.espn.com/core/nfl/playbyplay?xhr=1&gameId=${id}`
   }
-}
+});
+const NCAA = leagueFactory({
+  league:"NCAA", label:"NCAA FBS",
+  cdn: cdnNCAA,
+  secIds:{
+    gridCard:"ncaa-gridCard", note:"ncaa-note", grid:"ncaa-grid",
+    top:"ncaa-top", backBtn:"ncaa-back", addBtn:"ncaa-addPick", liveHeader:"ncaa-liveHeader",
+    teamSide:"ncaa-teamSide", fscore:"ncaa-fscore", bonus:"ncaa-bonuses",
+    clock:"ncaa-clock", q:"ncaa-q", state:"ncaa-state", log:"ncaa-log"
+  },
+  api:{
+    scoreboard:(d)=>`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=${d.replace(/-/g,"")}`,
+    summary:(id)=>`https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=${id}`,
+    box:(id)=>`https://cdn.espn.com/core/college-football/boxscore?xhr=1&gameId=${id}`,
+    pbp:(id)=>`https://cdn.espn.com/core/college-football/playbyplay?xhr=1&gameId=${id}`
+  }
+});
 
-async function buildWeeklyLB(league){
-  const WK=currentWK();
-  const { data, error } = await sb.from('picks').select('user_id, game_id').eq('week_key', WK);
+/* ---------- Leaderboards ---------- */
+const lbWeek = {
+  NFL: $("lbNFLWeek"),
+  NCAA: $("lbNCAAWeek")
+};
+const lbSeason = {
+  NFL: $("lbNFLSeason"),
+  NCAA: $("lbNCAASeason")
+};
+$("lbWeekLabel").textContent = `Week: ${WEEK.pretty}`;
+
+async function picksForWeek(league){
+  const { data:{user} } = await sb.auth.getUser(); // not required to aggregate, but session keeps client warm
+  const { data, error } = await sb.from("picks")
+    .select("user_id, game_id")
+    .eq("week_key", WEEK_KEY)
+    .eq("league", league);
   if(error){ console.error(error); return []; }
-  const isNFL = league==='nfl';
-  // filter games belonging to this league
-  const gids=[...new Set(data.map(r=>r.game_id))];
-  const leagueSet=new Set();
-  for(const gid of gids){
-    const row = await (isNFL ? nfl.computeRow(gid) : ncaaf.computeRow(gid));
-    if(row) leagueSet.add(gid);
-  }
-  const perUser=new Map();
-  for(const r of data){ if(leagueSet.has(r.game_id)){ if(!perUser.has(r.user_id)) perUser.set(r.user_id,new Set()); perUser.get(r.user_id).add(r.game_id); } }
-  const out=[];
-  for(const [uid,set] of perUser){
-    let sum=0; for(const gid of set){ const row=await computeAnyRow(gid); if(row) sum+=row.score||0; }
-    out.push({ name: uid===currentUser?.id ? 'You' : uid.slice(0,8)+'…', total: sum });
-  }
-  // bots
-  const weeklyEvents = (isNFL?nfl.getWeeklyEvents():ncaaf.getWeeklyEvents());
-  const ranked=[]; for(const g of weeklyEvents){ const r=await computeAnyRow(g.id); if(r) ranked.push({id:g.id,score:r.score}); }
-  ranked.sort((a,b)=>b.score-a.score);
-  for(let i=0;i<Math.min(AI_COUNT,AI_NAMES.length);i++){
-    const chunk = ranked.slice(i*2,i*2+3).reduce((s,x)=>s+(x.score||0),0);
-    out.push({ name: AI_NAMES[i]+' (AI)', total: chunk, isAI:true });
-  }
-  out.sort((a,b)=>b.total-a.total);
-  return out;
+  return data;
+}
+async function allPastWeeks(){
+  const { data, error } = await sb.from("picks")
+    .select("user_id, week_key, league, game_id")
+    .lt("week_key", WEEK_KEY);
+  if(error){ console.error(error); return []; }
+  return data;
+}
+async function displayNameFor(uid){
+  const { data } = await sb.from("players").select("display_name").eq("user_id", uid).maybeSingle();
+  return data?.display_name || (uid.slice(0,6)+"…");
 }
 
-async function listPastWeeks(beforeKey){
-  const { data } = await sb.from('picks').select('week_key').lt('week_key', beforeKey).order('week_key', { ascending:true });
-  return [...new Set((data||[]).map(r=>r.week_key))];
+async function scoreForGame(league, gid){
+  // reuse same ESPN functions as leagues
+  const api = league==="NFL" ? NFL : NCAA;
+  const row = await (async()=>{ try{
+    const s = await safeJson(api.api.summary(gid));
+    const b = await safeJson(api.api.box(gid));
+    const p = await safeJson(api.api.pbp(gid));
+    return calcFantasyFrom(s,b,p).total || 0;
+  }catch(e){ return 0; } })();
+  return row;
 }
 
-async function buildSeasonLB(league){
-  const beforeWK=currentWK();
-  const weeks=await listPastWeeks(beforeWK);
-  if(!weeks.length) return [];
-  const isNFL = league==='nfl';
-  // accumulate rank points per week: 10..0
-  const totals=new Map(); // user_id -> pts
-  for(const wk of weeks){
-    const { data } = await sb.from('picks').select('user_id, game_id').eq('week_key', wk);
-    const gids=[...new Set(data.map(r=>r.game_id))];
-    const leagueSet=new Set();
-    for(const gid of gids){ const row = await (isNFL ? nfl.computeRow(gid) : ncaaf.computeRow(gid)); if(row) leagueSet.add(gid); }
-    const perUser=new Map();
-    for(const r of data){ if(leagueSet.has(r.game_id)){ if(!perUser.has(r.user_id)) perUser.set(r.user_id,new Set()); perUser.get(r.user_id).add(r.game_id); } }
-    const rows=[];
-    for(const [uid,set] of perUser){
-      let sum=0; for(const gid of set){ const r=await computeAnyRow(gid); if(r) sum+=r.score||0; }
-      rows.push({uid,total:sum});
+async function renderWeeklyLB(league){
+  const box = lbWeek[league];
+  box.innerHTML = '<div class="small">Computing…</div>';
+  const picks = await picksForWeek(league);
+  const byUser = {};
+  for(const pk of picks){ if(!byUser[pk.user_id]) byUser[pk.user_id]=[]; byUser[pk.user_id].push(pk.game_id); }
+  const rows=[];
+  for(const uid of Object.keys(byUser)){
+    let total=0;
+    for(const gid of byUser[uid]) total += await scoreForGame(league, gid);
+    rows.push({ uid, total, picks: byUser[uid].length });
+  }
+  rows.sort((a,b)=>b.total-a.total);
+  if(rows.length===0){ box.innerHTML='<div class="small">No picks yet.</div>'; return; }
+  box.innerHTML="";
+  for(const r of rows){
+    const name = await displayNameFor(r.uid);
+    const div = document.createElement("div"); div.className="lbRow";
+    div.innerHTML = `<div class="lbTeam"><span class="lbName">${name}</span> <span class="small" style="margin-left:6px;opacity:.8">(${r.picks}/3)</span></div><div class="lbPts">${r.total.toFixed(2)}</div><div class="small">Weekly</div>`;
+    box.appendChild(div);
+  }
+}
+
+async function renderSeasonLB(league){
+  const box = lbSeason[league];
+  box.innerHTML = '<div class="small">Computing…</div>';
+  const all = await allPastWeeks();
+  // group by week -> compute weekly ranks -> award 10..0
+  const perWeek = {};
+  for(const row of all.filter(r=>r.league===league)){
+    if(!perWeek[row.week_key]) perWeek[row.week_key]={};
+    if(!perWeek[row.week_key][row.user_id]) perWeek[row.week_key][row.user_id]=[];
+    perWeek[row.week_key][row.user_id].push(row.game_id);
+  }
+  const season = {};
+  const wkeys = Object.keys(perWeek).sort();
+  for(const wk of wkeys){
+    const tmp=[];
+    for(const uid of Object.keys(perWeek[wk])){
+      let total=0; for(const gid of perWeek[wk][uid]) total+= await scoreForGame(league,gid);
+      tmp.push({uid,total});
     }
-    rows.sort((a,b)=>b.total-a.total);
-    rows.forEach((r,idx)=>{ const pts=Math.max(10-idx,0); totals.set(r.uid,(totals.get(r.uid)||0)+pts); });
+    tmp.sort((a,b)=>b.total-a.total);
+    tmp.forEach((r,idx)=>{ const pts=Math.max(10-idx,0); season[r.uid]=(season[r.uid]||0)+pts; });
   }
-  const out=[]; totals.forEach((v,k)=>{ out.push({ name: k===currentUser?.id ? 'You' : k.slice(0,8)+'…', total: v, meta:'Season Pts' }); });
-  out.sort((a,b)=>b.total-a.total);
-  return out;
+  const rows = Object.keys(season).map(uid=>({uid,total:season[uid]})).sort((a,b)=>b.total-a.total);
+  if(rows.length===0){ box.innerHTML='<div class="small">No season data yet.</div>'; return; }
+  box.innerHTML="";
+  for(const r of rows){
+    const name = await displayNameFor(r.uid);
+    const div = document.createElement("div"); div.className="lbRow";
+    div.innerHTML = `<div class="lbTeam"><span class="lbName">${name}</span></div><div class="lbPts">${r.total}</div><div class="small">Season</div>`;
+    box.appendChild(div);
+  }
 }
 
-/* Build all four boards */
-async function buildWeeklyBoards(){
-  renderLBList('lb-nfl-week', await buildWeeklyLB('nfl'));
-  renderLBList('lb-ncaa-week', await buildWeeklyLB('ncaa'));
+/* ---------- Picks-left badge (per league) ---------- */
+async function updatePicksLeft(){
+  const { data:{user} } = await sb.auth.getUser();
+  if(!user){ picksLeftUI.textContent="Sign in to pick"; return; }
+  const { count: nflC }  = await sb.from("picks").select("*",{count:"exact", head:true}).eq("user_id",user.id).eq("league","NFL").eq("week_key",WEEK_KEY);
+  const { count: ncaaC } = await sb.from("picks").select("*",{count:"exact", head:true}).eq("user_id",user.id).eq("league","NCAA").eq("week_key",WEEK_KEY);
+  picksLeftUI.textContent = `NFL ${Math.max(3-(nflC||0),0)} left · NCAA ${Math.max(3-(ncaaC||0),0)} left`;
 }
-async function buildSeasonBoards(){
-  renderLBList('lb-nfl-season', await buildSeasonLB('nfl'));
-  renderLBList('lb-ncaa-season', await buildSeasonLB('ncaa'));
-}
-$('lb-nfl-week-refresh').onclick=buildWeeklyBoards;
-$('lb-ncaa-week-refresh').onclick=buildWeeklyBoards;
-$('lb-nfl-season-refresh').onclick=buildSeasonBoards;
-$('lb-ncaa-season-refresh').onclick=buildSeasonBoards;
 
-/* Initial auth + kick leaderboards */
-(async()=>{const {data:{session}}=await sb.auth.getSession();currentUser=session?.user||null;setAuthUI();buildWeeklyBoards();buildSeasonBoards();})();
+/* ---------- Boot ---------- */
+(async ()=>{
+  try{
+    // ping
+    try { await fetch(SB_URL+"/auth/v1/health"); sbStatus.className="chip ok"; sbStatus.textContent="Supabase: ON"; } catch{ /* noop */ }
+    await NFL.loadWeek();
+    await NCAA.loadWeek();
+    await renderWeeklyLB("NFL");
+    await renderWeeklyLB("NCAA");
+    await renderSeasonLB("NFL");
+    await renderSeasonLB("NCAA");
+    await updatePicksLeft();
+    // refresh leaderboards periodically
+    setInterval(async ()=>{
+      await renderWeeklyLB("NFL"); await renderWeeklyLB("NCAA");
+      await updatePicksLeft();
+    }, 60000);
+  }catch(e){ console.error(e); }
+})();
 </script>
-
-<!--
-====================== RUN ONCE IN SUPABASE (SQL) ======================
-
-create table if not exists public.players (
-  user_id uuid primary key references auth.users(id) on delete cascade,
-  display_name text
-);
-
-create table if not exists public.picks (
-  user_id uuid not null references auth.users(id) on delete cascade,
-  week_key text not null,
-  game_id text not null,
-  inserted_at timestamptz default now(),
-  primary key (user_id, week_key, game_id)
-);
-
-alter table public.players enable row level security;
-alter table public.picks  enable row level security;
-
-drop policy if exists "players_rw" on public.players;
-create policy "players_rw" on public.players
-  for select using (true)
-  with check (auth.uid() = user_id);
-
-drop policy if exists "picks_select_own" on public.picks;
-create policy "picks_select_own" on public.picks
-  for select using (true);
-
-drop policy if exists "picks_iud_own" on public.picks;
-create policy "picks_iud_own" on public.picks
-  for all using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-=======================================================================
--->
 </body>
 </html>
