@@ -792,5 +792,18 @@ async function updatePicksLeft(){
   }catch(e){ console.error(e); }
 })();
 </script>
+<!-- Supabase client -->
+<script src="https://unpkg.com/@supabase/supabase-js"></script>
+<script>
+  const sb = supabase.createClient(
+    "https://zrsqxylrcblcvtomamgd.supabase.co", // your project URL
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."   // your anon key
+  );
+
+  // expose globally so you can test in console
+  window.sb = sb;
+</script>
+
 </body>
 </html>
+
