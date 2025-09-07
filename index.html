@@ -245,32 +245,33 @@ let players=load('players',[]);
 let picks=load('picks',{}); if(!picks[WEEK_KEY]) picks[WEEK_KEY]={NFL:{},NCAA:{}}; save('picks',picks);
 /* ===== AI bots (hidden from selector, visible in lists/boards) ===== */
 const BOTS = [
-  { id: 'bot-a', name: 'AI Alpha' },
-  { id: 'bot-b', name: 'AI Bravo' },
-  { id: 'bot-c', name: 'AI Charlie' },
-  { id: 'bot-d', name: 'AI Delta' },
-  { id: 'bot-e', name: 'AI Echo' },
-  { id: 'bot-f', name: 'AI Foxtrot' },
-  { id: 'bot-g', name: 'AI Gamma' },
-  { id: 'bot-h', name: 'AI Horizon' },
-  { id: 'bot-i', name: 'AI Ion' },
-  { id: 'bot-j', name: 'AI Jupiter' },
-  { id: 'bot-k', name: 'AI Kappa' },
-  { id: 'bot-l', name: 'AI Lambda' },
-  { id: 'bot-m', name: 'AI Matrix' },
-  { id: 'bot-n', name: 'AI Nova' },
-  { id: 'bot-o', name: 'AI Orion' },
-  { id: 'bot-p', name: 'AI Phoenix' },
-  { id: 'bot-q', name: 'AI Quantum' },
-  { id: 'bot-r', name: 'AI Rogue' },
-  { id: 'bot-s', name: 'AI Sigma' },
-  { id: 'bot-t', name: 'AI Titan' },
-  { id: 'bot-u', name: 'AI Unity' },
-  { id: 'bot-v', name: 'AI Vector' },
-  { id: 'bot-w', name: 'AI Wolf' },
-  { id: 'bot-x', name: 'AI Xeno' },
-  { id: 'bot-y', name: 'AI Zenith' }
+  { id: 'bot-a', name: 'Bubbie' },
+  { id: 'bot-b', name: 'Stephen A Smith' },
+  { id: 'bot-c', name: 'DanQ8000' },
+  { id: 'bot-d', name: 'Garret Clark' },
+  { id: 'bot-e', name: 'Sean Walsh' },
+  { id: 'bot-f', name: 'Brad Dalke' },
+  { id: 'bot-g', name: 'Matt Scharff' },
+  { id: 'bot-h', name: 'Sploosh' },
+  { id: 'bot-i', name: 'Lee Corso' },
+  { id: 'bot-j', name: 'Pat McAfee' },
+  { id: 'bot-k', name: 'Desmond Howard' },
+  { id: 'bot-l', name: 'Kirk Herbstreit' },
+  { id: 'bot-m', name: 'Rece Davis' },
+  { id: 'bot-n', name: 'Chris Fowler' },
+  { id: 'bot-o', name: 'Booger McFarland' },
+  { id: 'bot-p', name: 'Dan Orlovsky' },
+  { id: 'bot-q', name: 'Shannon Sharpe' },
+  { id: 'bot-r', name: 'Skip Bayless' },
+  { id: 'bot-s', name: 'Charles Barkley' },
+  { id: 'bot-t', name: 'Shaquille O’Neal' },
+  { id: 'bot-u', name: 'Ernie Johnson' },
+  { id: 'bot-v', name: 'Kenny Smith' },
+  { id: 'bot-w', name: 'Jim Nantz' },
+  { id: 'bot-x', name: 'Tony Romo' },
+  { id: 'bot-y', name: 'Al Michaels' }
 ];
+
 
 const botNameById=Object.fromEntries(BOTS.map(b=>[b.id,b.name]));
 function isBot(id){ return !!botNameById[id]; }
@@ -504,3 +505,4 @@ function ensureBotPicks(){
 </script>
 </body>
 </html>
+
