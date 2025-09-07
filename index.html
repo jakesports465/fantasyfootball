@@ -60,6 +60,8 @@ input[type="email"],input[type="text"]{flex:1;background:#0b1117;border:1px soli
 .gridNote{margin-bottom:6px}
 header .right{display:flex;gap:8px;align-items:center}
 .toast{position:fixed;right:14px;bottom:14px;padding:10px 12px;border-radius:10px;background:#0f1318;border:1px solid #243241;color:#dfe9f5;box-shadow:0 4px 16px rgba(0,0,0,.35);z-index:100}
+.lg-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:1060px){.lg-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -203,20 +205,37 @@ header .right{display:flex;gap:8px;align-items:center}
   </main>
 </section>
 
-<!-- ===== Leaderboards (includes AI bots, not stored) ===== -->
+<!-- ===== Leaderboards ===== -->
 <section id="sec-leaders" class="section" aria-labelledby="tab-leaders">
   <main>
-    <div class="contentGrid">
+    <div class="lg-grid">
       <section class="card">
         <div class="lbHeaderRow">
-          <h2 style="margin:0">Weekly Player Leaderboard</h2>
-          <button id="all-toggle" class="btn small" aria-expanded="false">Refresh</button>
+          <h2 style="margin:0">NFL — Weekly</h2>
+          <button id="lb-nfl-week-refresh" class="btn small">Refresh</button>
         </div>
-        <div id="weekly-lb"></div>
+        <div id="lb-nfl-week"></div>
       </section>
       <section class="card">
-        <h3 style="margin:0 0 6px 0">Scoring Plays (last opened game)</h3>
-        <div id="all-log" class="log"></div>
+        <div class="lbHeaderRow">
+          <h2 style="margin:0">NFL — Season</h2>
+          <button id="lb-nfl-season-refresh" class="btn small">Refresh</button>
+        </div>
+        <div id="lb-nfl-season"></div>
+      </section>
+      <section class="card">
+        <div class="lbHeaderRow">
+          <h2 style="margin:0">NCAA — Weekly</h2>
+          <button id="lb-ncaa-week-refresh" class="btn small">Refresh</button>
+        </div>
+        <div id="lb-ncaa-week"></div>
+      </section>
+      <section class="card">
+        <div class="lbHeaderRow">
+          <h2 style="margin:0">NCAA — Season</h2>
+          <button id="lb-ncaa-season-refresh" class="btn small">Refresh</button>
+        </div>
+        <div id="lb-ncaa-season"></div>
       </section>
     </div>
   </main>
@@ -224,139 +243,89 @@ header .right{display:flex;gap:8px;align-items:center}
 
 <div id="toasts"></div>
 
-<!-- Supabase client -->
 <script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 /* ===================== CONFIG / STATE ===================== */
-const TZ = 'America/New_York';
-const POLL_MS = 20000, LB_POLL_MS = 60000, GRID_POLL_MS = 30000;
-const PICKS_REQUIRED = 3;
+const TZ='America/New_York';
+const POLL_MS=20000, LB_POLL_MS=60000, GRID_POLL_MS=30000, PICKS_REQUIRED=3;
 
 /* Fantasy scoring weights */
-const W = { TD:3, FG:2, XP:0.5, TWO:1, YARD:0.05, FIRST_DOWN:0.5, SACK:2.5, TFL:1.5, INT:5.5, FR:5, DEF_TD_BONUS:3, SAFETY:6, STOP:2, ST_RETURN_TD:8, BLOCK:5, CLOSE_GAME:10, OVERTIME:15 };
+const W={TD:3,FG:2,XP:0.5,TWO:1,YARD:0.05,FIRST_DOWN:0.5,SACK:2.5,TFL:1.5,INT:5.5,FR:5,DEF_TD_BONUS:3,SAFETY:6,STOP:2,ST_RETURN_TD:8,BLOCK:5,CLOSE_GAME:10,OVERTIME:15};
 
-/* Bots (leaderboard only; not stored) */
+/* Bots (leaderboard only) */
 const AI_COUNT=25, BOT_PREFIX='ai-';
 const AI_NAMES=['GridironBot','BlitzBrain','PocketOracle','HailMaryAI','TwoMinuteDrill','ChainMover','RedZoneRobo','SnapCount','NeutralZone','DriveEngine','TurfWizard','SidelineSynth','YACMachine','PlaybookGPT','NickelNerd','SafetyValve','SkyKick','GoalLineGolem','BoothReview','AudibleAI','TempoTactician','OptionOverlord','HotRoute','EdgeRusher','FieldGeneral'];
 
-/* Supabase (ON) */
-const SB_URL  = "https://zrsqxylrcblcvtomamgd.supabase.co";
-const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyc3F4eWxyY2JsY3Z0b21hbWdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNDAzOTYsImV4cCI6MjA3MjgxNjM5Nn0._H00AQ0VCLs3fkM2lKaWV-I4n9qKf51yjKmorxnonzw";
-const sb = supabase.createClient(SB_URL, SB_ANON);
+/* Supabase */
+const SB_URL="https://zrsqxylrcblcvtomamgd.supabase.co";
+const SB_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyc3F4eWxyY2JsY3Z0b21hbWdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNDAzOTYsImV4cCI6MjA3MjgxNjM5Nn0._H00AQ0VCLs3fkM2lKaWV-I4n9qKf51yjKmorxnonzw";
+const sb=supabase.createClient(SB_URL, SB_ANON);
 
-/* UI helpers */
-const $ = id => document.getElementById(id);
-function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; $('toasts').appendChild(t); setTimeout(()=>t.remove(), 2600); }
-function nowEST(){ return new Date(new Date().toLocaleString('en-US',{timeZone:TZ})); }
-function addDaysEST(d,days){ const n=new Date(d.getTime()); n.setDate(n.getDate()+days); return new Date(n.toLocaleString('en-US',{timeZone:TZ})); }
-function dfParts(d,opts){ const p=new Intl.DateTimeFormat('en-US',opts).formatToParts(d); const o={}; for(const x of p) o[x.type]=x.value; return o; }
-function dateKey(){ const n=nowEST(); const wd=n.getDay(); const daysSinceTue=(wd-2+7)%7; const tue=addDaysEST(n,-daysSinceTue); const pr=dfParts(n,{hour:'2-digit',timeZone:TZ}); const after8=Number(pr.hour)>=8 || daysSinceTue>0; const a=after8?tue:addDaysEST(tue,-7); const k=dfParts(a,{year:'numeric',month:'2-digit',day:'2-digit',timeZone:TZ}); return `${k.year}-${k.month}-${k.day}-Tue08ET`; }
-function weekDates(){ const n=nowEST(); const wd=n.getDay(); const d=(wd-2+7)%7; const tue=addDaysEST(n,-d); const list=[]; for(let i=0;i<7;i++){ const dd=addDaysEST(tue,i); const p=dfParts(dd,{year:'numeric',month:'2-digit',day:'2-digit',timeZone:TZ}); list.push(`${p.year}-${p.month}-${p.day}`);} const P=dfParts(tue,{month:'2-digit',day:'2-digit',timeZone:TZ}); const mon=addDaysEST(tue,6); const Q=dfParts(mon,{month:'2-digit',day:'2-digit',timeZone:TZ}); return {start:list[0],end:list[6],list,pretty:`${P.month}/${P.day} → ${Q.month}/${Q.day}`}; }
-function yyyymmdd(s){ return s.replaceAll('-',''); }
-async function safeFetch(url,opts,retries=2){
-  for(let i=0;i<=retries;i++){
-    try{
-      const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(),15000);
-      const res=await fetch(url,{...(opts||{}),signal:ctl.signal});
-      clearTimeout(t); if(!res.ok) throw new Error('HTTP '+res.status); return await res.json();
-    }catch(e){ if(i===retries) throw e; await new Promise(r=>setTimeout(r,600*(i+1))); }
-  }
-}
-
-/* ESPN helpers */
-function logoNFL(t){ if(!t) return null; if(t.logos?.[0]?.href) return String(t.logos[0].href).replace(/^http:/,'https:'); if(t.abbreviation) return `https://a.espncdn.com/i/teamlogos/nfl/500/${t.abbreviation}.png`; return null; }
-function logoNCAAF(t){ if(!t) return null; if(t.logos?.[0]?.href) return String(t.logos[0].href).replace(/^http:/,'https:'); if(t.id) return `https://a.espncdn.com/i/teamlogos/ncaa/500/${t.id}.png`; if(t.abbreviation) return `https://a.espncdn.com/i/teamlogos/ncaa/500/${t.abbreviation}.png`; return null; }
+/* Helpers */
+const $=id=>document.getElementById(id);
+function toast(m){const d=document.createElement('div');d.className='toast';d.textContent=m;$('toasts').appendChild(d);setTimeout(()=>d.remove(),2600);}
+function nowEST(){return new Date(new Date().toLocaleString('en-US',{timeZone:TZ}));}
+function addDaysEST(d,n){const x=new Date(d.getTime());x.setDate(x.getDate()+n);return new Date(x.toLocaleString('en-US',{timeZone:TZ}));}
+function parts(d,o){const p=new Intl.DateTimeFormat('en-US',o).formatToParts(d),r={};p.forEach(x=>r[x.type]=x.value);return r;}
+function weekKey(){const n=nowEST(),wd=n.getDay(),ds=(wd-2+7)%7,tue=addDaysEST(n,-ds);const hh=Number(parts(n,{hour:'2-digit',hour12:false,timeZone:TZ}).hour);const a=(hh>=8||ds>0)?tue:addDaysEST(tue,-7);const k=parts(a,{year:'numeric',month:'2-digit',day:'2-digit',timeZone:TZ});return `${k.year}-${k.month}-${k.day}-Tue08ET`;}
+function weekDates(){const n=nowEST(),wd=n.getDay(),ds=(wd-2+7)%7,tue=addDaysEST(n,-ds);const list=[];for(let i=0;i<7;i++){const dd=addDaysEST(tue,i),p=parts(dd,{year:'numeric',month:'2-digit',day:'2-digit',timeZone:TZ});list.push(`${p.year}-${p.month}-${p.day}`);}const P=parts(tue,{month:'2-digit',day:'2-digit',timeZone:TZ});const mon=addDaysEST(tue,6);const Q=parts(mon,{month:'2-digit',day:'2-digit',timeZone:TZ});return{start:list[0],end:list[6],list,pretty:`${P.month}/${P.day} → ${Q.month}/${Q.day}`};}
+function ymd(s){return s.replaceAll('-','');}
+async function safeFetch(url,opts={},retries=2){for(let i=0;i<=retries;i++){try{const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),15000);const res=await fetch(url,{...opts,signal:ctl.signal});clearTimeout(t);if(!res.ok)throw new Error('HTTP '+res.status);return await res.json();}catch(e){if(i===retries)throw e;await new Promise(r=>setTimeout(r,600*(i+1)));}}}
+function logoNFL(t){if(!t)return null;if(t.logos?.[0]?.href)return String(t.logos[0].href).replace(/^http:/,'https:');if(t.abbreviation)return`https://a.espncdn.com/i/teamlogos/nfl/500/${t.abbreviation}.png`;return null;}
+function logoNCAAF(t){if(!t)return null;if(t.logos?.[0]?.href)return String(t.logos[0].href).replace(/^http:/,'https:');if(t.id)return`https://a.espncdn.com/i/teamlogos/ncaa/500/${t.id}.png`;if(t.abbreviation)return`https://a.espncdn.com/i/teamlogos/ncaa/500/${t.abbreviation}.png`;return null;}
 
 /* ============== AUTH ============== */
 const sbStateEl=$('sbState'), userLabel=$('userLabel'), loginBtn=$('loginBtn'), logoutBtn=$('logoutBtn');
 let currentUser=null;
-function setAuthUI(){
-  if(currentUser){
-    sbStateEl.textContent='Supabase: Signed in';
-    userLabel.textContent=currentUser.email;
-    loginBtn.style.display='none'; logoutBtn.style.display='inline-block';
-  }else{
-    sbStateEl.textContent='Supabase: Ready (signed out)';
-    userLabel.textContent='';
-    loginBtn.style.display='inline-block'; logoutBtn.style.display='none';
-  }
-}
-sb.auth.onAuthStateChange((_e, session)=>{ currentUser=session?.user||null; setAuthUI(); refreshPicksFromDB(); });
-loginBtn.onclick=async()=>{
-  const email = prompt('Enter email to sign in (magic link):');
-  if(!email) return;
-  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.href }});
-  if(error){ alert('Sign-in error: '+error.message); return; }
-  alert('Check your email for the sign-in link. After you click it, come back to this page.');
-};
-logoutBtn.onclick=async()=>{ await sb.auth.signOut(); toast('Signed out'); };
+function setAuthUI(){if(currentUser){sbStateEl.textContent='Supabase: Signed in';userLabel.textContent=currentUser.email;loginBtn.style.display='none';logoutBtn.style.display='inline-block';}else{sbStateEl.textContent='Supabase: Ready (signed out)';userLabel.textContent='';loginBtn.style.display='inline-block';logoutBtn.style.display='none';}}
+sb.auth.onAuthStateChange((_e,session)=>{currentUser=session?.user||null;setAuthUI();nfl.refreshPicksFromDB();ncaaf.refreshPicksFromDB();buildWeeklyBoards();});
+loginBtn.onclick=async()=>{const email=prompt('Enter email to sign in (magic link):');if(!email)return;const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.href}});if(error){alert('Sign-in error: '+error.message);return;}alert('Check your email for the sign-in link, then return here.');};
+logoutBtn.onclick=async()=>{await sb.auth.signOut();toast('Signed out');};
 
-/* =================== LEAGUE FACTORY (DB picks) =================== */
+/* =================== LEAGUE (DB picks) =================== */
 function createLeague(cfg){
-  const ST = {
-    selected:null, weekly:[], started:new Set(), cache:new Map(),
-    lbRows:[], showAll:false, poll:null, lbPoll:null, gridPoll:null,
-    myPicks: new Set()  // DB picks for this week (game_id set)
-  };
-  const WK = dateKey();
+  const ST={selected:null,weekly:[],started:new Set(),cache:new Map(),lbRows:[],showAll:false,poll:null,lbPoll:null,gridPoll:null,myPicks:new Set()};
+  const WK=weekKey();
 
-  /* DB IO */
+  /* DB */
   async function refreshPicksFromDB(){
-    if(!currentUser){ ST.myPicks.clear(); updatePicksLeft(); renderMyPicks(); return; }
-    const { data, error } = await sb.from('picks').select('game_id').eq('user_id', currentUser.id).eq('week_key', WK);
-    if(error){ console.error('load picks', error); return; }
-    ST.myPicks = new Set((data||[]).map(r=>r.game_id));
-    updatePicksLeft(); renderMyPicks();
+    if(!currentUser){ST.myPicks.clear();updatePicksLeft();renderMyPicks();return;}
+    const {data,error}=await sb.from('picks').select('game_id').eq('user_id',currentUser.id).eq('week_key',WK);
+    if(error){console.error(error);return;}
+    ST.myPicks=new Set((data||[]).map(r=>r.game_id));
+    updatePicksLeft();renderMyPicks();
   }
   async function addPickDB(gameId){
-    if(!currentUser){ toast('Sign in first'); return; }
-    if(ST.myPicks.size>=PICKS_REQUIRED){ toast('You already have '+PICKS_REQUIRED+' picks.'); return; }
-    const row={ user_id: currentUser.id, week_key: WK, game_id: gameId };
-    const { error } = await sb.from('picks').insert(row).select().single().onConflict('user_id,week_key,game_id').ignore();
-    if(error){ toast('Save failed'); console.error(error); return; }
-    ST.myPicks.add(gameId); updatePicksLeft(); renderMyPicks(); toast('Pick added');
+    if(!currentUser){toast('Sign in first');return;}
+    if(ST.myPicks.size>=PICKS_REQUIRED){toast('You already have '+PICKS_REQUIRED+' picks.');return;}
+    const {error}=await sb.from('picks').upsert(
+      {user_id:currentUser.id,week_key:WK,game_id:gameId},
+      {onConflict:'user_id,week_key,game_id',ignoreDuplicates:true}
+    ).select().maybeSingle();
+    if(error){toast('Save failed');console.error(error);return;}
+    ST.myPicks.add(gameId);updatePicksLeft();renderMyPicks();toast('Pick added');
   }
   async function removePickDB(gameId){
-    if(!currentUser) return;
-    const { error } = await sb.from('picks').delete().eq('user_id', currentUser.id).eq('week_key', WK).eq('game_id', gameId);
-    if(error){ console.error(error); toast('Remove failed'); return; }
-    ST.myPicks.delete(gameId); updatePicksLeft(); renderMyPicks(); toast('Pick removed');
+    if(!currentUser)return;
+    const {error}=await sb.from('picks').delete().eq('user_id',currentUser.id).eq('week_key',WK).eq('game_id',gameId);
+    if(error){console.error(error);toast('Remove failed');return;}
+    ST.myPicks.delete(gameId);updatePicksLeft();renderMyPicks();toast('Pick removed');
   }
-  window.refreshPicksFromDB = refreshPicksFromDB; // expose to outer
+  function picksCount(){return ST.myPicks.size;}
+  function hasPick(id){return ST.myPicks.has(id);}
+  function updatePicksLeft(){const left=Math.max(0,PICKS_REQUIRED-picksCount());$(cfg.ids.picksLeft).textContent=`${left} pick${left===1?'':'s'} left this week`;$('picksBadge').textContent=`${cfg.label}: ${picksCount()}/${PICKS_REQUIRED}`;}
 
-  function picksCount(){ return ST.myPicks.size; }
-  function hasPick(id){ return ST.myPicks.has(id); }
-
-  function updatePicksLeft(){
-    const left = Math.max(0, PICKS_REQUIRED - picksCount());
-    $(cfg.ids.picksLeft).textContent = `${left} pick${left===1?'':'s'} left this week`;
-    $('picksBadge').textContent = `${cfg.label}: ${picksCount()}/${PICKS_REQUIRED}`;
-  }
-
-  /* API endpoints */
-  const EP = cfg.endpoints;
-
-  /* Grid / open page */
-  function setSplash(on){ $(cfg.ids.splash).style.display = on?'block':'none'; }
-  function setTop(on){ $(cfg.ids.top).style.display = on?'block':'none'; }
-  function setTracker(on){ $(cfg.ids.tracker).style.display = on?'block':'none'; }
-
-  function isLocked(g){
-    if(ST.started.has(g.id)) return true;
-    const now=nowEST().getTime(), kick=new Date(g.start).getTime();
-    if(now>=kick){ ST.started.add(g.id); return true; }
-    return false;
-  }
-
+  /* UI toggles */
+  function isLocked(g){if(ST.started.has(g.id))return true;const now=nowEST().getTime(),kick=new Date(g.start).getTime();if(now>=kick){ST.started.add(g.id);return true;}return false;}
   function renderGrid(list){
-    const grid=$(cfg.ids.grid); grid.innerHTML='';
+    const grid=$(cfg.ids.grid);grid.innerHTML='';
     for(const g of list){
       const band=`linear-gradient(90deg, ${g.away.color?('#'+g.away.color):'#1a232d'} 0%, ${g.home.color?('#'+g.home.color):'#26313c'} 100%)`;
       const started=isLocked(g);
       const kick=new Date(g.start).toLocaleString([], {weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
       const picked=hasPick(g.id);
-      const card=document.createElement('div'); card.className='gameCard';
-      card.innerHTML = `
+      const card=document.createElement('div');card.className='gameCard';
+      card.innerHTML=`
         <div class="band" style="background:${band}"></div>
         <div class="gameBody">
           <div class="teamsRow">
@@ -373,9 +342,7 @@ function createLeague(cfg){
             </div>
           </div>
           <div class="small" style="margin-top:6px;opacity:.9">
-            Score: <span id="${cfg.prefix}-scr-${g.id}">—</span>
-            · <span id="${cfg.prefix}-st-${g.id}">pre</span>
-            · Kick: ${kick}
+            Score: <span id="${cfg.prefix}-scr-${g.id}">—</span> · <span id="${cfg.prefix}-st-${g.id}">pre</span> · Kick: ${kick}
           </div>
           <div class="lockRow">
             <button class="btn pickBtn">${picked?'Remove pick':'Add to my picks'}</button>
@@ -385,30 +352,20 @@ function createLeague(cfg){
         </div>`;
       card.querySelector('.viewBtn').onclick=()=>openGame(g);
       card.querySelector('.pickBtn').onclick=async()=>{
-        if(started){ toast('Locked'); return; }
-        if(!currentUser){ toast('Sign in first'); return; }
-        if(hasPick(g.id)) await removePickDB(g.id);
-        else await addPickDB(g.id);
-        renderGrid(ST.weekly); // refresh button label
+        if(started){toast('Locked');return;}
+        if(!currentUser){toast('Sign in first');return;}
+        if(hasPick(g.id)) await removePickDB(g.id); else await addPickDB(g.id);
+        renderGrid(ST.weekly);
       };
       grid.appendChild(card);
     }
   }
-
-  function fillJump(){
-    const sel=$(cfg.ids.jump); sel.innerHTML='';
-    const items=ST.weekly.slice().sort((a,b)=>new Date(a.start)-new Date(b.start));
-    for(const g of items){
-      const when=new Date(g.start).toLocaleString([], {weekday:'short', hour:'numeric', minute:'2-digit'});
-      const o=document.createElement('option'); o.value=g.id; o.textContent=`${when} — ${g.away.name} @ ${g.home.name}`; sel.appendChild(o);
-    }
-  }
-  $(cfg.ids.jumpBtn).onclick=()=>{ const id=$(cfg.ids.jump).value; const g=ST.weekly.find(x=>x.id===id); if(g) openGame(g); };
-
+  function fillJump(){const sel=$(cfg.ids.jump);sel.innerHTML='';const items=ST.weekly.slice().sort((a,b)=>new Date(a.start)-new Date(b.start));for(const g of items){const when=new Date(g.start).toLocaleString([],{weekday:'short',hour:'numeric',minute:'2-digit'});const o=document.createElement('option');o.value=g.id;o.textContent=`${when} — ${g.away.name} @ ${g.home.name}`;sel.appendChild(o);}}
+  $(cfg.ids.jumpBtn).onclick=()=>{const id=$(cfg.ids.jump).value;const g=ST.weekly.find(x=>x.id===id);if(g)openGame(g);};
   function openGame(g){
     ST.selected=g;
-    $(cfg.ids.liveHeader).textContent = `${g.away.name} @ ${g.home.name}`;
-    $(cfg.ids.teamSide).innerHTML = `
+    $(cfg.ids.liveHeader).textContent=`${g.away.name} @ ${g.home.name}`;
+    $(cfg.ids.teamSide).innerHTML=`
       <div class="teamline" style="border-left:6px solid ${g.away.color?('#'+g.away.color):'#2a3643'}">
         <div style="display:flex;gap:10px;align-items:center">${g.away.logo?`<img src="${g.away.logo}" alt="" style="width:22px;height:22px">`:''}<div style="font-weight:700">${g.away.name}</div></div>
         <div id="${cfg.ids.awayScore}" style="font-weight:800">—</div>
@@ -417,304 +374,72 @@ function createLeague(cfg){
         <div style="display:flex;gap:10px;align-items:center">${g.home.logo?`<img src="${g.home.logo}" alt="" style="width:22px;height:22px">`:''}<div style="font-weight:700">${g.home.name}</div></div>
         <div id="${cfg.ids.homeScore}" style="font-weight:800">—</div>
       </div>`;
-    $(cfg.ids.splash).style.display='none'; $(cfg.ids.top).style.display='block'; $(cfg.ids.tracker).style.display='block';
+    $(cfg.ids.splash).style.display='none';$(cfg.ids.top).style.display='block';$(cfg.ids.tracker).style.display='block';
     $(cfg.ids.backBtn).style.display='inline-block';
-    updatePicksLeft();
-    refreshOnce();
-    if(ST.poll) clearInterval(ST.poll);
-    ST.poll=setInterval(()=>refreshOnce(), POLL_MS);
-    fillJump();
+    refreshOnce(); if(ST.poll)clearInterval(ST.poll); ST.poll=setInterval(refreshOnce, POLL_MS); fillJump(); updatePicksLeft();
   }
   $(cfg.ids.backBtn).onclick=()=>{ $(cfg.ids.top).style.display='none'; $(cfg.ids.tracker).style.display='none'; $(cfg.ids.splash).style.display='block'; ST.selected=null; if(ST.poll) clearInterval(ST.poll); };
 
-  /* ===== ESPN ingest ===== */
+  /* ESPN ingest */
   async function loadWeek(){
-    $(cfg.ids.grid).innerHTML=''; $(cfg.ids.weekNote).textContent='Loading week…';
-    if(ST.poll) clearInterval(ST.poll); if(ST.lbPoll) clearInterval(ST.lbPoll); if(ST.gridPoll) clearInterval(ST.gridPoll);
-    ST.started.clear(); ST.weekly.length=0; ST.cache.clear(); ST.lbRows.length=0;
-
+    $(cfg.ids.grid).innerHTML='';$(cfg.ids.weekNote).textContent='Loading week…';
+    if(ST.poll)clearInterval(ST.poll);if(ST.lbPoll)clearInterval(ST.lbPoll);if(ST.gridPoll)clearInterval(ST.gridPoll);
+    ST.started.clear();ST.weekly.length=0;ST.cache.clear();ST.lbRows.length=0;
     const range=weekDates();
-    const boards=await Promise.all(range.list.map(d=>safeFetch(cfg.scoreboard+yyyymmdd(d)).catch(()=>null)));
-    const seen=new Set(), base=[];
+    const boards=await Promise.all(range.list.map(d=>safeFetch(cfg.scoreboard+ymd(d)).catch(()=>null)));
+    const seen=new Set(),base=[];
     for(const sb of boards){
       const evs=sb?.events||[];
       for(const ev of evs){
-        if(seen.has(ev.id)) continue; seen.add(ev.id);
-        const comp=ev.competitions?.[0]||{};
-        const cs=comp.competitors||[];
-        let home=null,away=null; for(const c of cs){ if(c.homeAway==='home') home=c; if(c.homeAway==='away') away=c; }
-        const stateStr = comp.status?.type?.state || 'pre';
-        if(stateStr!=='pre') ST.started.add(ev.id);
-        base.push({
-          id: ev.id, competitionId: comp.id||ev.id, start: ev.date, state: stateStr,
-          home:{name:home?.team?(home.team.shortDisplayName||home.team.displayName):'Home', id:home?.team?.id||null, abbr:home?.team?.abbreviation||'', logo:cfg.logo(home?.team||null), color:home?.team?.color||null},
-          away:{name:away?.team?(away.team.shortDisplayName||away.team.displayName):'Away', id:away?.team?.id||null, abbr:away?.team?.abbreviation||'', logo:cfg.logo(away?.team||null), color:away?.team?.color||null},
-        });
+        if(seen.has(ev.id))continue;seen.add(ev.id);
+        const comp=ev.competitions?.[0]||{};const cs=comp.competitors||[];
+        let home=null,away=null;for(const c of cs){if(c.homeAway==='home')home=c;if(c.homeAway==='away')away=c;}
+        const stateStr=comp.status?.type?.state||'pre'; if(stateStr!=='pre') ST.started.add(ev.id);
+        base.push({id:ev.id,competitionId:comp.id||ev.id,start:ev.date,state:stateStr,
+          home:{name:home?.team?(home.team.shortDisplayName||home.team.displayName):'Home',id:home?.team?.id||null,abbr:home?.team?.abbreviation||'',logo:cfg.logo(home?.team||null),color:home?.team?.color||null},
+          away:{name:away?.team?(away.team.shortDisplayName||away.team.displayName):'Away',id:away?.team?.id||null,abbr:away?.team?.abbreviation||'',logo:cfg.logo(away?.team||null),color:away?.team?.color||null}});
       }
     }
-    base.sort((a,b)=>new Date(a.start)-new Date(b.start));
-    ST.weekly = base;
-
-    $(cfg.ids.gridNote).textContent = `Showing ${cfg.label} games for ${range.start} → ${range.end} (Tue→Mon ${range.pretty}).`;
-    $(cfg.ids.weekNote).textContent = `${base.length} games`;
+    base.sort((a,b)=>new Date(a.start)-new Date(b.start)); ST.weekly=base;
+    $(cfg.ids.gridNote).textContent=`${cfg.label}: ${range.start} → ${range.end} (Tue→Mon ${range.pretty})`;
+    $(cfg.ids.weekNote).textContent=`${base.length} games`;
     renderGrid(base); fillJump(); updatePicksLeft();
-    await refreshPicksFromDB();
-
-    startGridPolling(); refreshLB();
-    if(ST.lbPoll) clearInterval(ST.lbPoll);
-    ST.lbPoll=setInterval(refreshLB, LB_POLL_MS);
+    await refreshPicksFromDB(); startGridPolling(); refreshLB(); if(ST.lbPoll)clearInterval(ST.lbPoll); ST.lbPoll=setInterval(refreshLB,LB_POLL_MS);
   }
-
   async function refreshGridScores(){
     if(!ST.weekly.length) return;
     for(const ev of ST.weekly){
-      const row=await computeRow(ev.id); if(!row) continue;
+      const row=await computeRow(ev.id); if(!row)continue;
       const sc=$(`${cfg.prefix}-scr-${ev.id}`), st=$(`${cfg.prefix}-st-${ev.id}`);
-      if(sc) sc.textContent=`${row.awayPts}–${row.homePts}`;
-      if(st) st.textContent=row.status||'—';
-      const a=$(`${cfg.prefix}-a-${ev.id}`), h=$(`${cfg.prefix}-h-${ev.id}`);
-      if(a) a.textContent=row.awayPts; if(h) h.textContent=row.homePts;
+      if(sc) sc.textContent=`${row.awayPts}–${row.homePts}`; if(st) st.textContent=row.status||'—';
+      const a=$(`${cfg.prefix}-a-${ev.id}`), h=$(`${cfg.prefix}-h-${ev.id}`); if(a) a.textContent=row.awayPts; if(h) h.textContent=row.homePts;
     }
   }
-  function startGridPolling(){ refreshGridScores(); if(ST.gridPoll) clearInterval(ST.gridPoll); ST.gridPoll=setInterval(refreshGridScores, GRID_POLL_MS); }
+  function startGridPolling(){refreshGridScores();if(ST.gridPoll)clearInterval(ST.gridPoll);ST.gridPoll=setInterval(refreshGridScores,GRID_POLL_MS);}
 
-  /* ===== Scoring ===== */
-  function sumStats(summary){
-    const totals={ yards:0, firstDowns:0, tfl:0, sacks:0, thirdMade:0, thirdAtt:0, fourthMade:0, fourthAtt:0, safeties:0 };
-    const teams=summary?.boxscore?.teams||[];
-    const get=(arr, key)=>arr.find(s=>s.name===key||s.abbreviation===key)||null;
-    for(const t of teams){
-      const st=t.statistics||[];
-      const ry=get(st,'rushingYards'), py=get(st,'netPassingYards');
-      const ryv = ry ? Number(ry.value||ry.displayValue||0) : 0;
-      const pyv = py ? Number(py.value||py.displayValue||0) : 0;
-      totals.yards += (isNaN(ryv)?0:ryv) + (isNaN(pyv)?0:pyv);
-      const fd=get(st,'firstDowns'); totals.firstDowns += fd ? Number(fd.value||fd.displayValue||0) : 0;
-      const sa=get(st,'sacks'); let sval=0; if(sa){ const dv=String(sa.displayValue||'').split('-')[0]; sval = sa.value?Number(sa.value):Number(dv); if(isNaN(sval)) sval=0; }
-      totals.sacks += sval;
-      const tfl=get(st,'tacklesForLoss'); totals.tfl += tfl ? Number(tfl.value||tfl.displayValue||0) : 0;
-      const th=get(st,'thirdDownEff'); const thv=th?String(th.displayValue||'0-0').split('-'):['0','0']; totals.thirdMade+=Number(thv[0]||0); totals.thirdAtt+=Number(thv[1]||0);
-      const fh=get(st,'fourthDownEff'); const fhv=fh?String(fh.displayValue||'0-0').split('-'):['0','0']; totals.fourthMade+=Number(fhv[0]||0); totals.fourthAtt+=Number(fhv[1]||0);
-      const saf=get(st,'safeties'); totals.safeties += saf ? Number(saf.value||saf.displayValue||0) : 0;
-    }
-    return totals;
-  }
-  function parsePBP(pbp){
-    let plays=[]; try{
-      const gp=pbp?.gamepackageJSON||null;
-      const prev=gp?.drives?.previous||null, curr=gp?.drives?.current||null;
-      const add=a=>{ if(Array.isArray(a)) for(const d of a) if(Array.isArray(d.plays)) plays=plays.concat(d.plays); };
-      add(prev); add(curr);
-    }catch(_){}
-    return plays;
-  }
-  function calcFantasy(summary, box, pbp){
-    const comp=summary?.header?.competitions?.[0]||{};
-    const status=comp.status||{}, cs=comp.competitors||[];
-    let homeC=null, awayC=null; for(const c of cs){ if(c.homeAway==='home') homeC=c; if(c.homeAway==='away') awayC=c; }
-    const homePts=Number(homeC?.score??0), awayPts=Number(awayC?.score??0);
-
-    const totals=sumStats(summary);
-    const stopsEff=(totals.thirdAtt-totals.thirdMade)+(totals.fourthAtt-totals.fourthMade);
-
-    let TD=0, FG=0, XP=0, TWO=0, stReturnTD=0, blocks=0, defTdBonus=0, safeties=totals.safeties||0;
-    const sps=summary?.scoringPlays||[];
-    for(const sp of sps){
-      const d=String(sp.text||sp.description||'').toLowerCase();
-      const t=String((sp.type&&sp.type.text)||sp.scoringType||'').toLowerCase();
-      if(t.includes('touchdown')||d.includes('touchdown')){
-        TD++;
-        if(d.includes('punt return')||d.includes('kickoff return')||d.includes('kick return')) stReturnTD++;
-        if(d.includes('interception return')||d.includes('fumble return')||d.includes('blocked punt')||d.includes('blocked kick')||d.includes('fumble recovered in end zone')) defTdBonus++;
-        if(d.includes('safety')) safeties++;
-      }else if(t.includes('field goal')||d.includes('field goal')) FG++;
-      else if(t.includes('extra point')||d.includes('extra point is good')) XP++;
-      else if(t.includes('two-point')||d.includes('two-point')){ if(d.includes('successful')||d.includes('is good')||d.includes('good')) TWO++; }
-      if(d.includes('blocked')) blocks++;
-    }
-
-    const plays=parsePBP(pbp);
-    let sacksP=0,tflP=0,stopsP=0,fdP=0,intP=0,frP=0,defTDP=0,stTDP=stReturnTD,safetyP=0,blockP=blocks,xpP=0,twoP=0;
-    for(const p of plays){
-      const txt=String(p.text||'').toLowerCase();
-      if(txt.includes('sacked')) sacksP++;
-      if(txt.includes('tackle for loss')) tflP++;
-      const dn=p.down; const gotFirst=txt.includes('first down')||/1st and/i.test(txt);
-      const tod=txt.includes('turnover on downs'); const punt=txt.startsWith('punt');
-      const fg=(txt.includes('field goal'))&&(txt.includes('is good')||txt.includes('missed')||txt.includes('blocked'));
-      if((dn===3||dn===4)&&!gotFirst&&(tod||punt||fg)) stopsP++;
-      if(txt.includes('first down')) fdP++;
-      if(txt.includes('intercepted')){ intP++; if(txt.includes('for a touchdown')) defTDP++; }
-      if(txt.includes('fumble')){ if(txt.includes('recovered')) frP++; if(txt.includes('for a touchdown')||txt.includes('recovered in end zone')) defTDP++; }
-      if((txt.includes('punt')||txt.includes('kickoff')||txt.includes('kick return'))&&txt.includes('returns')&&txt.includes('for a touchdown')) stTDP++;
-      if(txt.includes('safety')) safetyP++;
-      if(txt.includes('blocked punt')||txt.includes('blocked field goal')||(txt.includes('blocked')&&txt.includes('kick'))) blockP++;
-      if(txt.includes('extra point')&&(txt.includes('is good')||txt.includes('good'))) xpP++;
-      if(txt.includes('two-point')&&(txt.includes('successful')||txt.includes('good'))) twoP++;
-    }
-    if(!totals.sacks || totals.sacks<sacksP) totals.sacks=sacksP;
-    if(!totals.tfl   || totals.tfl<tflP)     totals.tfl=tflP;
-    if(!totals.firstDowns) totals.firstDowns=fdP;
-
-    const stops=Math.max(stopsEff,stopsP);
-    const XPf=Math.max(XP,xpP);
-    const TWOf=Math.max(TWO,twoP);
-    const stTDB=Math.max(stReturnTD,stTDP);
-    const safF=Math.max(safeties,safetyP,totals.safeties||0);
-    const blockF=Math.max(blocks,blockP);
-
-    const offense=TD*W.TD + FG*W.FG + XPf*W.XP + TWOf*W.TWO + totals.yards*W.YARD + totals.firstDowns*W.FIRST_DOWN;
-    const defense=totals.sacks*W.SACK + totals.tfl*W.TFL + intP*W.INT + frP*W.FR + defTdBonus*W.DEF_TD_BONUS + safF*W.SAFETY + stops*W.STOP + stTDB*W.ST_RETURN_TD + blockF*W.BLOCK;
-
-    const isFinal = (status?.type && (status.type.state==='post' || status.type.completed===true)) ? true : false;
-    const margin = Math.abs(homePts-awayPts);
-    const closeBonus = (isFinal && margin<=7) ? W.CLOSE_GAME : 0;
-    const otBonus = ((status?.period>4) && isFinal) ? W.OVERTIME : 0;
-    const total = offense + defense + closeBonus + otBonus;
-
-    return {
-      total:Number(total.toFixed(2)),
-      homePts, awayPts,
-      statusText: (status?.type?.shortDetail || status?.type?.description || '—'),
-      isFinal
-    };
-  }
-
-  async function computeRow(eventId){
-    const c=ST.cache.get(eventId); if(c?.final) return c;
-    try{
-      const summary=await safeFetch(cfg.summary+eventId);
-      const box=await safeFetch(cfg.box+eventId);
-      const pbp=await safeFetch(cfg.pbp+eventId);
-
-      const comp=summary?.header?.competitions?.[0]||{};
-      const cs=comp.competitors||[]; let homeC=null, awayC=null;
-      for(const x of cs){ if(x.homeAway==='home') homeC=x; if(x.homeAway==='away') awayC=x; }
-      const homeName=homeC?.team?(homeC.team.shortDisplayName||homeC.team.displayName||'Home'):'Home';
-      const awayName=awayC?.team?(awayC.team.shortDisplayName||awayC.team.displayName||'Away'):'Away';
-      const homeLogo=cfg.logo(homeC?.team||null); const awayLogo=cfg.logo(awayC?.team||null);
-
-      const f=calcFantasy(summary,box,pbp);
-      const row={ id:eventId, awayName, homeName, awayLogo, homeLogo, awayPts:f.awayPts, homePts:f.homePts, score:f.total, status:f.statusText, final:f.isFinal };
-      if(row.final) ST.cache.set(eventId,row);
-      return row;
-    }catch(_){ return null; }
-  }
-
-  async function refreshLB(){
-    if(!ST.weekly.length) return;
-    const rows=[];
-    for(const g of ST.weekly){ const r=await computeRow(g.id); if(r) rows.push(r); }
-    rows.sort((a,b)=>b.score-a.score); ST.lbRows=rows; renderLB();
-  }
-  function renderLB(){
-    const box=$(cfg.ids.lb); box.innerHTML='';
-    const rows = ST.showAll ? ST.lbRows : ST.lbRows.slice(0,10);
-    if(!rows.length){ box.innerHTML='<div class="small">—</div>'; return; }
-    for(const r of rows){
-      const div=document.createElement('div'); div.className='lbRow';
-      div.innerHTML = `
-        <div class="lbTeam">
-          ${r.awayLogo?`<img src="${r.awayLogo}" alt="">`:''}<span class="lbName">${r.awayName}</span>
-          <span class="scoreTag">${r.awayPts}</span>
-          <span class="small" style="margin:0 6px;opacity:.8">at</span>
-          ${r.homeLogo?`<img src="${r.homeLogo}" alt="">`:''}<span class="lbName">${r.homeName}</span>
-          <span class="scoreTag">${r.homePts}</span>
-        </div>
-        <div class="lbPts">${r.score.toFixed(2)}</div>
-        <div class="lbMeta">${r.status}</div>`;
-      div.onclick=()=>{ const g=ST.weekly.find(x=>x.id===r.id); if(g) openGame(g); };
-      box.appendChild(div);
-    }
-    $(cfg.ids.toggleAll).textContent = ST.showAll ? 'Show top 10' : 'Show all';
-    $(cfg.ids.toggleAll).setAttribute('aria-expanded', ST.showAll?'true':'false');
-  }
-  $(cfg.ids.toggleAll).onclick=()=>{ ST.showAll=!ST.showAll; renderLB(); };
-
-  async function refreshOnce(){
-    if(!ST.selected) return;
-    try{
-      const id=ST.selected.id;
-      const summary=await safeFetch(cfg.summary+id);
-      const box=await safeFetch(cfg.box+id);
-      const pbp=await safeFetch(cfg.pbp+id);
-
-      const comp=summary?.header?.competitions?.[0]||{};
-      const status=comp.status||{};
-      const cs=comp.competitors||[]; let homeC=null, awayC=null;
-      for(const c of cs){ if(c.homeAway==='home') homeC=c; if(c.homeAway==='away') awayC=c; }
-      $(cfg.ids.homeScore).textContent = String(homeC?.score??0);
-      $(cfg.ids.awayScore).textContent = String(awayC?.score??0);
-      $(cfg.ids.clock).textContent = status.displayClock||'—';
-      $(cfg.ids.q).textContent = (status.period??'—');
-      $(cfg.ids.state).textContent = (status.type?.description || status.type?.shortDetail || '—');
-
-      const f=calcFantasy(summary,box,pbp);
-      $(cfg.ids.fscore).textContent = f.total.toFixed(2);
-      const closeTxt = (f.isFinal && Math.abs((Number(homeC?.score||0))-(Number(awayC?.score||0)))<=7) ? 'Close (+10)' : '—';
-      const otTxt = ((status.period>4) && f.isFinal) ? 'OT (+15)' : '—';
-      $(cfg.ids.flow).textContent = `Bonuses: ${closeTxt} · ${otTxt}`;
-
-      const logBox=$(cfg.ids.log);
-      const sps=summary?.scoringPlays||[];
-      const seenKey = cfg.prefix+'.seen.'+id;
-      const seen = new Set(JSON.parse(localStorage.getItem(seenKey)||'[]'));
-      const newOnes=[];
-      for(const sp of sps){
-        if(!seen.has(sp.id)){ const t=(sp.clock?.displayValue)||''; const q=(sp.period?.number)?('Q'+sp.period.number):''; newOnes.push(`[${q} ${t}] ${sp.text||sp.description||''}`); seen.add(sp.id); }
-      }
-      for(let i=newOnes.length-1;i>=0;i--){ const d=document.createElement('div'); d.textContent=newOnes[i]; logBox.prepend(d); }
-      localStorage.setItem(seenKey, JSON.stringify(Array.from(seen)));
-    }catch(_){}
-  }
-
-  /* My picks (DB) */
-  function renderMyPicks(){
-    const target=$('myPicksList'); target.innerHTML='';
-    const ids=[...ST.myPicks];
-    if(!ids.length){ target.innerHTML='<div class="small">No picks yet. Open a game and click “Add to my picks”.</div>'; return; }
-    for(const id of ids){
-      const row=ST.weekly.find(x=>x.id===id);
-      const item=document.createElement('div'); item.className='lbRow';
-      item.innerHTML = `
-        <div class="lbTeam">
-          ${row?.away?.logo?`<img src="${row.away.logo}" alt="">`:''}<span class="lbName">${row?.away?.name||'Away'}</span>
-          <span class="small" style="margin:0 6px;opacity:.8">at</span>
-          ${row?.home?.logo?`<img src="${row.home.logo}" alt="">`:''}<span class="lbName">${row?.home?.name||'Home'}</span>
-        </div>
-        <div class="lbPts" id="${cfg.prefix}-pickpts-${id}">…</div>
-        <div><button class="btn small" data-open="${id}">Open</button> <button class="btn small" data-del="${id}">Remove</button></div>`;
-      target.appendChild(item);
-    }
-    target.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{ const g=ST.weekly.find(x=>x.id===b.dataset.open); if(g) openGame(g); });
-    target.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=> removePickDB(b.dataset.del));
-    // refresh fantasy points for picks
-    (async()=>{
-      for(const id of ids){ const r=await computeRow(id); if(r) { const el=$(`${cfg.prefix}-pickpts-${id}`); if(el) el.textContent=r.score.toFixed(2); } }
-    })();
-  }
+  /* Scoring (same as earlier build) */
+  function sumStats(summary){const t={yards:0,firstDowns:0,tfl:0,sacks:0,thirdMade:0,thirdAtt:0,fourthMade:0,fourthAtt:0,safeties:0},teams=summary?.boxscore?.teams||[];const get=(a,k)=>a.find(s=>s.name===k||s.abbreviation===k)||null;for(const m of teams){const s=m.statistics||[];const ry=get(s,'rushingYards'),py=get(s,'netPassingYards');const ryv=ry?Number(ry.value||ry.displayValue||0):0;const pyv=py?Number(py.value||py.displayValue||0):0;t.yards+=(isNaN(ryv)?0:ryv)+(isNaN(pyv)?0:pyv);const fd=get(s,'firstDowns');t.firstDowns+=fd?Number(fd.value||fd.displayValue||0):0;const sa=get(s,'sacks');let sval=0;if(sa){const dv=String(sa.displayValue||'').split('-')[0];sval=sa.value?Number(sa.value):Number(dv);if(isNaN(sval))sval=0;}t.sacks+=sval;const tf=get(s,'tacklesForLoss');t.tfl+=tf?Number(tf.value||tf.displayValue||0):0;const th=get(s,'thirdDownEff');const tv=th?String(th.displayValue||'0-0').split('-'):['0','0'];t.thirdMade+=Number(tv[0]||0);t.thirdAtt+=Number(tv[1]||0);const fh=get(s,'fourthDownEff');const fv=fh?String(fh.displayValue||'0-0').split('-'):['0','0'];t.fourthMade+=Number(fv[0]||0);t.fourthAtt+=Number(fv[1]||0);const sf=get(s,'safeties');t.safeties+=sf?Number(sf.value||sf.displayValue||0):0;}return t;}
+  function parsePBP(pbp){let a=[];try{const gp=pbp?.gamepackageJSON;const prev=gp?.drives?.previous,curr=gp?.drives?.current;const add=X=>{if(Array.isArray(X)) for(const d of X) if(Array.isArray(d.plays)) a=a.concat(d.plays);};add(prev);add(curr);}catch(_){ }return a;}
+  function calcFantasy(summary,box,pbp){const comp=summary?.header?.competitions?.[0]||{};const status=comp.status||{},cs=comp.competitors||[];let homeC=null,awayC=null;for(const c of cs){if(c.homeAway==='home')homeC=c;if(c.homeAway==='away')awayC=c;}const homePts=Number(homeC?.score??0),awayPts=Number(awayC?.score??0);const totals=sumStats(summary);const stopsEff=(totals.thirdAtt-totals.thirdMade)+(totals.fourthAtt-totals.fourthMade);let TD=0,FG=0,XP=0,TWO=0,stReturnTD=0,blocks=0,defTdBonus=0,safeties=totals.safeties||0;const sps=summary?.scoringPlays||[];for(const sp of sps){const d=String(sp.text||sp.description||'').toLowerCase();const t=String((sp.type&&sp.type.text)||sp.scoringType||'').toLowerCase();if(t.includes('touchdown')||d.includes('touchdown')){TD++;if(d.includes('punt return')||d.includes('kickoff return')||d.includes('kick return'))stReturnTD++;if(d.includes('interception return')||d.includes('fumble return')||d.includes('blocked punt')||d.includes('blocked kick')||d.includes('fumble recovered in end zone'))defTdBonus++;if(d.includes('safety'))safeties++;}else if(t.includes('field goal')||d.includes('field goal'))FG++;else if(t.includes('extra point')||d.includes('extra point is good'))XP++;else if(t.includes('two-point')||d.includes('two-point')){if(d.includes('successful')||d.includes('is good')||d.includes('good'))TWO++;}if(d.includes('blocked'))blocks++;}const plays=parsePBP(pbp);let sacksP=0,tflP=0,stopsP=0,fdP=0,intP=0,frP=0,defTDP=0,stTDP=stReturnTD,safetyP=0,blockP=blocks,xpP=0,twoP=0;for(const p of plays){const x=String(p.text||'').toLowerCase();if(x.includes('sacked'))sacksP++;if(x.includes('tackle for loss'))tflP++;const dn=p.down;const gotFirst=x.includes('first down')||/1st and/i.test(x);const tod=x.includes('turnover on downs');const punt=x.startsWith('punt');const fg=(x.includes('field goal'))&&(x.includes('is good')||x.includes('missed')||x.includes('blocked'));if((dn===3||dn===4)&&!gotFirst&&(tod||punt||fg))stopsP++;if(x.includes('first down'))fdP++;if(x.includes('intercepted')){intP++;if(x.includes('for a touchdown'))defTDP++;}if(x.includes('fumble')){if(x.includes('recovered'))frP++;if(x.includes('for a touchdown')||x.includes('recovered in end zone'))defTDP++;}if((x.includes('punt')||x.includes('kickoff')||x.includes('kick return'))&&x.includes('returns')&&x.includes('for a touchdown'))stTDP++;if(x.includes('safety'))safetyP++;if(x.includes('blocked punt')||x.includes('blocked field goal')||(x.includes('blocked')&&x.includes('kick')))blockP++;if(x.includes('extra point')&&(x.includes('is good')||x.includes('good')))xpP++;if(x.includes('two-point')&&(x.includes('successful')||x.includes('good')))twoP++;}if(!totals.sacks||totals.sacks<sacksP)totals.sacks=sacksP;if(!totals.tfl||totals.tfl<tflP)totals.tfl=tflP;if(!totals.firstDowns)totals.firstDowns=fdP;const stops=Math.max(stopsEff,stopsP);const XPf=Math.max(XP,xpP);const TWOf=Math.max(TWO,twoP);const stTDB=Math.max(stReturnTD,stTDP);const safF=Math.max(safeties,safetyP,totals.safeties||0);const blockF=Math.max(blocks,blockP);const offense=TD*W.TD+FG*W.FG+XPf*W.XP+TWOf*W.TWO+totals.yards*W.YARD+totals.firstDowns*W.FIRST_DOWN;const defense=totals.sacks*W.SACK+totals.tfl*W.TFL+intP*W.INT+frP*W.FR+defTdBonus*W.DEF_TD_BONUS+safF*W.SAFETY+stops*W.STOP+stTDB*W.ST_RETURN_TD+blockF*W.BLOCK;const isFinal=(status?.type&&(status.type.state==='post'||status.type.completed===true))?true:false;const margin=Math.abs(homePts-awayPts);const closeBonus=(isFinal&&margin<=7)?W.CLOSE_GAME:0;const otBonus=((status?.period>4)&&isFinal)?W.OVERTIME:0;const total=offense+defense+closeBonus+otBonus;return{total:Number(total.toFixed(2)),homePts,awayPts,statusText:(status?.type?.shortDetail||status?.type?.description||'—'),isFinal};}
+  async function computeRow(eventId){const c=ST.cache.get(eventId);if(c?.final)return c;try{const summary=await safeFetch(cfg.summary+eventId);const box=await safeFetch(cfg.box+eventId);const pbp=await safeFetch(cfg.pbp+eventId);const comp=summary?.header?.competitions?.[0]||{};const cs=comp.competitors||[];let homeC=null,awayC=null;for(const x of cs){if(x.homeAway==='home')homeC=x;if(x.homeAway==='away')awayC=x;}const homeName=homeC?.team?(homeC.team.shortDisplayName||homeC.team.displayName||'Home'):'Home';const awayName=awayC?.team?(awayC.team.shortDisplayName||awayC.team.displayName||'Away'):'Away';const homeLogo=cfg.logo(homeC?.team||null),awayLogo=cfg.logo(awayC?.team||null);const f=calcFantasy(summary,box,pbp);const row={id:eventId,awayName,homeName,awayLogo,homeLogo,awayPts:f.awayPts,homePts:f.homePts,score:f.total,status:f.statusText,final:f.isFinal};if(row.final)ST.cache.set(eventId,row);return row;}catch(_){return null;}}
+  async function refreshLB(){if(!ST.weekly.length)return;const rows=[];for(const g of ST.weekly){const r=await computeRow(g.id);if(r)rows.push(r);}rows.sort((a,b)=>b.score-a.score);ST.lbRows=rows;renderLB();}
+  function renderLB(){const box=$(cfg.ids.lb);box.innerHTML='';const rows=ST.showAll?ST.lbRows:ST.lbRows.slice(0,10);if(!rows.length){box.innerHTML='<div class="small">—</div>';return;}for(const r of rows){const div=document.createElement('div');div.className='lbRow';div.innerHTML=`<div class="lbTeam">${r.awayLogo?`<img src="${r.awayLogo}" alt="">`:''}<span class="lbName">${r.awayName}</span><span class="scoreTag">${r.awayPts}</span><span class="small" style="margin:0 6px;opacity:.8">at</span>${r.homeLogo?`<img src="${r.homeLogo}" alt="">`:''}<span class="lbName">${r.homeName}</span><span class="scoreTag">${r.homePts}</span></div><div class="lbPts">${r.score.toFixed(2)}</div><div class="lbMeta">${r.status}</div>`;div.onclick=()=>{const g=ST.weekly.find(x=>x.id===r.id);if(g)openGame(g);};box.appendChild(div);}$(cfg.ids.toggleAll).textContent=ST.showAll?'Show top 10':'Show all';$(cfg.ids.toggleAll).setAttribute('aria-expanded',ST.showAll?'true':'false');}
+  $(cfg.ids.toggleAll).onclick=()=>{ST.showAll=!ST.showAll;renderLB();};
+  async function refreshOnce(){if(!ST.selected)return;try{const id=ST.selected.id;const summary=await safeFetch(cfg.summary+id);const box=await safeFetch(cfg.box+id);const pbp=await safeFetch(cfg.pbp+id);const comp=summary?.header?.competitions?.[0]||{};const status=comp.status||{};const cs=comp.competitors||[];let homeC=null,awayC=null;for(const c of cs){if(c.homeAway==='home')homeC=c;if(c.homeAway==='away')awayC=c;}$(cfg.ids.homeScore).textContent=String(homeC?.score??0);$(cfg.ids.awayScore).textContent=String(awayC?.score??0);$(cfg.ids.clock).textContent=status.displayClock||'—';$(cfg.ids.q).textContent=(status.period??'—');$(cfg.ids.state).textContent=(status.type?.description||status.type?.shortDetail||'—');const f=calcFantasy(summary,box,pbp);$(cfg.ids.fscore).textContent=f.total.toFixed(2);const closeTxt=(f.isFinal&&Math.abs((Number(homeC?.score||0))-(Number(awayC?.score||0)))<=7)?'Close (+10)':'—';const otTxt=((status.period>4)&&f.isFinal)?'OT (+15)':'—';$(cfg.ids.flow).textContent=`Bonuses: ${closeTxt} · ${otTxt}`;const logBox=$(cfg.ids.log);const sps=summary?.scoringPlays||[];const key=cfg.prefix+'.seen.'+id;const seen=new Set(JSON.parse(localStorage.getItem(key)||'[]'));const now=[];for(const sp of sps){if(!seen.has(sp.id)){const t=(sp.clock?.displayValue)||'';const q=(sp.period?.number)?('Q'+sp.period.number):'';now.push(`[${q} ${t}] ${sp.text||sp.description||''}`);seen.add(sp.id);}}for(let i=now.length-1;i>=0;i--){const d=document.createElement('div');d.textContent=now[i];logBox.prepend(d);}localStorage.setItem(key,JSON.stringify([...seen]));}catch(_){ }}
+  function renderMyPicks(){const target=$('myPicksList');target.innerHTML='';const ids=[...ST.myPicks];if(!ids.length){target.innerHTML='<div class="small">No picks yet. Open a game and click “Add to my picks”.</div>';return;}for(const id of ids){const row=ST.weekly.find(x=>x.id===id)||{};const item=document.createElement('div');item.className='lbRow';item.innerHTML=`<div class="lbTeam">${row.away?.logo?`<img src="${row.away.logo}" alt="">`:''}<span class="lbName">${row.away?.name||'Away'}</span><span class="small" style="margin:0 6px;opacity:.8">at</span>${row.home?.logo?`<img src="${row.home.logo}" alt="">`:''}<span class="lbName">${row.home?.name||'Home'}</span></div><div class="lbPts" id="${cfg.prefix}-pickpts-${id}">…</div><div><button class="btn small" data-open="${id}">Open</button> <button class="btn small" data-del="${id}">Remove</button></div>`;target.appendChild(item);}target.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{const g=ST.weekly.find(x=>x.id===b.dataset.open);if(g)openGame(g);});target.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>removePickDB(b.dataset.del));(async()=>{for(const id of ids){const r=await computeRow(id);if(r){const el=$(`${cfg.prefix}-pickpts-${id}`);if(el)el.textContent=r.score.toFixed(2);}}})();}
 
   /* boot */
-  (async()=>{
-    await loadWeek();
-  })();
-
-  // expose a method for outer “weekly leaderboard” to reuse
-  return {
-    getWeeklyEvents: ()=>ST.weekly.slice(),
-    computeRow,
-    refreshPicksFromDB
-  };
+  (async()=>{await loadWeek();})();
+  return { getWeeklyEvents:()=>ST.weekly.slice(), computeRow, refreshPicksFromDB };
 }
 
-/* ===== Build leagues ===== */
-const nfl = createLeague({
+/* Build leagues */
+const nfl=createLeague({
   sectionId:'sec-nfl', prefix:'nfl', label:'NFL', logo:logoNFL,
   scoreboard:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=',
   summary:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=',
   box:'https://cdn.espn.com/core/nfl/boxscore?xhr=1&gameId=',
   pbp:'https://cdn.espn.com/core/nfl/playbyplay?xhr=1&gameId=',
-  odds:(id)=>`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${id}/competitions/${id}/odds`,
   ids:{ splash:'nfl-splash', top:'nfl-top', tracker:'nfl-tracker', liveHeader:'nfl-liveHeader', teamSide:'nfl-teamSide',
         addPickBtn:'nfl-addPickBtn', picksLeft:'nfl-picksLeft', jump:'nfl-jump', jumpBtn:'nfl-jumpBtn',
         fscore:'nfl-fscore', flow:'nfl-flow', clock:'nfl-clock', q:'nfl-q', state:'nfl-state',
@@ -722,13 +447,12 @@ const nfl = createLeague({
         lb:'nfl-lb', toggleAll:'nfl-toggleAll', log:'nfl-log',
         awayScore:'awayScoreNFL', homeScore:'homeScoreNFL', backBtn:'nfl-backBtn' }
 });
-const ncaaf = createLeague({
+const ncaaf=createLeague({
   sectionId:'sec-ncaaf', prefix:'ncaaf', label:'NCAA FBS', logo:logoNCAAF,
   scoreboard:'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=',
   summary:'https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=',
   box:'https://cdn.espn.com/core/college-football/boxscore?xhr=1&gameId=',
   pbp:'https://cdn.espn.com/core/college-football/playbyplay?xhr=1&gameId=',
-  odds:(id)=>`https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/${id}/competitions/${id}/odds`,
   ids:{ splash:'ncaaf-splash', top:'ncaaf-top', tracker:'ncaaf-tracker', liveHeader:'ncaaf-liveHeader', teamSide:'ncaaf-teamSide',
         addPickBtn:'ncaaf-addPickBtn', picksLeft:'ncaaf-picksLeft', jump:'ncaaf-jump', jumpBtn:'ncaaf-jumpBtn',
         fscore:'ncaaf-fscore', flow:'ncaaf-flow', clock:'ncaaf-clock', q:'ncaaf-q', state:'ncaaf-state',
@@ -737,92 +461,114 @@ const ncaaf = createLeague({
         awayScore:'awayScoreNCAAF', homeScore:'homeScoreNCAAF', backBtn:'ncaaf-backBtn' }
 });
 
-/* ============== Tabs ============== */
+/* Tabs */
 const tabs=[{btn:$('tab-nfl'),sec:$('sec-nfl')},{btn:$('tab-ncaaf'),sec:$('sec-ncaaf')},{btn:$('tab-picks'),sec:$('sec-picks')},{btn:$('tab-leaders'),sec:$('sec-leaders')}];
-function selectTab(ix){ tabs.forEach((t,i)=>{ t.btn.setAttribute('aria-selected', i===ix?'true':'false'); t.sec.classList.toggle('active', i===ix); }); }
-tabs.forEach((t,i)=> t.btn.addEventListener('click',()=>selectTab(i)));
+function selectTab(ix){tabs.forEach((t,i)=>{t.btn.setAttribute('aria-selected',i===ix?'true':'false');t.sec.classList.toggle('active',i===ix);});}
+tabs.forEach((t,i)=>t.btn.addEventListener('click',()=>selectTab(i)));
 
-/* ===== Weekly player leaderboard (DB + AI bots) ===== */
-async function buildWeeklyLeaderboard(){
-  const WK = (function(){ const n=new Date(new Date().toLocaleString('en-US',{timeZone:TZ})); const wd=n.getDay(); const d=(wd-2+7)%7; const tue=new Date(n); tue.setDate(n.getDate()-d); const hh=Number(new Intl.DateTimeFormat('en-US',{hour:'2-digit',hour12:false,timeZone:TZ}).format(n)); const anchor = (hh>=8 || d>0)?tue:new Date(tue.getTime()-7*864e5); const p=new Intl.DateTimeFormat('en-US',{year:'numeric',month:'2-digit',day:'2-digit',timeZone:TZ}).formatToParts(anchor); const o={}; p.forEach(x=>o[x.type]=x.value); return `${o.year}-${o.month}-${o.day}-Tue08ET`; })();
+/* ===== Weekly + Season Leaderboards (NFL/NCAA) ===== */
+function currentWK(){return weekKey();}
+async function computeAnyRow(id){return await nfl.computeRow(id) || await ncaaf.computeRow(id);}
 
-  // 1) Load all picks for the week
-  const { data:rows, error } = await sb.from('picks').select('user_id, game_id').eq('week_key', WK);
-  if(error){ console.error(error); $('weekly-lb').innerHTML='<div class="small">DB error loading picks.</div>'; return; }
-
-  // 2) Group by user
-  const perUser=new Map();
-  rows.forEach(r=>{ if(!perUser.has(r.user_id)) perUser.set(r.user_id, new Set()); perUser.get(r.user_id).add(r.game_id); });
-
-  // 3) Compute fantasy totals per user (sum of their game scores)
-  const events = [...new Set(rows.map(r=>r.game_id))]; // unique
-  const allRows = {};
-  // helper to compute once and memoize using nfl/ncaaf computeRow (try nfl first then ncaaf)
-  async function computeAny(id){
-    return await nfl.computeRow(id) || await ncaaf.computeRow(id);
-  }
-  for(const gid of events){ allRows[gid] = await computeAny(gid); }
-
-  // 4) names map from players (optional) else auth email
-  const userIds=[...perUser.keys()];
-  let names={};
-  if(userIds.length){
-    const { data:pl } = await sb.from('players').select('user_id, display_name').in('user_id', userIds);
-    (pl||[]).forEach(p=>{ names[p.user_id]=p.display_name; });
-  }
-  // 5) Build rows
-  const out=[];
-  for(const uid of perUser.keys()){
-    let sum=0; for(const gid of perUser.get(uid)){ const r=allRows[gid]; if(r) sum+=r.score||0; }
-    const label = (uid===currentUser?.id) ? 'You' : (names[uid] || uid.slice(0,8)+'…');
-    out.push({name:label, total:sum, isYou: uid===currentUser?.id});
-  }
-
-  // 6) Inject AI bots (choose top-scoring games randomly-ish)
-  const weeklyEvents = nfl.getWeeklyEvents().concat(ncaaf.getWeeklyEvents());
-  const rankedGames = [];
-  for(const g of weeklyEvents){ const r=await computeAny(g.id); if(r) rankedGames.push({id:g.id, score:r.score}); }
-  rankedGames.sort((a,b)=>b.score-a.score);
-  for(let i=0;i<Math.min(AI_COUNT, AI_NAMES.length); i++){
-    const choice = rankedGames.slice(i*2, i*2+3).map(x=>x.score).reduce((a,b)=>a+b,0);
-    out.push({ name: AI_NAMES[i]+' (AI)', total: choice, isYou:false, isAI:true });
-  }
-
-  out.sort((a,b)=>b.total-a.total);
-  const box=$('weekly-lb'); box.innerHTML='';
-  if(!out.length){ box.innerHTML='<div class="small">No picks yet.</div>'; return; }
-  for(const r of out){
-    const div=document.createElement('div'); div.className='lbRow';
-    div.innerHTML = `<div class="lbTeam"><span class="lbName">${r.name}</span>${r.isAI?'<span class="scoreTag" style="margin-left:8px">AI</span>':''}</div><div class="lbPts">${r.total.toFixed(2)}</div><div class="lbMeta">Weekly</div>`;
-    if(r.isYou) div.style.borderColor='#31506a';
-    box.appendChild(div);
+function renderLBList(container, rows){
+  const el=$(container); el.innerHTML='';
+  if(!rows.length){ el.innerHTML='<div class="small">No data.</div>'; return; }
+  for(const r of rows){
+    const d=document.createElement('div'); d.className='lbRow';
+    d.innerHTML=`<div class="lbTeam"><span class="lbName">${r.name}</span>${r.isAI?'<span class="scoreTag" style="margin-left:8px">AI</span>':''}</div><div class="lbPts">${r.total.toFixed(2)}</div><div class="lbMeta">${r.meta||''}</div>`;
+    el.appendChild(d);
   }
 }
-$('all-toggle').onclick=buildWeeklyLeaderboard;
 
-/* ===== Wire “current game” play log mirror to Leaders page ===== */
-(function mirrorLogs(){
-  const logs=[$('nfl-log'),$('ncaaf-log')];
-  const dest=$('all-log');
-  const obs=new MutationObserver(()=>{
-    // copy last 10 lines from whichever has content
-    let src = logs.find(l=>l.childElementCount);
-    if(!src){ dest.innerHTML=''; return; }
-    const lines=[...src.children].slice(0,10).map(n=>n.textContent);
-    dest.innerHTML=''; for(const ln of lines){ const d=document.createElement('div'); d.textContent=ln; dest.appendChild(d); }
-  });
-  logs.forEach(l=>obs.observe(l,{childList:true}));
-})();
+async function buildWeeklyLB(league){
+  const WK=currentWK();
+  const { data, error } = await sb.from('picks').select('user_id, game_id').eq('week_key', WK);
+  if(error){ console.error(error); return []; }
+  const isNFL = league==='nfl';
+  // filter games belonging to this league
+  const gids=[...new Set(data.map(r=>r.game_id))];
+  const leagueSet=new Set();
+  for(const gid of gids){
+    const row = await (isNFL ? nfl.computeRow(gid) : ncaaf.computeRow(gid));
+    if(row) leagueSet.add(gid);
+  }
+  const perUser=new Map();
+  for(const r of data){ if(leagueSet.has(r.game_id)){ if(!perUser.has(r.user_id)) perUser.set(r.user_id,new Set()); perUser.get(r.user_id).add(r.game_id); } }
+  const out=[];
+  for(const [uid,set] of perUser){
+    let sum=0; for(const gid of set){ const row=await computeAnyRow(gid); if(row) sum+=row.score||0; }
+    out.push({ name: uid===currentUser?.id ? 'You' : uid.slice(0,8)+'…', total: sum });
+  }
+  // bots
+  const weeklyEvents = (isNFL?nfl.getWeeklyEvents():ncaaf.getWeeklyEvents());
+  const ranked=[]; for(const g of weeklyEvents){ const r=await computeAnyRow(g.id); if(r) ranked.push({id:g.id,score:r.score}); }
+  ranked.sort((a,b)=>b.score-a.score);
+  for(let i=0;i<Math.min(AI_COUNT,AI_NAMES.length);i++){
+    const chunk = ranked.slice(i*2,i*2+3).reduce((s,x)=>s+(x.score||0),0);
+    out.push({ name: AI_NAMES[i]+' (AI)', total: chunk, isAI:true });
+  }
+  out.sort((a,b)=>b.total-a.total);
+  return out;
+}
 
-/* Initial auth UI + ensure picks load if already signed */
-(async()=>{ const { data:{ session } } = await sb.auth.getSession(); currentUser=session?.user||null; setAuthUI(); if(currentUser){ await nfl.refreshPicksFromDB(); await ncaaf.refreshPicksFromDB(); } })();
+async function listPastWeeks(beforeKey){
+  const { data } = await sb.from('picks').select('week_key').lt('week_key', beforeKey).order('week_key', { ascending:true });
+  return [...new Set((data||[]).map(r=>r.week_key))];
+}
 
-/* ===== SQL you need (run once in Supabase SQL editor) =====
--- Tables
+async function buildSeasonLB(league){
+  const beforeWK=currentWK();
+  const weeks=await listPastWeeks(beforeWK);
+  if(!weeks.length) return [];
+  const isNFL = league==='nfl';
+  // accumulate rank points per week: 10..0
+  const totals=new Map(); // user_id -> pts
+  for(const wk of weeks){
+    const { data } = await sb.from('picks').select('user_id, game_id').eq('week_key', wk);
+    const gids=[...new Set(data.map(r=>r.game_id))];
+    const leagueSet=new Set();
+    for(const gid of gids){ const row = await (isNFL ? nfl.computeRow(gid) : ncaaf.computeRow(gid)); if(row) leagueSet.add(gid); }
+    const perUser=new Map();
+    for(const r of data){ if(leagueSet.has(r.game_id)){ if(!perUser.has(r.user_id)) perUser.set(r.user_id,new Set()); perUser.get(r.user_id).add(r.game_id); } }
+    const rows=[];
+    for(const [uid,set] of perUser){
+      let sum=0; for(const gid of set){ const r=await computeAnyRow(gid); if(r) sum+=r.score||0; }
+      rows.push({uid,total:sum});
+    }
+    rows.sort((a,b)=>b.total-a.total);
+    rows.forEach((r,idx)=>{ const pts=Math.max(10-idx,0); totals.set(r.uid,(totals.get(r.uid)||0)+pts); });
+  }
+  const out=[]; totals.forEach((v,k)=>{ out.push({ name: k===currentUser?.id ? 'You' : k.slice(0,8)+'…', total: v, meta:'Season Pts' }); });
+  out.sort((a,b)=>b.total-a.total);
+  return out;
+}
+
+/* Build all four boards */
+async function buildWeeklyBoards(){
+  renderLBList('lb-nfl-week', await buildWeeklyLB('nfl'));
+  renderLBList('lb-ncaa-week', await buildWeeklyLB('ncaa'));
+}
+async function buildSeasonBoards(){
+  renderLBList('lb-nfl-season', await buildSeasonLB('nfl'));
+  renderLBList('lb-ncaa-season', await buildSeasonLB('ncaa'));
+}
+$('lb-nfl-week-refresh').onclick=buildWeeklyBoards;
+$('lb-ncaa-week-refresh').onclick=buildWeeklyBoards;
+$('lb-nfl-season-refresh').onclick=buildSeasonBoards;
+$('lb-ncaa-season-refresh').onclick=buildSeasonBoards;
+
+/* Initial auth + kick leaderboards */
+(async()=>{const {data:{session}}=await sb.auth.getSession();currentUser=session?.user||null;setAuthUI();buildWeeklyBoards();buildSeasonBoards();})();
+</script>
+
+<!--
+====================== RUN ONCE IN SUPABASE (SQL) ======================
+
 create table if not exists public.players (
   user_id uuid primary key references auth.users(id) on delete cascade,
   display_name text
 );
+
 create table if not exists public.picks (
   user_id uuid not null references auth.users(id) on delete cascade,
   week_key text not null,
@@ -831,21 +577,23 @@ create table if not exists public.picks (
   primary key (user_id, week_key, game_id)
 );
 
--- RLS
 alter table public.players enable row level security;
 alter table public.picks  enable row level security;
 
+drop policy if exists "players_rw" on public.players;
 create policy "players_rw" on public.players
   for select using (true)
   with check (auth.uid() = user_id);
 
+drop policy if exists "picks_select_own" on public.picks;
 create policy "picks_select_own" on public.picks
-  for select using (true); -- everyone can read weekly board (names are anonymized anyway)
+  for select using (true);
 
+drop policy if exists "picks_iud_own" on public.picks;
 create policy "picks_iud_own" on public.picks
   for all using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
--- ========================================================== */
-</script>
+=======================================================================
+-->
 </body>
 </html>
