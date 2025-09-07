@@ -3,25 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Football Fantasy — NFL + NCAA (Tue→Mon · 3 picks · AI bots · Fast Mode)</title>
+<title>Football Fantasy — NFL + NCAA · Supabase Auth</title>
+<link rel="preconnect" href="https://a.espncdn.com">
+<link rel="dns-prefetch" href="https://a.espncdn.com">
 <style>
   :root{ --bg:#0b0d10; --card:#12161b; --muted:#8ea0b3; --text:#e8eef4; }
   html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-  header{padding:16px 20px;border-bottom:1px solid #1e242c;background:#0f1318;position:sticky;top:0;z-index:10}
+  header{padding:16px 20px;border-bottom:1px solid #1e242c;background:#0f1318;position:sticky;top:0;z-index:20}
   h1{margin:0;font-size:18px;letter-spacing:.3px}
   .sub{color:var(--muted);font-size:13px;margin-left:6px}
-  nav.tabs{display:flex;gap:8px;padding:10px 20px;background:#0f1318;border-bottom:1px solid #1e242c;position:sticky;top:56px;z-index:9}
+  nav.tabs{display:flex;gap:8px;padding:10px 20px;background:#0f1318;border-bottom:1px solid #1e242c;position:sticky;top:56px;z-index:19}
   .tab{padding:8px 12px;border:1px solid #243241;border-radius:10px;background:#111822;color:var(--text);cursor:pointer;font-size:13px}
   .tab[aria-selected="true"]{background:#162231;border-color:#31506a;font-weight:700}
   .section{display:none}
   .section.active{display:block}
   main{max-width:1200px;margin:0 auto;padding:16px 20px 40px}
   .card{background:var(--card);border:1px solid #1c222a;border-radius:14px;padding:16px}
+  .panel{background:#0f1318;border:1px solid #1c2430;border-radius:12px;padding:12px}
   .sep{height:1px;background:#1a2129;margin:12px 0}
   .small{font-size:12px;color:var(--muted)}
   .btn{background:#14202b;border:1px solid #243241;color:var(--text);padding:8px 10px;border-radius:10px;cursor:pointer;font-size:13px}
   .btn.small{padding:6px 8px;font-size:12px}
   .btn[disabled]{opacity:.6;cursor:not-allowed}
+  input[type="email"],input[type="password"],input[type="text"]{background:#0b1117;border:1px solid #1b2633;border-radius:8px;color:var(--text);padding:8px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .gamesGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
   .gameCard{background:#11171e;border:1px solid #1f2a36;border-radius:14px;overflow:hidden}
   .band{height:6px}
@@ -31,7 +36,6 @@
   .team img{width:26px;height:26px;border-radius:6px;border:1px solid #1e2732;background:#0f1318}
   .team .name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .lockRow{display:flex;gap:8px;margin-top:10px}
-  .assignWrap{display:flex;gap:6px;align-items:center;margin-top:8px}
   .disabledNote{margin-top:6px;font-size:12px;color:#c78}
   .topGrid{display:grid;grid-template-columns:1fr 260px 260px;gap:14px;align-items:start}
   @media(max-width:980px){.topGrid{grid-template-columns:1fr}}
@@ -51,20 +55,46 @@
   .scoreTag{display:inline-block;margin-left:6px;padding:2px 6px;border:1px solid #26313c;border-radius:6px;font-weight:700}
   .lbPts{font-weight:700}
   .lbMeta{font-size:12px;color:var(--muted)}
-  .panel{background:#0f1318;border:1px solid #1c2430;border-radius:12px;padding:12px}
-  .field{display:flex;gap:8px;margin-top:8px}
-  input[type="text"]{flex:1;background:#0b1117;border:1px solid #1b2633;border-radius:8px;color:var(--text);padding:8px}
-  select{background:#0b1117;border:1px solid #1b2633;border-radius:8px;color:var(--text);padding:8px}
-  .pickBadge{display:inline-block;margin-left:8px;padding:2px 6px;border:1px solid #26313c;border-radius:8px;font-size:12px}
-  .collapsed .playersContent{display:none}
-  .playersToggle[aria-expanded="false"]::after{content:"  ▸"}
-  .playersToggle[aria-expanded="true"]::after{content:"  ▾"}
+  .authBadge{display:inline-block;padding:3px 8px;border:1px solid #2a3949;border-radius:999px;background:#0f1822}
 </style>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <header>
-  <h1>Football Fantasy — <span class="sub">NFL & NCAA · Tue→Mon · 3 picks · AI bots · Fast Mode</span></h1>
+  <h1>Football Fantasy — <span class="sub">NFL & NCAA · Tue→Mon · 3 picks · Supabase Auth</span></h1>
 </header>
+
+<!-- Auth / Account -->
+<main style="max-width:1200px;margin:0 auto;padding:12px 20px 0">
+  <section class="card">
+    <div class="row">
+      <div><strong>Account</strong> <span id="authState" class="authBadge">Signed out</span></div>
+    </div>
+    <div class="sep"></div>
+    <div id="authSignedOut">
+      <div class="row">
+        <input id="email" type="email" placeholder="Email">
+        <input id="password" type="password" placeholder="Password">
+        <button id="btnSignUp" class="btn small">Sign up</button>
+        <button id="btnSignIn" class="btn small">Sign in</button>
+      </div>
+      <div class="small" style="margin-top:6px">Use email + password. You’ll stay signed in on this device.</div>
+    </div>
+    <div id="authSignedIn" style="display:none">
+      <div class="row">
+        <div class="small">Signed in as <span id="whoami" style="font-weight:700">—</span></div>
+        <button id="btnSignOut" class="btn small">Sign out</button>
+      </div>
+      <div class="sep"></div>
+      <div class="row">
+        <input id="displayName" type="text" placeholder="Your display name (e.g., Jake)">
+        <button id="btnSaveName" class="btn small">Save name</button>
+        <span id="nameSaved" class="small" style="display:none">Saved ✓</span>
+      </div>
+      <div class="small" style="margin-top:6px">Your display name appears on the **Players** leaderboards.</div>
+    </div>
+  </section>
+</main>
 
 <nav class="tabs" role="tablist" aria-label="Leagues">
   <button id="tab-nfl" class="tab" role="tab" aria-controls="sec-nfl" aria-selected="true">NFL</button>
@@ -78,12 +108,11 @@
       <div class="small" id="nfl-liveHeader">—</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0">
         <button id="nfl-backBtn" class="btn small" style="display:none">← Back to games</button>
-        <select id="nfl-playerSelect" class="btn small" style="min-width:160px"></select>
-        <button id="nfl-addPickBtn" class="btn small">Add to my picks</button>
         <span id="nfl-picksLeft" class="small" style="opacity:.85"></span>
         <span class="small" style="margin-left:10px;opacity:.8">Jump:</span>
         <select id="nfl-jump" class="btn small" style="min-width:260px;max-width:60vw"></select>
         <button id="nfl-jumpBtn" class="btn small">View</button>
+        <button id="nfl-addPickBtn" class="btn small">Add to my picks</button>
       </div>
       <div class="topGrid">
         <div id="nfl-teamSide"></div>
@@ -103,23 +132,6 @@
 
     <section id="nfl-splash" class="card">
       <div id="nfl-weekNote" class="small">Loading…</div>
-      <div class="sep"></div>
-
-      <div id="nfl-playersWrap" class="panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-          <div><strong>Players</strong> <span class="small">(local)</span> <span class="pickBadge">Pick 3 per week</span></div>
-          <button id="nfl-playersToggle" class="btn small playersToggle" aria-expanded="true" aria-controls="nfl-playersContent">Collapse</button>
-        </div>
-        <div id="nfl-playersContent" class="playersContent" style="margin-top:8px">
-          <div class="field">
-            <input id="nfl-newPlayer" type="text" placeholder="Add player name">
-            <button id="nfl-addPlayer" class="btn small">Add</button>
-            <button id="nfl-clearWeek" class="btn small" title="Clear only this week">Clear Week</button>
-          </div>
-          <div id="nfl-playersPanel" style="margin-top:8px"></div>
-        </div>
-      </div>
-
       <div class="sep"></div>
       <div id="nfl-gridNote" class="small">—</div>
       <div id="nfl-grid" class="gamesGrid"></div>
@@ -160,12 +172,11 @@
       <div class="small" id="ncaaf-liveHeader">—</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0">
         <button id="ncaaf-backBtn" class="btn small" style="display:none">← Back to games</button>
-        <select id="ncaaf-playerSelect" class="btn small" style="min-width:160px"></select>
-        <button id="ncaaf-addPickBtn" class="btn small">Add to my picks</button>
         <span id="ncaaf-picksLeft" class="small" style="opacity:.85"></span>
         <span class="small" style="margin-left:10px;opacity:.8">Jump:</span>
         <select id="ncaaf-jump" class="btn small" style="min-width:260px;max-width:60vw"></select>
         <button id="ncaaf-jumpBtn" class="btn small">View</button>
+        <button id="ncaaf-addPickBtn" class="btn small">Add to my picks</button>
       </div>
       <div class="topGrid">
         <div id="ncaaf-teamSide"></div>
@@ -185,23 +196,6 @@
 
     <section id="ncaaf-splash" class="card">
       <div id="ncaaf-weekNote" class="small">Loading…</div>
-      <div class="sep"></div>
-
-      <div id="ncaaf-playersWrap" class="panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-          <div><strong>Players</strong> <span class="small">(local)</span> <span class="pickBadge">Pick 3 per week</span></div>
-          <button id="ncaaf-playersToggle" class="btn small playersToggle" aria-expanded="true" aria-controls="ncaaf-playersContent">Collapse</button>
-        </div>
-        <div id="ncaaf-playersContent" class="playersContent" style="margin-top:8px">
-          <div class="field">
-            <input id="ncaaf-newPlayer" type="text" placeholder="Add player name">
-            <button id="ncaaf-addPlayer" class="btn small">Add</button>
-            <button id="ncaaf-clearWeek" class="btn small" title="Clear only this week">Clear Week</button>
-          </div>
-          <div id="ncaaf-playersPanel" style="margin-top:8px"></div>
-        </div>
-      </div>
-
       <div class="sep"></div>
       <div id="ncaaf-gridNote" class="small">—</div>
       <div id="ncaaf-grid" class="gamesGrid"></div>
@@ -236,26 +230,18 @@
 </section>
 
 <script>
-/* ===== Constants & utilities ===== */
+/* ===================== SUPABASE INIT ===================== */
+const SB_URL  = "https://zrsqxylrcblcvtomamgd.supabase.co";  // <-- replace
+const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyc3F4eWxyY2JsY3Z0b21hbWdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNDAzOTYsImV4cCI6MjA3MjgxNjM5Nn0._H00AQ0VCLs3fkM2lKaWV-I4n9qKf51yjKmorxnonzw";              // <-- replace
+const sb = supabase.createClient(SB_URL, SB_ANON);
+
+/* ===================== CONFIG / UTILS ===================== */
 var TZ = 'America/New_York';
-var POLL_MS = 20000;      // open game poll
-var LB_POLL_MS = 60000;   // leaderboard poll
-var GRID_POLL_MS = 30000; // grid live scores poll
-var SPREAD_LIMIT = 30;
-var INCLUDE_UNKNOWN_SPREADS = true;
-var PICKS_REQUIRED = 3;
+var POLL_MS = 20000, LB_POLL_MS = 60000, GRID_POLL_MS = 30000;
+var SPREAD_LIMIT = 30, INCLUDE_UNKNOWN_SPREADS = true, PICKS_REQUIRED = 3;
+var FAST_LOAD = true, ODDS_CONCURRENCY = 6;
 
-/* Fast-mode knobs */
-var FAST_LOAD = true;          // render grid instantly (odds in background)
-var ODDS_CONCURRENCY = 6;      // limit odds fetchers for mobile friendliness
-
-/* Scoring */
 var W = { TD:3, FG:2, XP:0.5, TWO:1, YARD:0.05, FIRST_DOWN:0.5, SACK:2.5, TFL:1.5, INT:5.5, FR:5, DEF_TD_BONUS:3, SAFETY:6, STOP:2, ST_RETURN_TD:8, BLOCK:5, CLOSE_GAME:10, OVERTIME:15 };
-
-/* Bots */
-var AI_COUNT = 25;
-var BOT_PREFIX = 'ai-';
-var AI_NAMES = ['GridironBot','BlitzBrain','PocketOracle','HailMaryAI','TwoMinuteDrill','ChainMover','RedZoneRobo','SnapCount','NeutralZone','DriveEngine','TurfWizard','SidelineSynth','YACMachine','PlaybookGPT','NickelNerd','SafetyValve','SkyKick','GoalLineGolem','BoothReview','AudibleAI','TempoTactician','OptionOverlord','HotRoute','EdgeRusher','FieldGeneral'];
 
 function nowEST(){ return new Date(new Date().toLocaleString('en-US',{timeZone:TZ})); }
 function addDaysEST(d,days){ var n=new Date(d.getTime()); n.setDate(n.getDate()+days); return new Date(n.toLocaleString('en-US',{timeZone:TZ})); }
@@ -266,33 +252,23 @@ async function safeFetch(url,opts,retries){
   var r = typeof retries==='number' ? retries : 2;
   for(var i=0;i<=r;i++){
     try{
-      var ctl = new AbortController();
-      var t = setTimeout(function(){ctl.abort();},15000);
+      var ctl = new AbortController(); var t = setTimeout(function(){ctl.abort();},15000);
       var res = await fetch(url, Object.assign({}, opts||{}, {signal:ctl.signal}));
-      clearTimeout(t);
-      if(!res.ok) throw new Error('HTTP '+res.status);
+      clearTimeout(t); if(!res.ok) throw new Error('HTTP '+res.status);
       return await res.json();
-    }catch(e){
-      if(i===r) throw e; await timeout(600*(i+1));
-    }
+    }catch(e){ if(i===r) throw e; await timeout(600*(i+1)); }
   }
 }
 
 /* Auto-reload when Tue 8am ET flips week */
 (function(){
   var current = weekKey();
-  setInterval(function(){
-    var wk = weekKey();
-    if (wk !== current) location.reload();
-  }, 60000);
+  setInterval(function(){ var wk=weekKey(); if(wk!==current) location.reload(); }, 60000);
 })();
 
-/* Week window (Tue→Mon) */
+/* Tue→Mon week window */
 function weekKey(){
-  var n=nowEST();
-  var wd=n.getDay();
-  var daysSinceTue=(wd-2+7)%7;
-  var tue=addDaysEST(n,-daysSinceTue);
+  var n=nowEST(); var wd=n.getDay(); var daysSinceTue=(wd-2+7)%7; var tue=addDaysEST(n,-daysSinceTue);
   var p=fmtParts(n,{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
   var after8 = Number(p.hour)>=8 || daysSinceTue>0;
   var anchor = after8 ? tue : addDaysEST(tue,-7);
@@ -307,26 +283,66 @@ function weekDateList(){
 }
 
 /* Logos */
-function cdnNFL(t){
-  if(!t) return null;
-  if(t.logos && t.logos[0] && t.logos[0].href) return String(t.logos[0].href).replace(/^http:/,'https:');
-  if(t.abbreviation) return 'https://a.espncdn.com/i/teamlogos/nfl/500/'+t.abbreviation+'.png';
-  return null;
-}
-function cdnNCAAF(t){
-  if(!t) return null;
-  if(t.logos && t.logos[0] && t.logos[0].href) return String(t.logos[0].href).replace(/^http:/,'https:');
-  if(t.id) return 'https://a.espncdn.com/i/teamlogos/ncaa/500/'+t.id+'.png';
-  if(t.abbreviation) return 'https://a.espncdn.com/i/teamlogos/ncaa/500/'+t.abbreviation+'.png';
-  return null;
-}
+function cdnNFL(t){ if(!t) return null; if(t.logos && t.logos[0] && t.logos[0].href) return String(t.logos[0].href).replace(/^http:/,'https:'); if(t.abbreviation) return 'https://a.espncdn.com/i/teamlogos/nfl/500/'+t.abbreviation+'.png'; return null; }
+function cdnNCAAF(t){ if(!t) return null; if(t.logos && t.logos[0] && t.logos[0].href) return String(t.logos[0].href).replace(/^http:/,'https:'); if(t.id) return 'https://a.espncdn.com/i/teamlogos/ncaa/500/'+t.id+'.png'; if(t.abbreviation) return 'https://a.espncdn.com/i/teamlogos/ncaa/500/'+t.abbreviation+'.png'; return null; }
 
-/* ===== League Factory ===== */
+/* ===================== AUTH UI ===================== */
+const elSignedOut = document.getElementById('authSignedOut');
+const elSignedIn  = document.getElementById('authSignedIn');
+const elState     = document.getElementById('authState');
+const elWho       = document.getElementById('whoami');
+const elEmail     = document.getElementById('email');
+const elPass      = document.getElementById('password');
+const elDispName  = document.getElementById('displayName');
+const elNameSaved = document.getElementById('nameSaved');
+
+document.getElementById('btnSignUp').addEventListener('click', async function(){
+  const { data, error } = await sb.auth.signUp({ email: elEmail.value.trim(), password: elPass.value.trim() });
+  if(error){ alert(error.message); return; }
+  alert('Check your email to confirm your account, then sign in.');
+});
+document.getElementById('btnSignIn').addEventListener('click', async function(){
+  const { error } = await sb.auth.signInWithPassword({ email: elEmail.value.trim(), password: elPass.value.trim() });
+  if(error){ alert(error.message); return; }
+});
+document.getElementById('btnSignOut').addEventListener('click', async function(){ await sb.auth.signOut(); });
+
+document.getElementById('btnSaveName').addEventListener('click', async function(){
+  const nm = (elDispName.value||'').trim(); if(!nm){ alert('Enter a display name'); return; }
+  const user = (await sb.auth.getUser()).data.user; if(!user){ alert('Sign in first'); return; }
+  // keep only one row per user: delete old, insert new
+  await sb.from('players').delete().eq('user_id', user.id);
+  const { error } = await sb.from('players').insert({ user_id: user.id, display_name: nm });
+  if(error){ alert(error.message); return; }
+  elNameSaved.style.display='inline';
+  setTimeout(()=>{ elNameSaved.style.display='none'; }, 1200);
+  // refresh LBs to show updated name
+  renderAllPlayerBoards();
+});
+
+sb.auth.onAuthStateChange(async (_event, session)=>{
+  const user = session && session.user;
+  if(user){
+    elSignedOut.style.display='none';
+    elSignedIn.style.display='block';
+    elState.textContent='Signed in';
+    elWho.textContent=user.email||user.id;
+    // preload display name (if any)
+    const { data } = await sb.from('players').select('*').eq('user_id', user.id).limit(1);
+    if(data && data.length){ elDispName.value = data[0].display_name; }
+    // boot leagues after auth so we can respect picks
+    bootOnce();
+  }else{
+    elSignedOut.style.display='block';
+    elSignedIn.style.display='none';
+    elState.textContent='Signed out';
+  }
+});
+
+/* ===================== LEAGUE FACTORY ===================== */
 function createLeague(config){
   var state = {
     selected: null,
-    players: [],
-    picks: {},
     weeklyEvents: [],
     started: new Set(),
     lastScoring: new Set(),
@@ -338,140 +354,30 @@ function createLeague(config){
     gridTimer: null
   };
   var WK = weekKey();
-
-  /* Storage */
-  function load(key,def){ try{ var v=localStorage.getItem(config.prefix+'.'+key); return v?JSON.parse(v):def; }catch(e){ return def; } }
-  function save(key,val){ localStorage.setItem(config.prefix+'.'+key, JSON.stringify(val)); }
-
-  /* DOM */
   var N = config.nodes;
 
-  /* Players & AI */
-  function isBot(p){ return p && typeof p.id==='string' && p.id.indexOf(BOT_PREFIX)===0; }
-  function ensureAI(){
-    var have=new Set(); for(var i=0;i<state.players.length;i++){ if(isBot(state.players[i])) have.add(state.players[i].name); }
-    for(var j=0;j<AI_COUNT && j<AI_NAMES.length;j++){
-      var nm=AI_NAMES[j]; if(!have.has(nm)){ state.players.push({id: BOT_PREFIX+Math.random().toString(36).slice(2,9), name: nm}); }
-    }
-  }
-  function currentPlayerId(){ return N.playerSelect.value || (state.players[0] ? state.players[0].id : null); }
-  function picksFor(pid){ if(!state.picks[WK]) state.picks[WK]={}; if(!state.picks[WK][pid]) state.picks[WK][pid]={gameIds:[], lockedAt:new Date().toISOString()}; return state.picks[WK][pid]; }
-  function picksCount(pid){ return picksFor(pid).gameIds.length; }
-  function updatePicksLeft(){
-    var pid=currentPlayerId(); if(!pid){ N.picksLeft.textContent=''; return; }
-    var left = PICKS_REQUIRED - picksCount(pid); if(left<0) left=0;
-    N.picksLeft.textContent = String(left)+' pick'+(left===1?'':'s')+' left this week';
-  }
-  function refreshPlayerSelect(){
-    N.playerSelect.innerHTML='';
-    for(var i=0;i<state.players.length;i++){
-      var p=state.players[i]; var o=document.createElement('option'); o.value=p.id; o.textContent=isBot(p)?(p.name+' (AI)'):p.name; N.playerSelect.appendChild(o);
-    }
-    updatePicksLeft();
-  }
-  function renderPlayersPanel(){
-    var panel=N.playersPanel; panel.innerHTML='';
-    if(state.players.length===0){ panel.innerHTML='<div class="small">No players yet. Add some above.</div>'; refreshPlayerSelect(); return; }
-    for(var i=0;i<state.players.length;i++){
-      var p=state.players[i]; var wk=picksFor(p.id); var labs=wk.gameIds.map(function(id){return shortLabel(id);}).join(' · ');
-      var wrap=document.createElement('div');
-      wrap.style.cssText='display:flex;justify-content:space-between;align-items:center;border:1px solid #1c2430;background:#0f1318;padding:8px;border-radius:10px;margin-bottom:8px';
-      var badge = ' <span class="pickBadge">'+wk.gameIds.length+'/'+PICKS_REQUIRED+'</span>';
-      wrap.innerHTML='<div><strong>'+p.name+'</strong>'+(isBot(p)?' <span class="small" style="opacity:.8">(AI)</span>':'')+badge+'<div class="small" style="opacity:.8">'+(labs|| (isBot(p)?'AI will auto-pick':'No picks yet'))+'</div></div><div><button class="btn small" data-del="'+p.id+'">Del</button></div>';
-      panel.appendChild(wrap);
-    }
-    panel.querySelectorAll('[data-del]').forEach(function(b){
-      b.addEventListener('click', function(){
-        var id=b.getAttribute('data-del');
-        state.players = state.players.filter(function(x){ return x.id!==id; });
-        var weeks=Object.keys(state.picks);
-        for(var k=0;k<weeks.length;k++){ var wkKey=weeks[k]; if(state.picks[wkKey] && state.picks[wkKey][id]) delete state.picks[wkKey][id]; }
-        save('players',state.players); save('picks',state.picks);
-        renderPlayersPanel(); refreshPlayerSelect();
-      });
-    });
-    refreshPlayerSelect();
-  }
-  N.addPlayer.addEventListener('click',function(){
-    var name=(N.newPlayer.value||'').trim(); if(!name) return;
-    state.players.push({id:'p'+Math.random().toString(36).slice(2,9), name:name}); N.newPlayer.value='';
-    save('players',state.players); renderPlayersPanel(); refreshPlayerSelect();
-  });
-  N.clearWeek.addEventListener('click',function(){
-    state.picks[WK]={}; save('picks',state.picks); renderPlayersPanel(); updatePicksLeft(); renderPlayersLB(); renderSeasonLB();
-  });
-  N.playersToggle.addEventListener('click',function(){
-    var open=N.playersToggle.getAttribute('aria-expanded')==='true';
-    if(open){ N.playersWrap.classList.add('collapsed'); N.playersToggle.setAttribute('aria-expanded','false'); N.playersToggle.textContent='Expand'; }
-    else{ N.playersWrap.classList.remove('collapsed'); N.playersToggle.setAttribute('aria-expanded','true'); N.playersToggle.textContent='Collapse'; }
-  });
+  function showTop(on){ N.top.style.display = on ? 'block' : 'none'; }
+  function showSplash(on){ N.splash.style.display = on ? 'block' : 'none'; }
+  function showTracker(on){ N.tracker.style.display = on ? 'block' : 'none'; }
+  function sectionVisible(id){ var sec=document.getElementById(id); return !!sec && sec.classList.contains('active'); }
 
   function isLocked(g){
     try{
       if(state.started.has(g.id)) return true;
-      var now=nowEST().getTime();
-      var kick=new Date(g.start).getTime();
+      var now=nowEST().getTime(), kick=new Date(g.start).getTime();
       if(now>=kick){ state.started.add(g.id); return true; }
       return false;
     }catch(e){ return false; }
   }
 
-  /* AI */
-  function aiScore(g){
-    var spread = g.spread===null || typeof g.spread==='undefined' ? 8 : Math.abs(Number(g.spread)||8);
-    var closeness = 10 - Math.min(spread,10);
-    var rnd=(Math.random()-0.5)*0.7;
-    return closeness + rnd;
-  }
-  function ensureAIPicks(){
-    var ai=state.players.filter(function(p){return isBot(p);});
-    if(ai.length===0) return;
-    var ranked = state.weeklyEvents.filter(function(g){return !isLocked(g);}).map(function(g){
-      return {id:g.id, score:aiScore(g)};
-    }).sort(function(a,b){return b.score-a.score;});
-    for(var i=0;i<ai.length;i++){
-      var wk=picksFor(ai[i].id);
-      var idx=0;
-      while(wk.gameIds.length<PICKS_REQUIRED && idx<ranked.length){
-        var gid=ranked[idx].id;
-        if(wk.gameIds.indexOf(gid)===-1) wk.gameIds.push(gid);
-        idx++;
-      }
-    }
-    save('picks',state.picks);
-  }
-
-  /* Labels */
-  function shortLabel(eventId){
-    for(var i=0;i<state.weeklyEvents.length;i++){
-      var g=state.weeklyEvents[i]; if(g.id===eventId){ return g.away.name+' @ '+g.home.name; }
-    }
-    return '#'+eventId;
-  }
-
-  /* Fetchers */
+  /* ESPN fetchers */
   function apiScoreboard(dateStr){ return safeFetch(config.endpoints.scoreboard+fmtDateStr(dateStr)); }
   function apiOdds(eventId){ return safeFetch(config.endpoints.odds(eventId)); }
   function apiSummary(eventId){ return safeFetch(config.endpoints.summary+eventId); }
   function apiBox(eventId){ return safeFetch(config.endpoints.box+eventId); }
   function apiPbp(eventId){ return safeFetch(config.endpoints.pbp+eventId); }
 
-  /* UI toggles */
-  function showTop(on){ N.top.style.display = on ? 'block' : 'none'; }
-  function showSplash(on){ N.splash.style.display = on ? 'block' : 'none'; }
-  function showTracker(on){ N.tracker.style.display = on ? 'block' : 'none'; }
-
-  function goToGrid(){
-    showTop(false); showTracker(false); showSplash(true);
-    var bb=document.getElementById(config.ids.backBtn); if(bb) bb.style.display='none';
-    state.selected=null; if(state.pollTimer){ clearInterval(state.pollTimer); state.pollTimer=null; }
-  }
-  function wireBack(){
-    var bb=document.getElementById(config.ids.backBtn); if(!bb) return;
-    bb.addEventListener('click', goToGrid);
-  }
-
-  /* Grid render */
+  /* GRID */
   function renderGrid(list){
     N.grid.innerHTML='';
     for(var i=0;i<list.length;i++){
@@ -480,7 +386,6 @@ function createLeague(config){
       var card=document.createElement('div'); card.className='gameCard';
       var started=isLocked(g);
       var kickoff=new Date(g.start).toLocaleString([], {weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
-
       card.innerHTML =
         '<div class="band" style="background:'+band+'"></div>'+
         '<div class="gameBody">'+
@@ -504,39 +409,22 @@ function createLeague(config){
             ' &middot; Kick: '+kickoff+
           '</div>'+
           '<div class="lockRow">'+
-            '<button class="btn lockBtn" '+(started?'disabled':'')+'>🔒 Add to pick</button>'+
+            '<button class="btn lockBtn" '+(started?'disabled':'')+'>🔒 Add to my picks</button>'+
             '<button class="btn small viewBtn">Open</button>'+
-          '</div>'+
-          '<div class="assignWrap">'+
-            '<select class="assignSel"><option value="">Assign to player…</option></select>'+
-            '<button class="btn small assignBtn" '+(started?'disabled':'')+'>Assign</button>'+
           '</div>'+
           (started?'<div class="disabledNote">Locked (already started)</div>':'')+
         '</div>';
-
-      var sel=card.querySelector('.assignSel');
-      for(var p=0;p<state.players.length;p++){
-        var pl=state.players[p]; var o=document.createElement('option'); o.value=pl.id; o.textContent=isBot(pl)?(pl.name+' (AI)'):pl.name; sel.appendChild(o);
-      }
-
       card.querySelector('.viewBtn').addEventListener('click', function(gcopy){ return function(){ openGame(gcopy); }; }(g));
-      card.querySelector('.lockBtn').addEventListener('click', function(gcopy){ return function(){
+      card.querySelector('.lockBtn').addEventListener('click', function(gcopy){ return async function(){
         if(isLocked(gcopy)) return;
-        var pid=currentPlayerId(); if(!pid){ alert('Add/select a player first.'); return; }
-        var wk=picksFor(pid);
-        if(wk.gameIds.indexOf(gcopy.id)!==-1){ alert('Already picked.'); return; }
-        if(wk.gameIds.length>=PICKS_REQUIRED){ alert('You already have '+PICKS_REQUIRED+' picks.'); return; }
-        wk.gameIds.push(gcopy.id); save('picks',state.picks); updatePicksLeft(); renderPlayersPanel(); renderPlayersLB(); renderSeasonLB();
+        const u = (await sb.auth.getUser()).data.user; if(!u){ alert('Sign in first.'); return; }
+        // enforce 3 picks per user/league/week
+        const { data: myPicks } = await sb.from('picks').select('id').eq('user_id',u.id).eq('league',config.prefix).eq('week_key',WK);
+        if(myPicks && myPicks.length>=PICKS_REQUIRED){ alert('You already have '+PICKS_REQUIRED+' picks this week.'); return; }
+        const { error } = await sb.from('picks').insert({ user_id:u.id, league:config.prefix, week_key:WK, game_id:gcopy.id });
+        if(error){ alert(error.message); return; }
+        updatePicksLeft(); renderPlayersLB(); renderSeasonLB();
       }; }(g));
-      card.querySelector('.assignBtn').addEventListener('click', function(gcopy, selEl){ return function(){
-        var pid=selEl.value; if(!pid) return;
-        if(isLocked(gcopy)) return;
-        var wk=picksFor(pid);
-        if(wk.gameIds.indexOf(gcopy.id)!==-1){ alert('Already picked.'); selEl.value=''; return; }
-        if(wk.gameIds.length>=PICKS_REQUIRED){ alert('Player already has '+PICKS_REQUIRED+' picks.'); selEl.value=''; return; }
-        wk.gameIds.push(gcopy.id); save('picks',state.picks); selEl.value=''; renderPlayersPanel(); renderPlayersLB(); renderSeasonLB();
-      }; }(g, sel));
-
       N.grid.appendChild(card);
     }
   }
@@ -570,19 +458,22 @@ function createLeague(config){
         '<div style="display:flex;gap:10px;align-items:center">'+(g.home.logo?('<img src="'+g.home.logo+'" alt="">'):'')+'<div style="font-weight:700">'+g.home.name+'</div></div>'+
         '<div id="'+config.ids.homeScore+'" style="font-weight:800">—</div>'+
       '</div>';
-
     showTop(true); showSplash(false); showTracker(true);
     var bb=document.getElementById(config.ids.backBtn); if(bb) bb.style.display='inline-block';
     if(state.pollTimer) clearInterval(state.pollTimer);
     refreshOnce();
     state.pollTimer=setInterval(function(){ if(sectionVisible(config.sectionId)) refreshOnce(); }, POLL_MS);
-    fillJump();
-    updatePicksLeft();
+    fillJump(); updatePicksLeft();
   }
 
-  function sectionVisible(id){
-    var sec=document.getElementById(id);
-    return !!sec && sec.classList.contains('active');
+  function updatePicksLeft(){
+    (async function(){
+      const user = (await sb.auth.getUser()).data.user; if(!user){ N.picksLeft.textContent='Sign in to pick games'; return; }
+      const { data } = await sb.from('picks').select('id').eq('user_id',user.id).eq('league',config.prefix).eq('week_key',WK);
+      const count = (data && data.length) ? data.length : 0;
+      const left = Math.max(PICKS_REQUIRED - count, 0);
+      N.picksLeft.textContent = left+' pick'+(left===1?'':'s')+' left this week';
+    })();
   }
 
   /* ===== FAST loadWeek ===== */
@@ -594,11 +485,8 @@ function createLeague(config){
     state.lastScoring.clear(); state.weeklyEvents=[]; state.started=new Set();
 
     const range = weekDateList();
-
-    // 1) Fetch the 7 daily scoreboards in PARALLEL
     const sbList = await Promise.all(range.list.map(function(d){ return apiScoreboard(d).catch(function(){return null;}); }));
 
-    // 2) Flatten events -> base list
     const seen = new Set(); const base=[];
     for (var s=0; s<sbList.length; s++){
       var sb = sbList[s]; var evs = sb && sb.events ? sb.events : [];
@@ -622,7 +510,6 @@ function createLeague(config){
       }
     }
 
-    // 3) Render immediately (no odds yet)
     base.sort(function(a,b){ return new Date(a.start)-new Date(b.start); });
     state.weeklyEvents = base;
 
@@ -630,17 +517,13 @@ function createLeague(config){
     N.weekNote.textContent = base.length+' games';
     renderGrid(base);
     fillJump();
+    updatePicksLeft();
 
-    ensureAI(); save('players',state.players); renderPlayersPanel();
-    ensureAIPicks(); save('picks',state.picks);
-
-    // start lightweight polling right away
     startGridPolling();
     refreshLB();
     if(state.lbTimer) clearInterval(state.lbTimer);
     state.lbTimer=setInterval(function(){ if(sectionVisible(config.sectionId)) refreshLB(); }, LB_POLL_MS);
 
-    // 4) Enrich odds in background (optional)
     if (!FAST_LOAD) return;
     const ids = base.map(function(g){return g.id;});
     var idx = 0;
@@ -669,38 +552,29 @@ function createLeague(config){
 
   async function refreshGridScores(){
     if (!state.weeklyEvents || state.weeklyEvents.length === 0) return;
-    try {
+    try{
       for (var i = 0; i < state.weeklyEvents.length; i++) {
         var ev = state.weeklyEvents[i];
         var row = await computeRow(ev.id);
         if (!row) continue;
-
         var scEl = document.getElementById(config.prefix+'-scr-'+ev.id);
         var stEl = document.getElementById(config.prefix+'-st-'+ev.id);
         if (scEl) scEl.textContent = row.awayPts + '–' + row.homePts;
         if (stEl) stEl.textContent = row.status || '—';
-
         var aEl = document.getElementById(config.prefix+'-a-'+ev.id);
         var hEl = document.getElementById(config.prefix+'-h-'+ev.id);
         if (aEl) aEl.textContent = row.awayPts;
         if (hEl) hEl.textContent = row.homePts;
       }
-    } catch (e) { }
+    }catch(e){}
   }
-  function startGridPolling(){
-    refreshGridScores();
-    if (state.gridTimer) clearInterval(state.gridTimer);
-    state.gridTimer = setInterval(refreshGridScores, GRID_POLL_MS);
-  }
+  function startGridPolling(){ refreshGridScores(); if (state.gridTimer) clearInterval(state.gridTimer); state.gridTimer=setInterval(refreshGridScores, GRID_POLL_MS); }
 
-  /* Scoring helpers */
+  /* ===== Scoring (summary/box/pbp) ===== */
   function sumStatsFromSummary(summary){
     var totals={ yards:0, firstDowns:0, tfl:0, sacks:0, thirdMade:0, thirdAtt:0, fourthMade:0, fourthAtt:0, safeties:0 };
     var teams = summary && summary.boxscore && summary.boxscore.teams ? summary.boxscore.teams : [];
-    function add(statArr, keyName){
-      for(var i=0;i<statArr.length;i++){ if(statArr[i].name===keyName || statArr[i].abbreviation===keyName) return statArr[i]; }
-      return null;
-    }
+    function add(statArr, keyName){ for(var i=0;i<statArr.length;i++){ if(statArr[i].name===keyName || statArr[i].abbreviation===keyName) return statArr[i]; } return null; }
     for(var t=0;t<teams.length;t++){
       var st = teams[t].statistics || [];
       var ry=add(st,'rushingYards'); var py=add(st,'netPassingYards');
@@ -708,8 +582,7 @@ function createLeague(config){
       var pyv = py ? Number(py.value || py.displayValue || 0) : 0;
       totals.yards += (isNaN(ryv)?0:ryv) + (isNaN(pyv)?0:pyv);
       var fd=add(st,'firstDowns'); totals.firstDowns += fd ? Number(fd.value || fd.displayValue || 0) : 0;
-      var sa=add(st,'sacks'); 
-      var sval=0; if(sa){ var dv=String(sa.displayValue||'').split('-')[0]; sval = sa.value ? Number(sa.value) : Number(dv); if(isNaN(sval)) sval=0; }
+      var sa=add(st,'sacks'); var sval=0; if(sa){ var dv=String(sa.displayValue||'').split('-')[0]; sval = sa.value ? Number(sa.value) : Number(dv); if(isNaN(sval)) sval=0; }
       totals.sacks += sval;
       var tfl=add(st,'tacklesForLoss'); totals.tfl += tfl ? Number(tfl.value || tfl.displayValue || 0) : 0;
       var th=add(st,'thirdDownEff'); var thv = th ? String(th.displayValue||'0-0').split('-') : ['0','0']; totals.thirdMade+=Number(thv[0]||0); totals.thirdAtt+=Number(thv[1]||0);
@@ -728,7 +601,6 @@ function createLeague(config){
     }catch(e){}
     return plays;
   }
-
   function calcFantasyFrom(summary, box, pbp){
     var comp = summary && summary.header && summary.header.competitions && summary.header.competitions[0] ? summary.header.competitions[0] : {};
     var status = comp.status || {};
@@ -800,13 +672,11 @@ function createLeague(config){
 
     return {
       total: Number(total.toFixed(2)),
-      homePts: homePts,
-      awayPts: awayPts,
+      homePts: homePts, awayPts: awayPts,
       statusText: (status && status.type && (status.type.shortDetail || status.type.description)) ? (status.type.shortDetail || status.type.description) : '—',
       isFinal: isFinal
     };
   }
-
   async function computeRow(eventId){
     var cached = state.gameScoreCache.get(eventId);
     if(cached && cached.isFinal) return cached;
@@ -825,30 +695,19 @@ function createLeague(config){
       var awayLogo = config.logo(awayC && awayC.team ? awayC.team : null);
 
       var scoreObj = calcFantasyFrom(summary, box, pbp);
-      var row = {
-        id: eventId,
-        awayName: awayName,
-        homeName: homeName,
-        awayLogo: awayLogo,
-        homeLogo: homeLogo,
-        awayPts: scoreObj.awayPts,
-        homePts: scoreObj.homePts,
-        score: scoreObj.total,
-        status: scoreObj.statusText,
-        final: scoreObj.isFinal
-      };
+      var row = { id:eventId, awayName, homeName, awayLogo, homeLogo, awayPts:scoreObj.awayPts, homePts:scoreObj.homePts, score:scoreObj.total, status:scoreObj.statusText, final:scoreObj.isFinal };
       if(row.final) state.gameScoreCache.set(eventId,row);
       return row;
     }catch(e){ return null; }
   }
 
+  /* ===== Games leaderboard ===== */
   function renderLB(){
     N.lb.innerHTML='';
     var rows = state.showAll ? state.lbRows : state.lbRows.slice(0,10);
     if(rows.length===0){ N.lb.innerHTML='<div class="small">—</div>'; return; }
     for(var i=0;i<rows.length;i++){
-      var r=rows[i];
-      var div=document.createElement('div'); div.className='lbRow';
+      var r=rows[i]; var div=document.createElement('div'); div.className='lbRow';
       div.innerHTML =
         '<div class="lbTeam">'+
           (r.awayLogo?('<img src="'+r.awayLogo+'" alt="">'):'')+'<span class="lbName">'+r.awayName+'</span>'+
@@ -859,29 +718,25 @@ function createLeague(config){
         '</div>'+
         '<div class="lbPts">'+r.score.toFixed(2)+'</div>'+
         '<div class="lbMeta">'+r.status+'</div>';
-      (function(eventId){
-        div.addEventListener('click',function(){
-          for(var j=0;j<state.weeklyEvents.length;j++){ if(state.weeklyEvents[j].id===eventId){ openGame(state.weeklyEvents[j]); break; } }
-        });
-      })(r.id);
+      (function(eventId){ div.addEventListener('click',function(){
+        for(var j=0;j<state.weeklyEvents.length;j++){ if(state.weeklyEvents[j].id===eventId){ openGame(state.weeklyEvents[j]); break; } }
+      }); })(r.id);
       N.lb.appendChild(div);
     }
     N.toggleAll.textContent = state.showAll ? 'Show top 10' : 'Show all';
     N.toggleAll.setAttribute('aria-expanded', state.showAll ? 'true' : 'false');
   }
+  N.toggleAll.addEventListener('click',function(){ state.showAll=!state.showAll; renderLB(); });
 
   async function refreshLB(){
     if(!state.weeklyEvents || state.weeklyEvents.length===0){ return; }
     var rows=[];
-    for(var i=0;i<state.weeklyEvents.length;i++){
-      var r=await computeRow(state.weeklyEvents[i].id);
-      if(r) rows.push(r);
-    }
+    for(var i=0;i<state.weeklyEvents.length;i++){ var r=await computeRow(state.weeklyEvents[i].id); if(r) rows.push(r); }
     rows.sort(function(a,b){ return b.score-a.score; });
-    state.lbRows=rows;
-    renderLB();
+    state.lbRows=rows; renderLB();
   }
 
+  /* ===== Live game view ===== */
   async function refreshOnce(){
     if(!state.selected) return;
     try{
@@ -919,85 +774,81 @@ function createLeague(config){
           newLines.push('['+q+' '+time+'] '+desc);
         }
       }
-      for(var k=newLines.length-1;k>=0;k--){
-        var d=document.createElement('div'); d.textContent=newLines[k]; N.log.prepend(d);
-      }
+      for(var k=newLines.length-1;k>=0;k--){ var d=document.createElement('div'); d.textContent=newLines[k]; N.log.prepend(d); }
       for(var j=0;j<sps.length;j++){ state.lastScoring.add(sps[j].id); }
     }catch(e){}
   }
 
-  /* Player Leaderboards */
-  async function totalForWeek(pid, wkKey){
-    var wk = state.picks[wkKey] ? state.picks[wkKey] : {};
-    var ids = wk[pid] && wk[pid].gameIds ? wk[pid].gameIds : [];
-    var sum=0;
-    for(var i=0;i<ids.length;i++){
-      var r=await computeRow(ids[i]); if(r) sum += (r.score||0);
-    }
-    return sum;
+  /* ===== Player Leaderboards (Supabase) ===== */
+  async function displayNameMap(){
+    const { data } = await sb.from('players').select('*');
+    var map={}; if(data){ for(var i=0;i<data.length;i++){ map[data[i].user_id]=data[i].display_name; } }
+    return map;
   }
-  async function weeklyRankPoints(wkKey){
-    var wk=state.picks[wkKey] || {};
-    var pids=Object.keys(wk);
-    var rows=[];
-    for(var i=0;i<pids.length;i++){
-      var pid=pids[i];
-      var t=await totalForWeek(pid, wkKey);
-      rows.push({pid:pid,total:t});
-    }
-    rows.sort(function(a,b){ return b.total-a.total; });
-    var pts={};
-    for(var j=0;j<rows.length;j++){ pts[rows[j].pid] = Math.max(10-j,0); }
-    return pts;
+  async function fetchWeekPicks(){
+    const { data } = await sb.from('picks').select('user_id,game_id').eq('league',config.prefix).eq('week_key',WK);
+    return data||[];
   }
-  async function seasonTotals(){
-    var cur=WK;
-    var weeks=Object.keys(state.picks).filter(function(w){ return w<cur; }).sort();
+  async function totalScoreForGame(gameId){ var r=await computeRow(gameId); return r ? (r.score||0) : 0; }
+
+  async function weeklyTotalsByUser(){
+    var picks=await fetchWeekPicks();
     var totals={};
-    for(var i=0;i<state.players.length;i++){ totals[state.players[i].id]=0; }
-    for(var w=0;w<weeks.length;w++){
-      var wk=weeks[w];
-      var pts=await weeklyRankPoints(wk);
-      var keys=Object.keys(pts);
-      for(var k=0;k<keys.length;k++){ var pid=keys[k]; totals[pid]=(totals[pid]||0)+pts[pid]; }
+    for(var i=0;i<picks.length;i++){
+      var row=picks[i]; totals[row.user_id]=totals[row.user_id]||0;
+      totals[row.user_id]+=await totalScoreForGame(row.game_id);
     }
     return totals;
   }
-  function nameFor(pid){
-    for(var i=0;i<state.players.length;i++){ if(state.players[i].id===pid) return state.players[i].name; }
-    return pid;
-  }
   async function renderPlayersLB(){
-    var wk = state.picks[WK] || {};
-    var pids = Object.keys(wk);
+    var totals=await weeklyTotalsByUser();
+    var names=await displayNameMap();
     var rows=[];
-    for(var i=0;i<pids.length;i++){
-      var pid=pids[i]; if(!wk[pid].gameIds || wk[pid].gameIds.length===0) continue;
-      var total=await totalForWeek(pid, WK);
-      rows.push({name:nameFor(pid), total:total, picks:wk[pid].gameIds.length});
-    }
+    Object.keys(totals).forEach(function(uid){ rows.push({ name:names[uid]||uid.slice(0,8), total:totals[uid] }); });
     rows.sort(function(a,b){ return b.total-a.total; });
     N.pLB.innerHTML='';
     if(rows.length===0){ N.pLB.innerHTML='<div class="small">No picks this week.</div>'; return; }
     for(var r=0;r<rows.length;r++){
-      var row=rows[r];
-      var div=document.createElement('div'); div.className='lbRow';
-      div.innerHTML='<div class="lbTeam"><span class="lbName">'+row.name+'</span> <span class="small" style="margin-left:6px;opacity:.8">('+row.picks+'/'+PICKS_REQUIRED+')</span></div><div class="lbPts">'+row.total.toFixed(2)+'</div><div class="lbMeta">Weekly</div>';
+      var row=rows[r]; var div=document.createElement('div'); div.className='lbRow';
+      div.innerHTML='<div class="lbTeam"><span class="lbName">'+row.name+'</span></div><div class="lbPts">'+row.total.toFixed(2)+'</div><div class="lbMeta">Weekly</div>';
       N.pLB.appendChild(div);
     }
   }
+
+  // Season = rank points (Mon 8am gating is implicit: previous weeks only)
+  async function seasonTotals(){
+    var cur=WK;
+    const { data } = await sb.from('picks').select('user_id,week_key,game_id').eq('league',config.prefix);
+    var byWeek={};
+    for(var i=0;i<(data||[]).length;i++){
+      var r=data[i];
+      if(r.week_key>=cur) continue; // only past weeks
+      byWeek[r.week_key]=byWeek[r.week_key]||{};
+      byWeek[r.week_key][r.user_id]=byWeek[r.week_key][r.user_id]||[];
+      byWeek[r.week_key][r.user_id].push(r.game_id);
+    }
+    var totals={};
+    var weeks=Object.keys(byWeek).sort();
+    for(var w=0; w<weeks.length; w++){
+      var wk=weeks[w], users=Object.keys(byWeek[wk]);
+      var rows=[];
+      for(var u=0; u<users.length; u++){
+        var uid=users[u], sum=0, gids=byWeek[wk][uid];
+        for(var g=0; g<gids.length; g++){ sum += await totalScoreForGame(gids[g]); }
+        rows.push({uid, sum});
+      }
+      rows.sort(function(a,b){ return b.sum-a.sum; });
+      for(var r=0;r<rows.length;r++){
+        totals[rows[r].uid]=(totals[rows[r].uid]||0)+Math.max(10-r,0);
+      }
+    }
+    return totals;
+  }
   async function renderSeasonLB(){
     var totals=await seasonTotals();
-    function anyPick(pid){
-      var weeks=Object.keys(state.picks);
-      for(var i=0;i<weeks.length;i++){ var wk=state.picks[weeks[i]]; if(wk[pid] && wk[pid].gameIds && wk[pid].gameIds.length) return true; }
-      return false;
-    }
+    var names=await displayNameMap();
     var rows=[];
-    for(var i=0;i<state.players.length;i++){
-      var pid=state.players[i].id;
-      if(anyPick(pid)) rows.push({name:state.players[i].name, total: totals[pid]||0});
-    }
+    Object.keys(totals).forEach(function(uid){ rows.push({ name:names[uid]||uid.slice(0,8), total:totals[uid] }); });
     rows.sort(function(a,b){ return b.total-a.total; });
     N.pSeason.innerHTML='';
     if(rows.length===0){ N.pSeason.innerHTML='<div class="small">No season data yet.</div>'; return; }
@@ -1007,158 +858,101 @@ function createLeague(config){
       N.pSeason.appendChild(div);
     }
   }
+  async function renderAllPlayerBoards(){ await renderPlayersLB(); await renderSeasonLB(); }
 
   /* Controls */
-  N.addPickBtn.addEventListener('click', function(){
+  N.addPickBtn.addEventListener('click', async function(){
     if(!state.selected) return;
-    var pid=currentPlayerId(); if(!pid){ alert('Add/select a player first.'); return; }
+    const u = (await sb.auth.getUser()).data.user; if(!u){ alert('Sign in first.'); return; }
     if(isLocked(state.selected)) return;
-    var wk=picksFor(pid);
-    if(wk.gameIds.indexOf(state.selected.id)!==-1){ alert('Already picked.'); return; }
-    if(wk.gameIds.length>=PICKS_REQUIRED){ alert('You already have '+PICKS_REQUIRED+' picks.'); return; }
-    wk.gameIds.push(state.selected.id); save('picks',state.picks); updatePicksLeft(); renderPlayersPanel(); renderPlayersLB(); renderSeasonLB();
+    const { data: myPicks } = await sb.from('picks').select('id,game_id').eq('user_id',u.id).eq('league',config.prefix).eq('week_key',WK);
+    if(myPicks && myPicks.find(p=>p.game_id===state.selected.id)){ alert('Already picked.'); return; }
+    if(myPicks && myPicks.length>=PICKS_REQUIRED){ alert('You already have '+PICKS_REQUIRED+' picks.'); return; }
+    const { error } = await sb.from('picks').insert({ user_id:u.id, league:config.prefix, week_key:WK, game_id:state.selected.id });
+    if(error){ alert(error.message); return; }
+    updatePicksLeft(); renderPlayersLB(); renderSeasonLB();
   });
-  N.toggleAll.addEventListener('click',function(){ state.showAll=!state.showAll; renderLB(); });
+
+  (function wireBack(){ var bb=document.getElementById(config.ids.backBtn); if(bb) bb.addEventListener('click', function(){ showTop(false); showTracker(false); showSplash(true); state.selected=null; if(state.pollTimer){ clearInterval(state.pollTimer); state.pollTimer=null; } }); })();
 
   /* Boot */
-  (async function boot(){
-    try{
-      state.players = load('players', []);
-      state.picks = load('picks', {});
-      ensureAI(); save('players', state.players);
-      refreshPlayerSelect();
-      renderPlayersPanel();
-      await loadWeek();
-      wireBack();
+  async function boot(){
+    await loadWeek();
+    setInterval(function(){ if(sectionVisible(config.sectionId)) renderPlayersLB(); }, LB_POLL_MS);
+    setInterval(function(){ if(sectionVisible(config.sectionId)) renderSeasonLB(); }, LB_POLL_MS*2);
+  }
 
-      setInterval(function(){ if(sectionVisible(config.sectionId)) renderPlayersLB(); }, LB_POLL_MS);
-      setInterval(function(){ if(sectionVisible(config.sectionId)) renderSeasonLB(); }, LB_POLL_MS*2);
-    }catch(e){}
-  })();
-
-  // expose reset helpers
-  window[config.prefix+'ResetAll']=function(){
-    localStorage.removeItem(config.prefix+'.players');
-    localStorage.removeItem(config.prefix+'.picks');
-    location.reload();
-  };
-  window[config.prefix+'ClearWeek']=function(){
-    var all = load('picks', {});
-    var weeks = Object.keys(all);
-    if(weeks.length){ delete all[weeks[weeks.length-1]]; save('picks',all); }
-    location.reload();
+  return {
+    boot: boot,
+    refreshBoards: renderAllPlayerBoards,
+    computeRow: computeRow
   };
 }
 
-/* ===== Build leagues ===== */
-var nfl = createLeague({
-  sectionId: 'sec-nfl',
-  prefix: 'nfl',
-  label: 'NFL',
-  logo: cdnNFL,
-  ids: { awayScore: 'awayScoreNFL', homeScore: 'homeScoreNFL', backBtn: 'nfl-backBtn' },
-  nodes: {
-    top: document.getElementById('nfl-top'),
-    splash: document.getElementById('nfl-splash'),
-    tracker: document.getElementById('nfl-tracker'),
-    liveHeader: document.getElementById('nfl-liveHeader'),
-    teamSide: document.getElementById('nfl-teamSide'),
-    playerSelect: document.getElementById('nfl-playerSelect'),
-    addPickBtn: document.getElementById('nfl-addPickBtn'),
-    picksLeft: document.getElementById('nfl-picksLeft'),
-    jump: document.getElementById('nfl-jump'),
-    jumpBtn: document.getElementById('nfl-jumpBtn'),
-    fscore: document.getElementById('nfl-fscore'),
-    flow: document.getElementById('nfl-flow'),
-    clock: document.getElementById('nfl-clock'),
-    q: document.getElementById('nfl-q'),
-    state: document.getElementById('nfl-state'),
-    weekNote: document.getElementById('nfl-weekNote'),
-    gridNote: document.getElementById('nfl-gridNote'),
-    grid: document.getElementById('nfl-grid'),
-    lb: document.getElementById('nfl-lb'),
-    toggleAll: document.getElementById('nfl-toggleAll'),
-    pLB: document.getElementById('nfl-pLB'),
-    pSeason: document.getElementById('nfl-pSeason'),
-    log: document.getElementById('nfl-log'),
-    playersWrap: document.getElementById('nfl-playersWrap'),
-    playersToggle: document.getElementById('nfl-playersToggle'),
-    playersContent: document.getElementById('nfl-playersContent'),
-    newPlayer: document.getElementById('nfl-newPlayer'),
-    addPlayer: document.getElementById('nfl-addPlayer'),
-    clearWeek: document.getElementById('nfl-clearWeek'),
-    playersPanel: document.getElementById('nfl-playersPanel')
-  },
-  endpoints: {
-    scoreboard: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=',
-    summary: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=',
-    box: 'https://cdn.espn.com/core/nfl/boxscore?xhr=1&gameId=',
-    pbp: 'https://cdn.espn.com/core/nfl/playbyplay?xhr=1&gameId=',
-    odds: function(id){ return 'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/'+id+'/competitions/'+id+'/odds'; }
-  }
-});
+/* ===================== BUILD LEAGUES ===================== */
+var NFL = (function(){
+  return createLeague({
+    sectionId: 'sec-nfl', prefix: 'nfl', label:'NFL', logo: cdnNFL,
+    ids: { awayScore:'awayScoreNFL', homeScore:'homeScoreNFL', backBtn:'nfl-backBtn' },
+    nodes: {
+      top:document.getElementById('nfl-top'), splash:document.getElementById('nfl-splash'), tracker:document.getElementById('nfl-tracker'),
+      liveHeader:document.getElementById('nfl-liveHeader'), teamSide:document.getElementById('nfl-teamSide'),
+      addPickBtn:document.getElementById('nfl-addPickBtn'), picksLeft:document.getElementById('nfl-picksLeft'),
+      jump:document.getElementById('nfl-jump'), jumpBtn:document.getElementById('nfl-jumpBtn'),
+      fscore:document.getElementById('nfl-fscore'), flow:document.getElementById('nfl-flow'),
+      clock:document.getElementById('nfl-clock'), q:document.getElementById('nfl-q'), state:document.getElementById('nfl-state'),
+      weekNote:document.getElementById('nfl-weekNote'), gridNote:document.getElementById('nfl-gridNote'), grid:document.getElementById('nfl-grid'),
+      lb:document.getElementById('nfl-lb'), toggleAll:document.getElementById('nfl-toggleAll'),
+      pLB:document.getElementById('nfl-pLB'), pSeason:document.getElementById('nfl-pSeason'), log:document.getElementById('nfl-log')
+    },
+    endpoints: {
+      scoreboard:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=',
+      summary:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=',
+      box:'https://cdn.espn.com/core/nfl/boxscore?xhr=1&gameId=',
+      pbp:'https://cdn.espn.com/core/nfl/playbyplay?xhr=1&gameId=',
+      odds:function(id){ return 'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/'+id+'/competitions/'+id+'/odds'; }
+    }
+  });
+})();
 
-var ncaaf = createLeague({
-  sectionId: 'sec-ncaaf',
-  prefix: 'ncaaf',
-  label: 'NCAA FBS',
-  logo: cdnNCAAF,
-  ids: { awayScore: 'awayScoreNCAAF', homeScore: 'homeScoreNCAAF', backBtn: 'ncaaf-backBtn' },
-  nodes: {
-    top: document.getElementById('ncaaf-top'),
-    splash: document.getElementById('ncaaf-splash'),
-    tracker: document.getElementById('ncaaf-tracker'),
-    liveHeader: document.getElementById('ncaaf-liveHeader'),
-    teamSide: document.getElementById('ncaaf-teamSide'),
-    playerSelect: document.getElementById('ncaaf-playerSelect'),
-    addPickBtn: document.getElementById('ncaaf-addPickBtn'),
-    picksLeft: document.getElementById('ncaaf-picksLeft'),
-    jump: document.getElementById('ncaaf-jump'),
-    jumpBtn: document.getElementById('ncaaf-jumpBtn'),
-    fscore: document.getElementById('ncaaf-fscore'),
-    flow: document.getElementById('ncaaf-flow'),
-    clock: document.getElementById('ncaaf-clock'),
-    q: document.getElementById('ncaaf-q'),
-    state: document.getElementById('ncaaf-state'),
-    weekNote: document.getElementById('ncaaf-weekNote'),
-    gridNote: document.getElementById('ncaaf-gridNote'),
-    grid: document.getElementById('ncaaf-grid'),
-    lb: document.getElementById('ncaaf-lb'),
-    toggleAll: document.getElementById('ncaaf-toggleAll'),
-    pLB: document.getElementById('ncaaf-pLB'),
-    pSeason: document.getElementById('ncaaf-pSeason'),
-    log: document.getElementById('ncaaf-log'),
-    playersWrap: document.getElementById('ncaaf-playersWrap'),
-    playersToggle: document.getElementById('ncaaf-playersToggle'),
-    playersContent: document.getElementById('ncaaf-playersContent'),
-    newPlayer: document.getElementById('ncaaf-newPlayer'),
-    addPlayer: document.getElementById('ncaaf-addPlayer'),
-    clearWeek: document.getElementById('ncaaf-clearWeek'),
-    playersPanel: document.getElementById('ncaaf-playersPanel')
-  },
-  endpoints: {
-    scoreboard: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=',
-    summary: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=',
-    box: 'https://cdn.espn.com/core/college-football/boxscore?xhr=1&gameId=',
-    pbp: 'https://cdn.espn.com/core/college-football/playbyplay?xhr=1&gameId=',
-    odds: function(id){ return 'https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/'+id+'/competitions/'+id+'/odds'; }
-  }
-});
+var NCAAF = (function(){
+  return createLeague({
+    sectionId: 'sec-ncaaf', prefix: 'ncaaf', label:'NCAA FBS', logo: cdnNCAAF,
+    ids: { awayScore:'awayScoreNCAAF', homeScore:'homeScoreNCAAF', backBtn:'ncaaf-backBtn' },
+    nodes: {
+      top:document.getElementById('ncaaf-top'), splash:document.getElementById('ncaaf-splash'), tracker:document.getElementById('ncaaf-tracker'),
+      liveHeader:document.getElementById('ncaaf-liveHeader'), teamSide:document.getElementById('ncaaf-teamSide'),
+      addPickBtn:document.getElementById('ncaaf-addPickBtn'), picksLeft:document.getElementById('ncaaf-picksLeft'),
+      jump:document.getElementById('ncaaf-jump'), jumpBtn:document.getElementById('ncaaf-jumpBtn'),
+      fscore:document.getElementById('ncaaf-fscore'), flow:document.getElementById('ncaaf-flow'),
+      clock:document.getElementById('ncaaf-clock'), q:document.getElementById('ncaaf-q'), state:document.getElementById('ncaaf-state'),
+      weekNote:document.getElementById('ncaaf-weekNote'), gridNote:document.getElementById('ncaaf-gridNote'), grid:document.getElementById('ncaaf-grid'),
+      lb:document.getElementById('ncaaf-lb'), toggleAll:document.getElementById('ncaaf-toggleAll'),
+      pLB:document.getElementById('ncaaf-pLB'), pSeason:document.getElementById('ncaaf-pSeason'), log:document.getElementById('ncaaf-log')
+    },
+    endpoints: {
+      scoreboard:'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=',
+      summary:'https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=',
+      box:'https://cdn.espn.com/core/college-football/boxscore?xhr=1&gameId=',
+      pbp:'https://cdn.espn.com/core/college-football/playbyplay?xhr=1&gameId=',
+      odds:function(id){ return 'https://sports.core.api.espn.com/v2/sports/football/leagues/college-football/events/'+id+'/competitions/'+id+'/odds'; }
+    }
+  });
+})();
 
 /* Tabs */
 var tabNFL=document.getElementById('tab-nfl'), tabNCAAF=document.getElementById('tab-ncaaf');
 var secNFL=document.getElementById('sec-nfl'), secNCAAF=document.getElementById('sec-ncaaf');
-function selectTab(which){
-  if(which==='nfl'){
-    tabNFL.setAttribute('aria-selected','true'); tabNCAAF.setAttribute('aria-selected','false');
-    secNFL.classList.add('active'); secNCAAF.classList.remove('active');
-  }else{
-    tabNFL.setAttribute('aria-selected','false'); tabNCAAF.setAttribute('aria-selected','true');
-    secNFL.classList.remove('active'); secNCAAF.classList.add('active');
-  }
-}
+function selectTab(which){ if(which==='nfl'){ tabNFL.setAttribute('aria-selected','true'); tabNCAAF.setAttribute('aria-selected','false'); secNFL.classList.add('active'); secNCAAF.classList.remove('active'); } else { tabNFL.setAttribute('aria-selected','false'); tabNCAAF.setAttribute('aria-selected','true'); secNFL.classList.remove('active'); secNCAAF.classList.add('active'); } }
 tabNFL.addEventListener('click',function(){ selectTab('nfl'); });
 tabNCAAF.addEventListener('click',function(){ selectTab('ncaaf'); });
+
+/* One-time boot after auth (so picks reflect the user) */
+var _booted=false;
+async function bootOnce(){ if(_booted) return; _booted=true; await NFL.boot(); await NCAAF.boot(); }
+
+/* Manual refresh of player boards (after saving name) */
+async function renderAllPlayerBoards(){ await NFL.refreshBoards(); await NCAAF.refreshBoards(); }
 </script>
 </body>
 </html>
