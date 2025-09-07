@@ -196,7 +196,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SB_URL  = "https://zrsqxylrcblcvtomamgd.supabase.co";
-const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyc3F4eWxyY2JsY3Z0b21hbWdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNDAzOTYsImV4cCI6MjA3MjgxNjM5Nn0._H00AQ0VCLs3fkM2lKaWV-I4n9qKf51yjKmorxnonzw";
+const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyc3F4eWxyY2JsY3Z0b21hbWdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNDAzOTYsImV4cCI6MjA3MjgxNjM5Nn0._H00AQ0VCLs3fkM2lKaWV-I4n9qKf51yjKmorxnonzw
+";
 
 const sb = createClient(SB_URL, SB_ANON);
 window.sb = sb; // for quick debugging
@@ -806,4 +807,5 @@ async function updatePicksLeft(){
 
 </body>
 </html>
+
 
